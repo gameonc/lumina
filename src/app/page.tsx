@@ -286,11 +286,18 @@ export default function Home() {
       <header className="pt-20 pb-16 px-6 text-center max-w-5xl mx-auto space-y-8">
         <div className="flex flex-col items-center gap-4">
           <div className="flex -space-x-2">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
-                className="w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br from-emerald-400 to-teal-500 overflow-hidden"
-              />
+                className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 123}`}
+                  alt="User avatar"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             ))}
           </div>
           <p className="text-sm font-medium text-slate-500">
