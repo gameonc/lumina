@@ -3,26 +3,153 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFileUpload } from "@/hooks/use-file-upload";
-import { formatBytes } from "@/lib/utils";
 import {
-  Sparkles,
-  CheckCircle2,
   FileSpreadsheet,
-  BarChart3,
   LayoutDashboard,
   FileText,
   ChevronDown,
   ChevronUp,
   Menu,
   X,
+  TrendingUp,
   Users,
   PieChart,
   ArrowUpRight,
   Activity,
+  CheckCircle2,
+  Zap,
+  CreditCard,
   Upload,
   Loader2,
   AlertCircle,
 } from "lucide-react";
+
+// --- PRICING MODAL COMPONENT ---
+interface PricingModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpgrade: () => void;
+}
+
+const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose, onUpgrade }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
+      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col md:flex-row">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors z-10"
+        >
+          <X className="w-5 h-5 text-slate-600" />
+        </button>
+
+        {/* Left Side - Value Prop */}
+        <div className="bg-slate-900 p-8 md:p-12 text-white md:w-2/5 flex flex-col justify-between">
+          <div>
+            <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-xl mb-6">
+              <Zap className="w-8 h-8 text-yellow-400" />
+            </div>
+            <h2 className="text-3xl font-bold mb-4">Upgrade to Pro</h2>
+            <p className="text-slate-400 text-lg leading-relaxed mb-8">
+              Unlock the full power of AI data analysis. Generate unlimited reports and access advanced insights.
+            </p>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span className="font-medium">Unlimited Data Uploads</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span className="font-medium">Export to PowerPoint</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span className="font-medium">Advanced AI Chat</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span className="font-medium">Priority Support</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-white/10">
+            <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-2">Trusted By</p>
+            <div className="flex gap-4 opacity-50 grayscale">
+              <div className="w-8 h-8 rounded-full bg-white/20"></div>
+              <div className="w-8 h-8 rounded-full bg-white/20"></div>
+              <div className="w-8 h-8 rounded-full bg-white/20"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Plans */}
+        <div className="p-8 md:p-12 md:w-3/5 bg-white">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-slate-900">Choose your plan</h3>
+            <p className="text-slate-500">Simple pricing, cancel anytime.</p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Free Plan */}
+            <div className="border border-slate-200 rounded-xl p-4 opacity-60 flex items-center justify-between">
+              <div>
+                <span className="font-bold text-slate-700">Free Starter</span>
+                <p className="text-xs text-slate-500">5 credits / month</p>
+              </div>
+              <span className="text-xl font-bold text-slate-900">$0</span>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="border-2 border-blue-600 bg-blue-50/30 rounded-xl p-6 relative">
+              <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-sm">
+                MOST POPULAR
+              </div>
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h4 className="font-bold text-lg text-slate-900">Pro Analyst</h4>
+                  <p className="text-sm text-slate-500">Perfect for professionals</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-slate-900">$19</div>
+                  <span className="text-xs text-slate-500">/ month</span>
+                </div>
+              </div>
+              <ul className="space-y-2 mb-6 text-sm text-slate-600">
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 500 Credits per month</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Advanced Visualizations</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Remove Watermark</li>
+              </ul>
+              <button
+                onClick={onUpgrade}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-200"
+              >
+                <CreditCard className="w-4 h-4" />
+                Upgrade Now
+              </button>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors flex items-center justify-between cursor-pointer">
+              <div>
+                <span className="font-bold text-slate-700">Enterprise</span>
+                <p className="text-xs text-slate-500">Unlimited & Custom API</p>
+              </div>
+              <span className="text-lg font-bold text-slate-900">Contact Us</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // --- UPLOAD MODAL COMPONENT ---
 const UploadModal = ({
@@ -34,14 +161,7 @@ const UploadModal = ({
   onClose: () => void;
   onSuccess: (data: any, file: File) => void;
 }) => {
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    parsedData,
-    error,
-    file,
-  } = useFileUpload({
+  const { getRootProps, getInputProps, isDragActive, error } = useFileUpload({
     onSuccess: (data, uploadedFile) => {
       onSuccess(data, uploadedFile);
     },
@@ -54,10 +174,7 @@ const UploadModal = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 p-8">
         <button
           onClick={onClose}
@@ -67,9 +184,7 @@ const UploadModal = ({
         </button>
 
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-900">
-            Upload your spreadsheet
-          </h2>
+          <h2 className="text-2xl font-bold text-slate-900">Upload your spreadsheet</h2>
           <p className="text-slate-500 mt-2 text-sm">
             Drop your Excel or CSV file and we&apos;ll transform it into insights
           </p>
@@ -110,13 +225,14 @@ const UploadModal = ({
   );
 };
 
-// --- MAIN LANDING PAGE ---
-export default function Home() {
+// --- MAIN LANDING PAGE COMPONENT ---
+export default function LandingPage() {
   const router = useRouter();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
 
   const handleUploadSuccess = async (data: any, file: File) => {
     setIsUploadOpen(false);
@@ -154,16 +270,18 @@ export default function Home() {
         analysisTime: ((Date.now() - startTime) / 1000).toFixed(1),
       };
 
-      sessionStorage.setItem(
-        `analysis-${datasetId}`,
-        JSON.stringify(analysisData)
-      );
+      sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));
       router.push(`/results/${datasetId}`);
     } catch (err) {
       console.error("Analysis error:", err);
       setIsAnalyzing(false);
       alert("Failed to analyze data. Please try again.");
     }
+  };
+
+  const openUpload = () => {
+    setIsUploadOpen(true);
+    setIsMobileMenuOpen(false);
   };
 
   const faqs = [
@@ -186,97 +304,69 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-indigo-100">
       {/* Analyzing Overlay */}
       {isAnalyzing && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/90 backdrop-blur-sm">
           <div className="text-center">
             <Loader2 className="h-12 w-12 animate-spin text-emerald-600 mx-auto" />
-            <h3 className="mt-4 text-xl font-bold text-slate-900">
-              Analyzing your data...
-            </h3>
-            <p className="mt-2 text-slate-500">
-              This usually takes 3-8 seconds
-            </p>
+            <h3 className="mt-4 text-xl font-bold text-slate-900">Analyzing your data...</h3>
+            <p className="mt-2 text-slate-500">This usually takes 3-8 seconds</p>
           </div>
         </div>
       )}
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-            <div className="bg-slate-900 text-white p-1.5 rounded-lg">
+          <div
+            className="flex items-center gap-2 font-bold text-xl tracking-tight cursor-pointer"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <div className="bg-slate-900 text-white p-1.5 rounded-lg shadow-lg shadow-slate-900/20">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             Lumina
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-            <button
-              onClick={() =>
-                window.scrollTo({ top: 800, behavior: "smooth" })
-              }
-              className="hover:text-slate-900 transition-colors"
-            >
+            <button onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })} className="hover:text-slate-900 transition-colors">
               Features
             </button>
-            <button
-              onClick={() =>
-                window.scrollTo({ top: 2000, behavior: "smooth" })
-              }
-              className="hover:text-slate-900 transition-colors"
-            >
+            <button onClick={() => window.scrollTo({ top: 2000, behavior: "smooth" })} className="hover:text-slate-900 transition-colors">
               FAQ
             </button>
+            <button onClick={() => setShowPricing(true)} className="hover:text-slate-900 transition-colors">
+              Pricing
+            </button>
             <button
-              onClick={() => setIsUploadOpen(true)}
-              className="bg-slate-900 text-white px-5 py-2.5 rounded-full hover:bg-slate-800 transition-all hover:shadow-lg"
+              onClick={openUpload}
+              className="bg-slate-900 text-white px-5 py-2.5 rounded-full hover:bg-slate-800 transition-all hover:shadow-lg active:scale-95"
             >
               Get Started
             </button>
           </div>
-          <button
-            className="md:hidden p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-slate-900" />
-            ) : (
-              <Menu className="w-6 h-6 text-slate-900" />
-            )}
+
+          <button className="md:hidden p-2 text-slate-600" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-slate-100 p-4 space-y-3">
-            <button
-              onClick={() => {
-                window.scrollTo({ top: 800, behavior: "smooth" });
-                setMobileMenuOpen(false);
-              }}
-              className="block w-full text-left px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg"
-            >
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-100 p-4 shadow-xl flex flex-col gap-4 animate-in slide-in-from-top-5">
+            <button onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })} className="text-left py-2 font-medium text-slate-600">
               Features
             </button>
-            <button
-              onClick={() => {
-                window.scrollTo({ top: 2000, behavior: "smooth" });
-                setMobileMenuOpen(false);
-              }}
-              className="block w-full text-left px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg"
-            >
+            <button onClick={() => window.scrollTo({ top: 2000, behavior: "smooth" })} className="text-left py-2 font-medium text-slate-600">
               FAQ
             </button>
-            <button
-              onClick={() => {
-                setIsUploadOpen(true);
-                setMobileMenuOpen(false);
-              }}
-              className="block w-full bg-slate-900 text-white px-4 py-2.5 rounded-lg text-center font-medium"
-            >
-              Get Started
+            <button onClick={() => setShowPricing(true)} className="text-left py-2 font-medium text-slate-600">
+              Pricing
+            </button>
+            <hr className="border-slate-100" />
+            <button onClick={openUpload} className="bg-slate-900 text-white py-3 rounded-lg font-bold text-center">
+              Get Started Free
             </button>
           </div>
         )}
@@ -284,61 +374,41 @@ export default function Home() {
 
       {/* Hero Section */}
       <header className="pt-20 pb-16 px-6 text-center max-w-5xl mx-auto space-y-8">
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="flex -space-x-2">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden"
-              >
+              <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 123}`}
-                  alt="User avatar"
-                  className="w-full h-full object-cover"
-                />
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 123}`} alt="User" className="w-full h-full" />
               </div>
             ))}
           </div>
-          <p className="text-sm font-medium text-slate-500">
-            Used by 1,353 happy customers
-          </p>
+          <p className="text-sm font-medium text-slate-500">Used by 1,353 happy customers</p>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1]">
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1] animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
           Transform your Excel into a <br className="hidden md:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
-            professional data presentation
-          </span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">professional data presentation</span>
         </h1>
 
-        <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
-          Unlock the potential of your Excel data with our AI-powered
-          storytelling and presentation generator.
+        <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+          Unlock the potential of your Excel data with our AI-powered storytelling and presentation generator.
         </p>
 
-        <button
-          onClick={() => setIsUploadOpen(true)}
-          className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-slate-900 rounded-full hover:bg-slate-800 hover:shadow-2xl hover:-translate-y-1"
-        >
-          Get Started
-          <svg
-            className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+          <button
+            onClick={openUpload}
+            className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-slate-900 rounded-full hover:bg-slate-800 hover:shadow-2xl hover:-translate-y-1 active:translate-y-0 active:scale-95"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-            />
-          </svg>
-        </button>
+            Get Started
+            <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </div>
 
         {/* Hero Mockup Visual */}
-        <div className="mt-16 relative mx-auto max-w-5xl shadow-2xl rounded-2xl border border-slate-200 bg-white overflow-hidden">
+        <div className="mt-16 relative mx-auto max-w-5xl shadow-2xl rounded-2xl border border-slate-200 bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-blue-500/10"></div>
           <div className="relative bg-slate-900/5 p-1 pb-0 rounded-t-2xl">
             {/* Fake Window Controls */}
@@ -348,13 +418,11 @@ export default function Home() {
                 <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                 <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
               </div>
-              <div className="mx-auto text-xs font-medium text-slate-400">
-                Lumina Dashboard
-              </div>
+              <div className="mx-auto text-xs font-medium text-slate-400">Lumina Dashboard</div>
             </div>
             {/* Dashboard Content Mockup */}
             <div className="bg-slate-50 p-6 grid grid-cols-12 gap-6 min-h-[450px]">
-              {/* Sidebar - Realistic */}
+              {/* Sidebar */}
               <div className="col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex-col hidden md:flex">
                 <div className="flex items-center gap-2 font-bold text-slate-800 mb-8 px-2">
                   <div className="w-6 h-6 bg-indigo-600 rounded-md"></div>
@@ -371,14 +439,14 @@ export default function Home() {
                     <FileText className="w-4 h-4" /> Reports
                   </div>
                 </div>
+                {/* Profile Section */}
                 <div className="mt-auto">
-                  <div className="bg-slate-100 rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-white rounded-full border border-slate-200"></div>
-                      <div>
-                        <div className="w-16 h-2 bg-slate-300 rounded mb-1"></div>
-                        <div className="w-10 h-2 bg-slate-200 rounded"></div>
-                      </div>
+                  <div className="bg-slate-50 rounded-lg p-3 flex items-center gap-3 border border-slate-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" className="w-8 h-8 rounded-full bg-white border border-slate-200" alt="User" />
+                    <div>
+                      <div className="text-xs font-bold text-slate-700">Alex Morgan</div>
+                      <div className="text-[10px] text-slate-400 font-medium">Pro Plan</div>
                     </div>
                   </div>
                 </div>
@@ -386,9 +454,8 @@ export default function Home() {
 
               {/* Main Content Area */}
               <div className="col-span-12 md:col-span-9 space-y-6">
-                {/* Top Stats Cards - Realistic */}
+                {/* Top Stats Cards */}
                 <div className="grid grid-cols-3 gap-4">
-                  {/* Card 1 */}
                   <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-28">
                     <div className="flex justify-between items-start">
                       <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
@@ -399,15 +466,10 @@ export default function Home() {
                       </span>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-                        Total Revenue
-                      </p>
-                      <h4 className="text-xl font-bold text-slate-900">
-                        $128,430
-                      </h4>
+                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Revenue</p>
+                      <h4 className="text-xl font-bold text-slate-900">$128,430</h4>
                     </div>
                   </div>
-                  {/* Card 2 */}
                   <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-28">
                     <div className="flex justify-between items-start">
                       <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
@@ -418,15 +480,10 @@ export default function Home() {
                       </span>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-                        Active Users
-                      </p>
-                      <h4 className="text-xl font-bold text-slate-900">
-                        24,593
-                      </h4>
+                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Active Users</p>
+                      <h4 className="text-xl font-bold text-slate-900">24,593</h4>
                     </div>
                   </div>
-                  {/* Card 3 */}
                   <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between h-28">
                     <div className="flex justify-between items-start">
                       <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
@@ -437,26 +494,18 @@ export default function Home() {
                       </span>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-                        Bounce Rate
-                      </p>
-                      <h4 className="text-xl font-bold text-slate-900">
-                        42.8%
-                      </h4>
+                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Bounce Rate</p>
+                      <h4 className="text-xl font-bold text-slate-900">42.8%</h4>
                     </div>
                   </div>
                 </div>
 
-                {/* Main Chart Area - Realistic */}
+                {/* Main Chart Area */}
                 <div className="h-64 bg-white rounded-xl shadow-sm border border-slate-200 p-5 relative">
                   <div className="flex justify-between items-center mb-6">
                     <div>
-                      <h5 className="font-bold text-slate-800 text-sm">
-                        Revenue Overview
-                      </h5>
-                      <p className="text-xs text-slate-400">
-                        Monthly performance vs targets
-                      </p>
+                      <h5 className="font-bold text-slate-800 text-sm">Revenue Overview</h5>
+                      <p className="text-xs text-slate-400">Monthly performance vs targets</p>
                     </div>
                     <div className="flex gap-2">
                       <div className="w-20 h-8 bg-slate-50 rounded-lg border border-slate-100"></div>
@@ -464,9 +513,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* The Chart Visualization */}
                   <div className="relative h-40 w-full flex items-end justify-between gap-2 px-2 pb-6 border-b border-slate-100">
-                    {/* Grid Lines */}
                     <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                       <div className="w-full h-px bg-slate-50"></div>
                       <div className="w-full h-px bg-slate-50"></div>
@@ -474,35 +521,26 @@ export default function Home() {
                       <div className="w-full h-px bg-slate-50"></div>
                     </div>
 
-                    {/* Y-Axis Labels */}
                     <div className="absolute -left-6 top-0 bottom-6 flex flex-col justify-between text-[10px] text-slate-300 font-medium text-right w-4">
                       <span>100k</span>
                       <span>50k</span>
                       <span>0</span>
                     </div>
 
-                    {/* Bars */}
-                    {[35, 55, 45, 70, 65, 85, 60, 75, 90, 65, 50, 80].map(
-                      (h, i) => (
+                    {[35, 55, 45, 70, 65, 85, 60, 75, 90, 65, 50, 80].map((h, i) => (
+                      <div key={i} className="relative group w-full h-full flex items-end">
                         <div
-                          key={i}
-                          className="relative group w-full h-full flex items-end"
-                        >
-                          <div
-                            className="w-full bg-indigo-500 rounded-t-sm transition-all group-hover:bg-indigo-600 group-hover:scale-y-105 origin-bottom"
-                            style={{ height: `${h}%`, opacity: 0.8 + i / 20 }}
-                          ></div>
-                          {/* Tooltip on Hover */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                            <div className="bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">
-                              ${(h * 1.4).toFixed(1)}k
-                            </div>
+                          className="w-full bg-indigo-500 rounded-t-sm transition-all group-hover:bg-indigo-600 group-hover:scale-y-105 origin-bottom"
+                          style={{ height: `${h}%`, opacity: 0.8 + i / 20 }}
+                        ></div>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                          <div className="bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                            ${(h * 1.4).toFixed(1)}k
                           </div>
                         </div>
-                      )
-                    )}
+                      </div>
+                    ))}
 
-                    {/* X-Axis Labels */}
                     <div className="absolute bottom-0 left-2 right-2 flex justify-between text-[10px] text-slate-400 font-medium pt-2">
                       <span>Jan</span>
                       <span>Mar</span>
@@ -520,14 +558,11 @@ export default function Home() {
       </header>
 
       {/* Feature Section 1 */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Unlock the power of your data
-          </h2>
+          <h2 className="text-4xl font-bold text-slate-900 mb-4">Unlock the power of your data</h2>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Lumina doesn&apos;t just turn spreadsheets into visual reports — it
-            acts like an analyst, interpreting your data.
+            Lumina doesn&apos;t just turn spreadsheets into visual reports — it acts like an analyst, interpreting your data.
           </p>
         </div>
 
@@ -535,42 +570,57 @@ export default function Home() {
           <div className="order-2 md:order-1 bg-slate-50 rounded-2xl p-8 border border-slate-100 relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 h-64 flex items-center justify-center relative">
-              <div className="absolute inset-x-8 bottom-0 top-12 flex items-end gap-1">
-                {[30, 45, 35, 60, 55, 70, 65, 80, 75, 90].map((h, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 bg-purple-500 rounded-t-md opacity-90 hover:opacity-100 transition-all hover:scale-y-110 origin-bottom"
-                    style={{ height: `${h}%` }}
-                  ></div>
-                ))}
-              </div>
-              {/* Floating Tooltip */}
-              <div className="absolute top-1/3 left-1/2 bg-slate-900 text-white text-xs py-1 px-2 rounded shadow-lg -translate-x-1/2">
-                Revenue: $42,000
+              {/* Revenue Chart Mockup */}
+              <div className="absolute inset-0 p-6 flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <div className="text-xs text-slate-400 uppercase font-bold tracking-wider">Monthly Revenue</div>
+                    <div className="text-2xl font-bold text-slate-900">$42,593</div>
+                  </div>
+                  <div className="flex items-center gap-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full text-xs font-bold">
+                    +18.2% <TrendingUp className="w-3 h-3" />
+                  </div>
+                </div>
+
+                <div className="flex-1 flex items-end gap-1.5 pb-2 border-b border-slate-100">
+                  {[30, 45, 35, 60, 55, 70, 65, 80, 75, 90, 85, 95].map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 bg-purple-500 rounded-t-sm opacity-90 hover:opacity-100 transition-all hover:scale-y-105 origin-bottom relative group"
+                      style={{ height: `${h}%` }}
+                    >
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-slate-700 bg-white border border-slate-200 px-1 py-0.5 rounded shadow-sm">
+                        ${(h * 0.5).toFixed(0)}k
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-between text-[10px] text-slate-400 font-medium pt-2">
+                  <span>Jan</span>
+                  <span>Mar</span>
+                  <span>May</span>
+                  <span>Jul</span>
+                  <span>Sep</span>
+                  <span>Dec</span>
+                </div>
               </div>
             </div>
           </div>
           <div className="order-1 md:order-2 space-y-6">
-            <h3 className="text-3xl font-bold text-slate-900">
-              Interactive Charts — Explore, filter, and highlight what matters.
-            </h3>
+            <h3 className="text-3xl font-bold text-slate-900">Interactive Charts — Explore, filter, and highlight what matters.</h3>
             <p className="text-slate-500 text-lg leading-relaxed">
-              Charts in Lumina aren&apos;t static images. You can click, explore,
-              and dig deeper into the numbers — making it easier to find
-              insights.
+              Charts in Lumina aren&apos;t static images. You can click, explore, and dig deeper into the numbers — making it easier to find insights.
             </p>
             <ul className="space-y-3">
               <li className="flex items-center gap-3 text-slate-700">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />{" "}
-                <span>Dynamic filtering</span>
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" /> <span>Dynamic filtering</span>
               </li>
               <li className="flex items-center gap-3 text-slate-700">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />{" "}
-                <span>Drill-down capabilities</span>
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" /> <span>Drill-down capabilities</span>
               </li>
               <li className="flex items-center gap-3 text-slate-700">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />{" "}
-                <span>Instant formatting</span>
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" /> <span>Instant formatting</span>
               </li>
             </ul>
           </div>
@@ -581,40 +631,57 @@ export default function Home() {
       <section className="py-24 bg-slate-50">
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <h3 className="text-3xl font-bold text-slate-900">
-              Edit in PowerPoint — Make it yours with your tools.
-            </h3>
+            <h3 className="text-3xl font-bold text-slate-900">Edit in PowerPoint — Make it yours with your tools.</h3>
             <p className="text-slate-500 text-lg leading-relaxed">
-              Export your report to PowerPoint or your favorite editor. You&apos;re
-              free to tweak every slide or drop it straight into your workflow,
-              fully editable.
+              Export your report to PowerPoint or your favorite editor. You&apos;re free to tweak every slide or drop it straight into your workflow, fully editable.
             </p>
-            <button
-              onClick={() => setIsUploadOpen(true)}
-              className="text-slate-900 font-bold flex items-center gap-2 hover:gap-3 transition-all"
-            >
-              Generate Presentation <span className="text-xl">→</span>
+            <button onClick={openUpload} className="text-slate-900 font-bold flex items-center gap-2 hover:gap-3 transition-all group">
+              Generate Presentation <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
             </button>
           </div>
           <div className="flex justify-center">
-            <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 w-full max-w-md relative">
+            <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 w-full max-w-md relative hover:shadow-2xl transition-shadow duration-300">
               <div className="absolute -top-4 -right-4 bg-orange-500 text-white p-3 rounded-xl shadow-lg">
                 <FileText className="w-6 h-6" />
               </div>
-              <div className="space-y-4">
-                <div className="h-4 w-1/3 bg-slate-100 rounded"></div>
-                <div className="h-8 w-3/4 bg-slate-100 rounded"></div>
-                <div className="h-32 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-center">
-                  <span className="text-orange-400 font-medium">
-                    Editable Chart Area
-                  </span>
+              <div className="space-y-5">
+                {/* PPT Slide Header */}
+                <div className="border-b border-slate-100 pb-4">
+                  <div className="text-lg font-bold text-slate-800 leading-tight">Q3 Financial Performance</div>
+                  <div className="text-sm text-slate-500">Executive Summary & Forecast</div>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-3 w-full bg-slate-50 rounded"></div>
-                  <div className="h-3 w-5/6 bg-slate-50 rounded"></div>
+
+                <div className="h-32 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-center relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <div className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">Click to Edit</div>
+                  </div>
+                  <div className="flex items-end gap-1 h-20 w-32 opacity-50">
+                    <div className="w-4 bg-orange-400 h-10 rounded-t-sm"></div>
+                    <div className="w-4 bg-orange-400 h-16 rounded-t-sm"></div>
+                    <div className="w-4 bg-orange-400 h-12 rounded-t-sm"></div>
+                    <div className="w-4 bg-orange-400 h-20 rounded-t-sm"></div>
+                    <div className="w-4 bg-orange-400 h-14 rounded-t-sm"></div>
+                  </div>
                 </div>
+
+                {/* Bullet Points */}
+                <div className="space-y-3 pt-1">
+                  <div className="flex gap-2.5 items-start">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0"></div>
+                    <div className="text-xs text-slate-600 leading-relaxed">
+                      Revenue exceeded projections by <span className="font-bold text-emerald-600">15%</span> driven by strong enterprise sales.
+                    </div>
+                  </div>
+                  <div className="flex gap-2.5 items-start">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0"></div>
+                    <div className="text-xs text-slate-600 leading-relaxed">
+                      Customer acquisition cost dropped to <span className="font-bold text-blue-600">$45</span> per user, improving margins.
+                    </div>
+                  </div>
+                </div>
+
                 <div className="pt-4">
-                  <button className="w-full py-3 border border-slate-200 rounded-lg text-slate-600 font-medium flex items-center justify-center gap-2 bg-slate-50">
+                  <button className="w-full py-3 border border-slate-200 rounded-lg text-slate-600 font-medium flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 transition-colors">
                     <FileText className="w-4 h-4" />
                     Edit in PowerPoint
                   </button>
@@ -628,32 +695,19 @@ export default function Home() {
       {/* FAQ Section */}
       <section className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-slate-900 text-center mb-12">
-            Frequently Asked Questions
-          </h2>
+          <h2 className="text-4xl font-bold text-slate-900 text-center mb-12">Frequently Asked Questions</h2>
           <div className="space-y-4">
             {faqs.map((faq, i) => (
-              <div
-                key={i}
-                className="border border-slate-200 rounded-xl overflow-hidden"
-              >
+              <div key={i} className="border border-slate-200 rounded-xl overflow-hidden group">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between p-6 text-left bg-white hover:bg-slate-50 transition-colors"
                 >
-                  <span className="font-semibold text-slate-900 text-lg">
-                    {faq.q}
-                  </span>
-                  {openFaq === i ? (
-                    <ChevronUp className="w-5 h-5 text-slate-400" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-slate-400" />
-                  )}
+                  <span className="font-semibold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">{faq.q}</span>
+                  {openFaq === i ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
                 </button>
                 {openFaq === i && (
-                  <div className="p-6 pt-0 text-slate-600 leading-relaxed animate-in slide-in-from-top-2">
-                    {faq.a}
-                  </div>
+                  <div className="p-6 pt-0 text-slate-600 leading-relaxed animate-in slide-in-from-top-2">{faq.a}</div>
                 )}
               </div>
             ))}
@@ -671,27 +725,23 @@ export default function Home() {
               </div>
               Lumina
             </div>
-            <p className="max-w-xs text-sm">
-              Transform your spreadsheets into professional data presentations
-              with AI-powered insights.
-            </p>
+            <p className="max-w-xs text-sm">Transform your spreadsheets into professional data presentations with AI-powered insights.</p>
           </div>
           <div>
             <h4 className="font-bold text-white mb-4">Menu</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  className="hover:text-white text-left"
-                >
+                <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="hover:text-white text-left transition-colors">
                   Home
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => setIsUploadOpen(true)}
-                  className="hover:text-white text-left"
-                >
+                <button onClick={() => setShowPricing(true)} className="hover:text-white text-left transition-colors">
+                  Pricing
+                </button>
+              </li>
+              <li>
+                <button onClick={openUpload} className="hover:text-white text-left transition-colors">
                   Get Started
                 </button>
               </li>
@@ -701,29 +751,29 @@ export default function Home() {
             <h4 className="font-bold text-white mb-4">Policies</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <button className="hover:text-white text-left">
-                  Privacy Policy
-                </button>
+                <button className="hover:text-white text-left transition-colors">Privacy Policy</button>
               </li>
               <li>
-                <button className="hover:text-white text-left">
-                  Terms of Service
-                </button>
+                <button className="hover:text-white text-left transition-colors">Terms of Service</button>
               </li>
             </ul>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 pt-12 mt-12 border-t border-slate-800 text-sm text-center md:text-left">
-          © 2024 Lumina Data Insights. All rights reserved.
+        <div className="max-w-7xl mx-auto px-6 pt-12 mt-12 border-t border-slate-800 text-sm text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
+          <span>© 2024 Lumina Data Insights. All rights reserved.</span>
+          <div className="flex gap-4">
+            <div className="w-5 h-5 bg-slate-800 rounded-full hover:bg-slate-700 cursor-pointer"></div>
+            <div className="w-5 h-5 bg-slate-800 rounded-full hover:bg-slate-700 cursor-pointer"></div>
+            <div className="w-5 h-5 bg-slate-800 rounded-full hover:bg-slate-700 cursor-pointer"></div>
+          </div>
         </div>
       </footer>
 
       {/* Upload Modal */}
-      <UploadModal
-        isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
-        onSuccess={handleUploadSuccess}
-      />
+      <UploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} onSuccess={handleUploadSuccess} />
+
+      {/* Pricing Modal */}
+      <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} onUpgrade={() => setShowPricing(false)} />
     </div>
   );
 }
