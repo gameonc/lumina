@@ -17,6 +17,11 @@ import {
   X,
   Zap,
   CheckCircle2,
+  Clock,
+  TrendingUp,
+  FileText,
+  HelpCircle,
+  BarChart3,
 } from "lucide-react";
 
 // --- PRICING MODAL COMPONENT ---
@@ -111,6 +116,7 @@ export default function DashboardPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [showPricing, setShowPricing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "settings">("dashboard");
 
   const {
     getRootProps,
@@ -214,11 +220,17 @@ export default function DashboardPage() {
               Lumina
             </div>
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-              <button className="flex items-center gap-2 text-slate-900">
+              <button
+                onClick={() => setActiveTab("dashboard")}
+                className={`flex items-center gap-2 transition-colors ${activeTab === "dashboard" ? "text-slate-900" : "hover:text-slate-900"}`}
+              >
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
               </button>
-              <button className="flex items-center gap-2 hover:text-slate-900 transition-colors">
+              <button
+                onClick={() => setActiveTab("settings")}
+                className={`flex items-center gap-2 transition-colors ${activeTab === "settings" ? "text-slate-900" : "hover:text-slate-900"}`}
+              >
                 <Settings className="w-4 h-4" />
                 Settings
               </button>
@@ -248,142 +260,288 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-12 flex-1">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">Upload Your Spreadsheet</h1>
-          <p className="mt-2 text-slate-500">Drop your Excel or CSV file and watch the magic happen</p>
-        </div>
-
-        {!parsedData && (
-          <div
-            {...getRootProps()}
-            className={`cursor-pointer rounded-2xl border-2 border-dashed p-16 text-center transition-all ${
-              isDragActive
-                ? "border-emerald-500 bg-emerald-50"
-                : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50"
-            }`}
-          >
-            <input {...getInputProps()} />
-            <div className="flex justify-center mb-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
-                <Upload className="h-8 w-8 text-slate-500" />
-              </div>
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900">
-              {isDragActive ? "Drop your file here" : "Drag and drop your file"}
-            </h3>
-            <p className="mt-2 text-sm text-slate-500">or click to browse</p>
-            <div className="mt-4 flex justify-center gap-2 text-xs text-slate-400">
-              <span className="rounded bg-slate-100 px-2 py-1">.xlsx</span>
-              <span className="rounded bg-slate-100 px-2 py-1">.xls</span>
-              <span className="rounded bg-slate-100 px-2 py-1">.csv</span>
-              <span className="text-slate-400">up to 20MB</span>
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="mt-6 flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl">
-            <AlertCircle className="h-5 w-5 text-red-500" />
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        {parsedData && file && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900">File Ready</h3>
-                <p className="text-sm text-slate-500">{file.name}</p>
-              </div>
+      <main className="max-w-6xl mx-auto px-6 py-12 flex-1">
+        {activeTab === "dashboard" ? (
+          <>
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-slate-900">Upload Your Spreadsheet</h1>
+              <p className="mt-2 text-slate-500">Drop your Excel or CSV file and watch the magic happen</p>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-2xl font-bold text-slate-900">{parsedData.rowCount.toLocaleString()}</p>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Rows</p>
-              </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-2xl font-bold text-slate-900">{parsedData.columnCount}</p>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Columns</p>
-              </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-2xl font-bold text-slate-900">{parsedData.sheetNames?.length || 1}</p>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Sheets</p>
-              </div>
-            </div>
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Main Upload Area - Left 2 columns */}
+              <div className="lg:col-span-2 space-y-6">
+                {!parsedData && (
+                  <div
+                    {...getRootProps()}
+                    className={`cursor-pointer rounded-2xl border-2 border-dashed p-16 text-center transition-all ${
+                      isDragActive
+                        ? "border-emerald-500 bg-emerald-50"
+                        : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50"
+                    }`}
+                  >
+                    <input {...getInputProps()} />
+                    <div className="flex justify-center mb-4">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
+                        <Upload className="h-8 w-8 text-slate-500" />
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      {isDragActive ? "Drop your file here" : "Drag and drop your file"}
+                    </h3>
+                    <p className="mt-2 text-sm text-slate-500">or click to browse</p>
+                    <div className="mt-4 flex justify-center gap-2 text-xs text-slate-400">
+                      <span className="rounded bg-slate-100 px-2 py-1">.xlsx</span>
+                      <span className="rounded bg-slate-100 px-2 py-1">.xls</span>
+                      <span className="rounded bg-slate-100 px-2 py-1">.csv</span>
+                      <span className="text-slate-400">up to 20MB</span>
+                    </div>
+                  </div>
+                )}
 
-            <div>
-              <h4 className="text-sm font-medium text-slate-700 mb-2">Columns Detected</h4>
-              <div className="flex flex-wrap gap-2">
-                {parsedData.headers.slice(0, 8).map((header) => (
-                  <span key={header} className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-                    {header}
-                  </span>
-                ))}
-                {parsedData.headers.length > 8 && (
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-500">
-                    +{parsedData.headers.length - 8} more
-                  </span>
+                {error && (
+                  <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                    <p className="text-sm text-red-600">{error}</p>
+                  </div>
+                )}
+
+                {parsedData && file && (
+                  <div className="bg-white rounded-2xl border border-slate-200 p-8 space-y-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-900">File Ready</h3>
+                        <p className="text-sm text-slate-500">{file.name}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div className="rounded-xl bg-slate-50 p-4">
+                        <p className="text-2xl font-bold text-slate-900">{parsedData.rowCount.toLocaleString()}</p>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Rows</p>
+                      </div>
+                      <div className="rounded-xl bg-slate-50 p-4">
+                        <p className="text-2xl font-bold text-slate-900">{parsedData.columnCount}</p>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Columns</p>
+                      </div>
+                      <div className="rounded-xl bg-slate-50 p-4">
+                        <p className="text-2xl font-bold text-slate-900">{parsedData.sheetNames?.length || 1}</p>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Sheets</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-700 mb-2">Columns Detected</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {parsedData.headers.slice(0, 8).map((header) => (
+                          <span key={header} className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
+                            {header}
+                          </span>
+                        ))}
+                        {parsedData.headers.length > 8 && (
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-500">
+                            +{parsedData.headers.length - 8} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {analysisError && (
+                      <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl">
+                        <AlertCircle className="h-5 w-5 text-red-500" />
+                        <p className="text-sm text-red-600">{analysisError}</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={reset}
+                        className="flex-1 py-3 px-4 border border-slate-200 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                      >
+                        Upload Different File
+                      </button>
+                      <button
+                        onClick={handleAnalyze}
+                        disabled={isAnalyzing || credits <= 0}
+                        className="relative flex-1 py-3 px-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:from-violet-500 hover:to-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        {!isAnalyzing && (
+                          <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 animate-pulse opacity-50 blur-sm -z-10"></span>
+                        )}
+                        {isAnalyzing ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4" />
+                            Analyze with AI
+                            <span className="text-xs opacity-75">(1 credit)</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {credits <= 1 && (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <CreditCard className="h-5 w-5 text-amber-600" />
+                      <div>
+                        <p className="font-medium text-amber-800">
+                          {credits === 0 ? "No credits remaining" : "Low on credits"}
+                        </p>
+                        <button
+                          onClick={() => setShowPricing(true)}
+                          className="text-sm text-amber-600 hover:text-amber-700 underline"
+                        >
+                          Upgrade to Pro for unlimited analyses
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
 
-            {analysisError && (
-              <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl">
-                <AlertCircle className="h-5 w-5 text-red-500" />
-                <p className="text-sm text-red-600">{analysisError}</p>
+              {/* Right Sidebar - Tips & Quick Stats */}
+              <div className="space-y-6">
+                {/* Quick Stats Card */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                  <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-indigo-600" />
+                    Quick Stats
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <FileText className="w-4 h-4" />
+                        <span className="text-sm">Reports Generated</span>
+                      </div>
+                      <span className="font-bold text-slate-900">0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <TrendingUp className="w-4 h-4" />
+                        <span className="text-sm">Charts Created</span>
+                      </div>
+                      <span className="font-bold text-slate-900">0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-sm">Time Saved</span>
+                      </div>
+                      <span className="font-bold text-slate-900">0 hrs</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tips Card */}
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100 p-6">
+                  <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-indigo-600" />
+                    Pro Tips
+                  </h3>
+                  <ul className="space-y-3 text-sm text-slate-600">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
+                      <span>Include headers in your first row for better analysis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
+                      <span>Clean data produces more accurate insights</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
+                      <span>Date columns enable trend analysis</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Upgrade CTA */}
+                <div className="bg-slate-900 rounded-2xl p-6 text-white">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Zap className="w-5 h-5 text-yellow-400" />
+                    <h3 className="font-semibold">Go Pro</h3>
+                  </div>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Unlock unlimited analyses and advanced features.
+                  </p>
+                  <button
+                    onClick={() => setShowPricing(true)}
+                    className="w-full py-2.5 bg-white text-slate-900 rounded-lg font-medium hover:bg-slate-100 transition-colors"
+                  >
+                    View Plans
+                  </button>
+                </div>
               </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={reset}
-                className="flex-1 py-3 px-4 border border-slate-200 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors"
-              >
-                Upload Different File
-              </button>
-              <button
-                onClick={handleAnalyze}
-                disabled={isAnalyzing || credits <= 0}
-                className="relative flex-1 py-3 px-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:from-violet-500 hover:to-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                {!isAnalyzing && (
-                  <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 animate-pulse opacity-50 blur-sm -z-10"></span>
-                )}
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Analyze with AI
-                    <span className="text-xs opacity-75">(1 credit)</span>
-                  </>
-                )}
-              </button>
             </div>
-          </div>
-        )}
+          </>
+        ) : (
+          /* Settings Tab */
+          <div className="max-w-2xl mx-auto">
+            <h1 className="text-3xl font-bold text-slate-900 mb-8">Settings</h1>
 
-        {credits <= 1 && (
-          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-            <div className="flex items-center gap-3">
-              <CreditCard className="h-5 w-5 text-amber-600" />
-              <div>
-                <p className="font-medium text-amber-800">
-                  {credits === 0 ? "No credits remaining" : "Low on credits"}
-                </p>
+            <div className="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100">
+              <div className="p-6">
+                <h3 className="font-semibold text-slate-900 mb-4">Account</h3>
+                <div className="flex items-center gap-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="https://api.dicebear.com/9.x/avataaars/svg?seed=User&backgroundColor=b6e3f4"
+                    alt="User"
+                    className="w-16 h-16 rounded-full bg-slate-200"
+                  />
+                  <div>
+                    <p className="font-medium text-slate-900">Guest User</p>
+                    <p className="text-sm text-slate-500">Free Plan</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <h3 className="font-semibold text-slate-900 mb-4">Subscription</h3>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-slate-900">Free Starter</p>
+                    <p className="text-sm text-slate-500">{credits} credits remaining</p>
+                  </div>
+                  <button
+                    onClick={() => setShowPricing(true)}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                  >
+                    Upgrade
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <h3 className="font-semibold text-slate-900 mb-4">Preferences</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-slate-900">Email Notifications</p>
+                      <p className="text-sm text-slate-500">Receive updates about your reports</p>
+                    </div>
+                    <div className="w-12 h-6 bg-slate-200 rounded-full relative cursor-pointer">
+                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6">
                 <button
-                  onClick={() => setShowPricing(true)}
-                  className="text-sm text-amber-600 hover:text-amber-700 underline"
+                  onClick={handleLogout}
+                  className="w-full py-3 border border-red-200 text-red-600 rounded-xl font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
                 >
-                  Upgrade to Pro for unlimited analyses
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
                 </button>
               </div>
             </div>
