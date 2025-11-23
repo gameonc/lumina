@@ -79,13 +79,7 @@ const nextConfig = {
 
   // Redirects
   async redirects() {
-    return [
-      {
-        source: "/dashboard",
-        destination: "/dashboard/overview",
-        permanent: true,
-      },
-    ];
+    return [];
   },
 
   // Logging configuration
