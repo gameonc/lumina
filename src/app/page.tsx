@@ -468,8 +468,8 @@ export default function LandingPage() {
             <button onClick={() => window.scrollTo({ top: 2000, behavior: "smooth" })} className="hover:text-slate-900 transition-colors">
               FAQ
             </button>
-            <button onClick={() => setShowPricing(true)} className="hover:text-slate-900 transition-colors">
-              Pricing
+            <button onClick={() => openAuth("login")} className="hover:text-slate-900 transition-colors">
+              Login
             </button>
             <button
               onClick={openUpload}
@@ -493,8 +493,8 @@ export default function LandingPage() {
             <button onClick={() => window.scrollTo({ top: 2000, behavior: "smooth" })} className="text-left py-2 font-medium text-slate-600">
               FAQ
             </button>
-            <button onClick={() => setShowPricing(true)} className="text-left py-2 font-medium text-slate-600">
-              Pricing
+            <button onClick={() => { openAuth("login"); setIsMobileMenuOpen(false); }} className="text-left py-2 font-medium text-slate-600">
+              Login
             </button>
             <hr className="border-slate-100" />
             <button onClick={openUpload} className="bg-slate-900 text-white py-3 rounded-lg font-bold text-center">
