@@ -82,10 +82,13 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose, onUpgrade 
 
           <div className="mt-8 pt-8 border-t border-white/10">
             <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-2">Trusted By</p>
-            <div className="flex gap-4 opacity-50 grayscale">
-              <div className="w-8 h-8 rounded-full bg-white/20"></div>
-              <div className="w-8 h-8 rounded-full bg-white/20"></div>
-              <div className="w-8 h-8 rounded-full bg-white/20"></div>
+            <div className="flex gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Sarah&backgroundColor=b6e3f4" alt="User" className="w-8 h-8 rounded-full" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Mike&backgroundColor=c0aede" alt="User" className="w-8 h-8 rounded-full" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Emma&backgroundColor=ffd5dc" alt="User" className="w-8 h-8 rounded-full" />
             </div>
           </div>
         </div>
