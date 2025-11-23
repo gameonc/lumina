@@ -145,7 +145,14 @@ export default function DashboardPage() {
   }, [router]);
 
   const handleAnalyze = async () => {
-    if (!parsedData || !file) return;
+    console.log("handleAnalyze called", { parsedData, file, credits });
+
+    if (!parsedData || !file) {
+      console.error("Missing data:", { hasParsedData: !!parsedData, hasFile: !!file });
+      setAnalysisError("Please upload a file first.");
+      return;
+    }
+
     if (credits <= 0) {
       setAnalysisError("No credits remaining. Please upgrade to continue.");
       return;
@@ -155,6 +162,12 @@ export default function DashboardPage() {
     setAnalysisError(null);
 
     try {
+      console.log("Sending to /api/analyze:", {
+        headers: parsedData.headers,
+        rowCount: parsedData.rows?.length,
+        datasetName: file.name,
+      });
+
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -165,11 +178,23 @@ export default function DashboardPage() {
         }),
       });
 
+      console.log("Response status:", response.status);
+
       if (!response.ok) {
-        throw new Error("Failed to analyze dataset");
+        const errorText = await response.text();
+        console.error("API error:", errorText);
+        throw new Error(`Analysis failed: ${response.status}`);
       }
 
-      const { data: results } = await response.json();
+      const result = await response.json();
+      console.log("Analysis result:", result);
+
+      const { data: results } = result;
+
+      if (!results) {
+        throw new Error("No data in response");
+      }
+
       setCredits((prev) => Math.max(0, prev - 1));
 
       const datasetId = `dataset-${Date.now()}`;
@@ -185,11 +210,14 @@ export default function DashboardPage() {
         columnCount: results.columnCount ?? parsedData.columnCount,
       };
 
+      console.log("Saving to sessionStorage:", datasetId);
       sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));
+
+      console.log("Redirecting to results page...");
       router.push(`/results/${datasetId}`);
     } catch (err) {
       console.error("Analysis error:", err);
-      setAnalysisError(err instanceof Error ? err.message : "Failed to analyze data");
+      setAnalysisError(err instanceof Error ? err.message : "Failed to analyze data. Check console for details.");
     } finally {
       setIsAnalyzing(false);
     }
