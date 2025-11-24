@@ -163,113 +163,113 @@ export default function UploadPage() {
 
       {/* Upload Zone */}
       <Card className="p-8">
-        <div
-          {...getRootProps()}
-          className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 transition-colors ${
-            isDragActive
-              ? "border-primary-500 bg-primary-50 dark:bg-primary-950/30"
-              : "border-neutral-300 hover:border-primary-400 dark:border-neutral-700"
-          }`}
-        >
-          <input {...getInputProps()} />
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
-            <Upload className="h-8 w-8 text-primary-600" />
+          <div
+            {...getRootProps()}
+            className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 transition-colors ${
+              isDragActive
+                ? "border-primary-500 bg-primary-50 dark:bg-primary-950/30"
+                : "border-neutral-300 hover:border-primary-400 dark:border-neutral-700"
+            }`}
+          >
+            <input {...getInputProps()} />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
+              <Upload className="h-8 w-8 text-primary-600" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white">
+              {isDragActive ? "Drop your file here" : "Drag and drop your file"}
+            </h3>
+            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              or click to browse
+            </p>
+            <p className="mt-4 text-xs text-neutral-500">
+              CSV, XLSX, XLS (max 50MB)
+            </p>
           </div>
-          <h3 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white">
-            {isDragActive ? "Drop your file here" : "Drag and drop your file"}
-          </h3>
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            or click to browse
-          </p>
-          <p className="mt-4 text-xs text-neutral-500">
-            CSV, XLSX, XLS (max 50MB)
-          </p>
-        </div>
 
-        {/* Error State */}
-        {error && (
-          <div className="mt-6 flex items-center gap-3 rounded-lg bg-red-50 p-4 dark:bg-red-950/30">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-          </div>
-        )}
+          {/* Error State */}
+          {error && (
+            <div className="mt-6 flex items-center gap-3 rounded-lg bg-red-50 p-4 dark:bg-red-950/30">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
       </Card>
 
       {/* File Info Card */}
       {parsedData && file && !analysisResults && (
         <Card className="p-6 space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                </div>
               <h3 className="text-lg font-semibold">File Ready</h3>
             </div>
-            <button
+              <button
               onClick={handleReset}
-              className="text-sm text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-            >
-              Upload different file
-            </button>
-          </div>
+                className="text-sm text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+              >
+                Upload different file
+              </button>
+            </div>
 
-          {/* File Info */}
-          <div className="flex items-center gap-4 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-800">
-            <FileSpreadsheet className="h-10 w-10 text-primary-600" />
+            {/* File Info */}
+            <div className="flex items-center gap-4 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-800">
+              <FileSpreadsheet className="h-10 w-10 text-primary-600" />
+              <div>
+                <p className="font-medium text-neutral-900 dark:text-white">
+                  {file.name}
+                </p>
+                <p className="text-sm text-neutral-500">
+                  {formatBytes(file.size)} | {parsedData.fileType.toUpperCase()}
+                </p>
+              </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+                <p className="text-2xl font-bold text-primary-600">
+                  {parsedData.rowCount.toLocaleString()}
+                </p>
+                <p className="text-sm text-neutral-500">Rows</p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+                <p className="text-2xl font-bold text-primary-600">
+                  {parsedData.columnCount}
+                </p>
+                <p className="text-sm text-neutral-500">Columns</p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+                <p className="text-2xl font-bold text-primary-600">
+                  {parsedData.sheetNames?.length || 1}
+                </p>
+                <p className="text-sm text-neutral-500">Sheets</p>
+              </div>
+            </div>
+
+            {/* Columns */}
             <div>
-              <p className="font-medium text-neutral-900 dark:text-white">
-                {file.name}
-              </p>
-              <p className="text-sm text-neutral-500">
-                {formatBytes(file.size)} | {parsedData.fileType.toUpperCase()}
-              </p>
+              <h4 className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                Columns
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {parsedData.headers.slice(0, 10).map((header) => (
+                  <span
+                    key={header}
+                    className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                  >
+                    {header}
+                  </span>
+                ))}
+                {parsedData.headers.length > 10 && (
+                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-500 dark:bg-neutral-800">
+                    +{parsedData.headers.length - 10} more
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-              <p className="text-2xl font-bold text-primary-600">
-                {parsedData.rowCount.toLocaleString()}
-              </p>
-              <p className="text-sm text-neutral-500">Rows</p>
-            </div>
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-              <p className="text-2xl font-bold text-primary-600">
-                {parsedData.columnCount}
-              </p>
-              <p className="text-sm text-neutral-500">Columns</p>
-            </div>
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-              <p className="text-2xl font-bold text-primary-600">
-                {parsedData.sheetNames?.length || 1}
-              </p>
-              <p className="text-sm text-neutral-500">Sheets</p>
-            </div>
-          </div>
-
-          {/* Columns */}
-          <div>
-            <h4 className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Columns
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {parsedData.headers.slice(0, 10).map((header) => (
-                <span
-                  key={header}
-                  className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
-                >
-                  {header}
-                </span>
-              ))}
-              {parsedData.headers.length > 10 && (
-                <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-500 dark:bg-neutral-800">
-                  +{parsedData.headers.length - 10} more
-                </span>
-              )}
-            </div>
-          </div>
 
           {/* Actions */}
           <div className="flex gap-3">

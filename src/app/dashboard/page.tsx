@@ -22,7 +22,28 @@ import {
   FileText,
   HelpCircle,
   BarChart3,
+  Download,
+  RefreshCw,
+  PieChart,
+  LineChart,
 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart as RechartsPie,
+  Pie,
+  Cell,
+  LineChart as RechartsLine,
+  Line,
+} from "recharts";
+
+// Chart colors
+const COLORS = ["#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e"];
 
 // --- PRICING MODAL COMPONENT ---
 const PricingModal = ({
@@ -117,6 +138,8 @@ export default function DashboardPage() {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [showPricing, setShowPricing] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "settings">("dashboard");
+  const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [isExporting, setIsExporting] = useState<"pptx" | "pdf" | null>(null);
 
   const {
     getRootProps,
@@ -210,11 +233,15 @@ export default function DashboardPage() {
         columnCount: results.columnCount ?? parsedData.columnCount,
       };
 
-      console.log("Saving to sessionStorage:", datasetId);
-      sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));
+      // Store results in state for inline display
+      console.log("Storing analysis results in state");
+      setAnalysisResults({
+        ...analysisData,
+        datasetId,
+      });
 
-      console.log("Redirecting to results page...");
-      router.push(`/results/${datasetId}`);
+      // Also save to sessionStorage for export functionality
+      sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));
     } catch (err) {
       console.error("Analysis error:", err);
       setAnalysisError(err instanceof Error ? err.message : "Failed to analyze data. Check console for details.");
@@ -226,6 +253,50 @@ export default function DashboardPage() {
   const handleLogout = () => {
     sessionStorage.removeItem("lumina-authenticated");
     router.push("/");
+  };
+
+  const handleExport = async (type: "pptx" | "pdf") => {
+    if (!analysisResults) return;
+    setIsExporting(type);
+
+    try {
+      const endpoint = type === "pptx" ? "/api/reports/pptx" : "/api/reports/export";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          datasetName: analysisResults.datasetName,
+          healthScore: analysisResults.healthScore,
+          charts: analysisResults.charts,
+          insights: analysisResults.insights || [],
+          datasetType: analysisResults.datasetType,
+          rowCount: analysisResults.rowCount,
+          columnCount: analysisResults.columnCount,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Export failed");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${analysisResults.datasetName.replace(/\s+/g, "_")}_Report.${type}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Export error:", error);
+      alert(`Failed to export ${type.toUpperCase()}. Please try again.`);
+    } finally {
+      setIsExporting(null);
+    }
+  };
+
+  const handleNewAnalysis = () => {
+    setAnalysisResults(null);
+    reset();
   };
 
   if (isAuthenticated === null) {
@@ -288,18 +359,188 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-12 flex-1">
+      <main className="max-w-6xl mx-auto px-6 py-12 flex-1 pb-32">
         {activeTab === "dashboard" ? (
-          <>
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-slate-900">Upload Your Spreadsheet</h1>
-              <p className="mt-2 text-slate-500">Drop your Excel or CSV file and watch the magic happen</p>
-            </div>
+          analysisResults ? (
+            /* ===== ANALYSIS RESULTS VIEW ===== */
+            <>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-3xl font-bold text-slate-900">Analysis Complete</h1>
+                  <p className="mt-2 text-slate-500">
+                    Analyzed <span className="font-semibold text-slate-700">{analysisResults.datasetName}</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => router.push(`/dashboard/${analysisResults.datasetId}`)}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    Interactive Dashboard
+                  </button>
+                  <button
+                    onClick={handleNewAnalysis}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 font-medium transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    New Analysis
+                  </button>
+                </div>
+              </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Main Upload Area - Left 2 columns */}
-              <div className="lg:col-span-2 space-y-6">
-                {!parsedData && (
+              {/* Stats Row */}
+              <div className="grid grid-cols-4 gap-4 mb-8">
+                <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+                  <p className="text-2xl font-bold text-slate-900">{analysisResults.rowCount?.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider">Rows</p>
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+                  <p className="text-2xl font-bold text-slate-900">{analysisResults.columnCount}</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider">Columns</p>
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+                  <p className="text-2xl font-bold text-emerald-600">{analysisResults.healthScore?.score || "N/A"}%</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider">Health Score</p>
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+                  <p className="text-2xl font-bold text-indigo-600">{analysisResults.charts?.length || 0}</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider">Charts</p>
+                </div>
+              </div>
+
+              {/* AI Insights */}
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100 p-6 mb-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-5 h-5 text-indigo-600" />
+                  <h3 className="font-bold text-slate-900">AI Insights</h3>
+                </div>
+                <div className="space-y-3 text-slate-700">
+                  <p>
+                    This appears to be a <span className="font-semibold text-indigo-600">{analysisResults.datasetType || "general"}</span> dataset
+                    with {analysisResults.columnCount} columns and {analysisResults.rowCount?.toLocaleString()} rows of data.
+                  </p>
+                  {analysisResults.healthScore?.score >= 80 && (
+                    <p className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Your data quality is excellent! The dataset is well-structured and ready for analysis.
+                    </p>
+                  )}
+                  {analysisResults.healthScore?.score < 80 && analysisResults.healthScore?.score >= 50 && (
+                    <p className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600" />
+                      Data quality is moderate. Consider cleaning up some missing values or inconsistencies.
+                    </p>
+                  )}
+                  {analysisResults.charts?.length > 0 && (
+                    <p>
+                      We generated {analysisResults.charts.length} chart{analysisResults.charts.length > 1 ? "s" : ""} based on your data patterns.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Charts Grid */}
+              {analysisResults.charts && analysisResults.charts.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-indigo-600" />
+                    Generated Charts
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {analysisResults.charts.slice(0, 4).map((chart: any, index: number) => (
+                      <div key={index} className="bg-white rounded-xl border border-slate-200 p-6">
+                        <h4 className="font-semibold text-slate-900 mb-4">{chart.title || `Chart ${index + 1}`}</h4>
+                        <div className="h-64">
+                          {chart.type === "bar" && chart.data && (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={chart.data.slice(0, 10)}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          )}
+                          {chart.type === "pie" && chart.data && (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <RechartsPie>
+                                <Pie
+                                  data={chart.data.slice(0, 6)}
+                                  cx="50%"
+                                  cy="50%"
+                                  labelLine={false}
+                                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                                  outerRadius={80}
+                                  fill="#8884d8"
+                                  dataKey="value"
+                                >
+                                  {chart.data.slice(0, 6).map((_: any, i: number) => (
+                                    <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                                  ))}
+                                </Pie>
+                                <Tooltip />
+                              </RechartsPie>
+                            </ResponsiveContainer>
+                          )}
+                          {chart.type === "line" && chart.data && (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <RechartsLine data={chart.data.slice(0, 20)}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Line type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} />
+                              </RechartsLine>
+                            </ResponsiveContainer>
+                          )}
+                          {(!chart.data || !["bar", "pie", "line"].includes(chart.type)) && (
+                            <div className="h-full flex items-center justify-center text-slate-400">
+                              <div className="text-center">
+                                <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                <p className="text-sm">{chart.type} chart</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Interactive Dashboard CTA */}
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">Interactive Dashboard</h3>
+                    <p className="text-indigo-100 max-w-lg">
+                      Deep dive into your data, build custom charts, and chat with AI to uncover hidden insights.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => router.push(`/dashboard/${analysisResults.datasetId}`)}
+                    className="px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-colors flex items-center gap-2 shrink-0"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    Open Dashboard
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* ===== UPLOAD VIEW ===== */
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-slate-900">Upload Your Spreadsheet</h1>
+                <p className="mt-2 text-slate-500">Drop your Excel or CSV file and watch the magic happen</p>
+              </div>
+
+              <div className="grid lg:grid-cols-3 gap-8">
+                {/* Main Upload Area - Left 2 columns */}
+                <div className="lg:col-span-2 space-y-6">
+                  {!parsedData && (
                   <div
                     {...getRootProps()}
                     className={`cursor-pointer rounded-2xl border-2 border-dashed p-16 text-center transition-all ${
@@ -510,6 +751,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </>
+        )
         ) : (
           /* Settings Tab */
           <div className="max-w-2xl mx-auto">
@@ -576,6 +818,40 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Floating Export Bar */}
+      {analysisResults && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50">
+          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-slate-600">
+              <FileText className="w-5 h-5" />
+              <span className="font-medium">{analysisResults.datasetName}</span>
+              <span className="text-slate-400">•</span>
+              <span className="text-sm text-slate-500">
+                {analysisResults.rowCount?.toLocaleString()} rows, {analysisResults.columnCount} columns
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleExport("pdf")}
+                disabled={isExporting === "pdf"}
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {isExporting === "pdf" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                Download PDF
+              </button>
+              <button
+                onClick={() => handleExport("pptx")}
+                disabled={isExporting === "pptx"}
+                className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-indigo-500/30"
+              >
+                {isExporting === "pptx" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                Export PowerPoint
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-12 mt-auto">

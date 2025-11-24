@@ -104,12 +104,13 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
       align: "center",
     });
 
-    // Breakdown metrics
+    // Breakdown metrics (with null checks)
+    const breakdown = data.healthScore.breakdown || {};
     const metrics = [
-      { label: "Completeness", value: data.healthScore.breakdown.completeness },
-      { label: "Uniqueness", value: data.healthScore.breakdown.uniqueness },
-      { label: "Consistency", value: data.healthScore.breakdown.consistency },
-      { label: "Header Quality", value: data.healthScore.breakdown.headerQuality },
+      { label: "Completeness", value: breakdown.completeness ?? 0 },
+      { label: "Uniqueness", value: breakdown.uniqueness ?? 0 },
+      { label: "Consistency", value: breakdown.consistency ?? 0 },
+      { label: "Header Quality", value: breakdown.headerQuality ?? 0 },
     ];
 
     metrics.forEach((metric, i) => {
@@ -136,7 +137,8 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
     });
 
     // Key Recommendations
-    if (data.healthScore.recommendations.length > 0) {
+    const recommendations = data.healthScore.recommendations || [];
+    if (recommendations.length > 0) {
       summarySlide.addText("Key Recommendations", {
         x: 0.5,
         y: 4,
@@ -147,7 +149,7 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
         color: "1E293B",
       });
 
-      data.healthScore.recommendations.slice(0, 3).forEach((rec, i) => {
+      recommendations.slice(0, 3).forEach((rec, i) => {
         summarySlide.addText(`${i + 1}. ${rec}`, {
           x: 0.7,
           y: 4.6 + (i * 0.5),

@@ -6,3 +6,8 @@ export { ChartGrid } from "./chart-grid";
 export { HealthScoreCard } from "./health-score-card";
 export { ChatInterface } from "./chat-interface";
 export { ExportButton } from "./export-button";
+export { StatusBanner } from "./status-banner";
+export { AISummaryCard } from "./ai-summary-card";
+export { KeyMetricsStrip } from "./key-metrics-strip";
+export { DatasetDetailsCard } from "./dataset-details-card";
+export { ChartCompareCard } from "./chart-compare-card";

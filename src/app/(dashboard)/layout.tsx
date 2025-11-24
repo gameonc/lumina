@@ -1,4 +1,4 @@
-import { SimpleHeader } from "@/components/layouts/simple-header";
+import { DashboardHeader } from "@/components/layouts/dashboard-header";
 
 export default function DashboardLayout({
   children,
@@ -7,7 +7,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-      <SimpleHeader />
+      <DashboardHeader />
       <main>{children}</main>
     </div>
   );

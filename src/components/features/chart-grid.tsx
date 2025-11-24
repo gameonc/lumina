@@ -59,7 +59,7 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-[250px] items-center justify-center text-neutral-500">
+      <div className="flex h-[200px] sm:h-[250px] items-center justify-center text-neutral-500 text-sm">
         No data available
       </div>
     );
@@ -234,7 +234,7 @@ function ChartSkeleton() {
 export function ChartGrid({ charts, isLoading = false }: ChartGridProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
         {[1, 2, 3, 4].map((i) => (
           <ChartSkeleton key={i} />
         ))}
@@ -245,12 +245,12 @@ export function ChartGrid({ charts, isLoading = false }: ChartGridProps) {
   if (!charts || charts.length === 0) {
     return (
       <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <BarChart3 className="h-12 w-12 text-neutral-300 dark:text-neutral-600" />
-          <p className="mt-4 text-neutral-500 dark:text-neutral-400">
+        <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
+          <BarChart3 className="h-10 w-10 sm:h-12 sm:w-12 text-neutral-300 dark:text-neutral-600" />
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">
             No charts generated yet
           </p>
-          <p className="text-sm text-neutral-400 dark:text-neutral-500">
+          <p className="text-xs sm:text-sm text-neutral-400 dark:text-neutral-500">
             Upload data to generate automatic visualizations
           </p>
         </CardContent>
@@ -259,27 +259,27 @@ export function ChartGrid({ charts, isLoading = false }: ChartGridProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+        <h3 className="text-base sm:text-lg font-semibold text-neutral-900 dark:text-white">
           Auto-Generated Charts
         </h3>
-        <span className="text-sm text-neutral-500">
-          {charts.length} chart{charts.length !== 1 ? "s" : ""} generated
+        <span className="text-xs sm:text-sm text-neutral-500">
+          {charts.length} chart{charts.length !== 1 ? "s" : ""}
         </span>
       </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
         {charts.map((chart, index) => {
           const Icon = getChartIcon(chart.type);
           return (
             <Card key={`chart-${index}`} className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Icon className="h-4 w-4 text-primary-500" />
-                  {chart.title}
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-500 flex-shrink-0" />
+                  <span className="truncate">{chart.title}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
                 <ChartRenderer chart={chart} />
               </CardContent>
             </Card>

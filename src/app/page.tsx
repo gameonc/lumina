@@ -402,11 +402,12 @@ export default function LandingPage() {
         datasetType: results.datasetType,
         rowCount: results.rowCount ?? data.rowCount,
         columnCount: results.columnCount ?? data.columnCount,
+        columnStats: results.columnStats, // Include column stats for KeyMetricsStrip
         analysisTime: ((Date.now() - startTime) / 1000).toFixed(1),
       };
 
       sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));
-      router.push(`/results/${datasetId}`);
+      router.push(`/dashboard/${datasetId}`);
     } catch (err) {
       console.error("Analysis error:", err);
       setIsAnalyzing(false);
@@ -691,6 +692,103 @@ export default function LandingPage() {
           </div>
         </div>
       </header>
+
+      {/* --- HOW IT WORKS / PROCESS SECTION --- */}
+      <section className="py-24 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-900">
+              From raw data to <span className="text-blue-600">ROI</span> in 4 steps.
+            </h2>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+              Lumina acts like a senior data analyst sitting right next to you.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-8 relative">
+            {/* Connecting Line (Desktop) */}
+            <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-blue-100 via-blue-200 to-blue-100 -z-10"></div>
+
+            {/* Step 1: Upload */}
+            <div className="relative group">
+              <div className="bg-white p-2 w-max mx-auto mb-6 relative z-10">
+                <div className="w-20 h-20 bg-blue-50 rounded-2xl border border-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                  <div className="bg-blue-600 text-white p-2.5 rounded-lg shadow-lg shadow-blue-200">
+                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center space-y-3 px-4">
+                <h3 className="text-xl font-bold text-slate-900">1. Upload & Read</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Drag & drop your Excel file. The AI instantly reads the structure, identifying headers, dates, and financial metrics automatically.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2: The Analyst */}
+            <div className="relative group">
+              <div className="bg-white p-2 w-max mx-auto mb-6 relative z-10">
+                <div className="w-20 h-20 bg-purple-50 rounded-2xl border border-purple-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                  <div className="bg-purple-600 text-white p-2.5 rounded-lg shadow-lg shadow-purple-200">
+                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center space-y-3 px-4">
+                <h3 className="text-xl font-bold text-slate-900">2. AI Summary</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  It acts like an analyst, telling you exactly what the file is about. &quot;This is a Q3 Sales Report showing a 15% revenue increase.&quot;
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3: Depth & Charts */}
+            <div className="relative group">
+              <div className="bg-white p-2 w-max mx-auto mb-6 relative z-10">
+                <div className="w-20 h-20 bg-amber-50 rounded-2xl border border-amber-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                  <div className="bg-amber-500 text-white p-2.5 rounded-lg shadow-lg shadow-amber-200">
+                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center space-y-3 px-4">
+                <h3 className="text-xl font-bold text-slate-900">3. Spot Losses</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  It generates pies and charts for whatever you need. It flags losses and outliers, letting you dive deeper into the &quot;Why&quot;.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4: Export */}
+            <div className="relative group">
+              <div className="bg-white p-2 w-max mx-auto mb-6 relative z-10">
+                <div className="w-20 h-20 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                  <div className="bg-emerald-600 text-white p-2.5 rounded-lg shadow-lg shadow-emerald-200">
+                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center space-y-3 px-4">
+                <h3 className="text-xl font-bold text-slate-900">4. PowerPoint</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Done exploring? Click one button to download a fully editable PowerPoint presentation with all your charts and insights.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* Feature Section 1 */}
       <section className="py-24 bg-white relative overflow-hidden">

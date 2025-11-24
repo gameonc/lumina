@@ -332,12 +332,40 @@ export function profileColumn(
 /**
  * Profile all columns in a dataset
  */
+/**
+ * Profile all columns with performance optimization for large datasets
+ * Samples data for very large datasets to improve performance
+ */
 export function profileAllColumns(
   headers: string[],
   rows: Record<string, unknown>[]
 ): EnhancedColumnStats[] {
+  // Performance optimization: Sample large datasets
+  const MAX_ROWS_FOR_FULL_ANALYSIS = 10000;
+  const SAMPLE_SIZE = 5000;
+  
+  let dataToAnalyze = rows;
+  if (rows.length > MAX_ROWS_FOR_FULL_ANALYSIS) {
+    // Use stratified sampling: take first, middle, and last portions
+    const sampleSize = Math.min(SAMPLE_SIZE, rows.length);
+    const step = Math.floor(rows.length / sampleSize);
+    dataToAnalyze = [];
+    
+    for (let i = 0; i < rows.length; i += step) {
+      if (dataToAnalyze.length >= sampleSize) break;
+      dataToAnalyze.push(rows[i]);
+    }
+    
+    // Always include last row for completeness
+    if (dataToAnalyze.length < rows.length) {
+      dataToAnalyze.push(rows[rows.length - 1]);
+    }
+    
+    console.log(`Sampling ${dataToAnalyze.length} rows from ${rows.length} for performance`);
+  }
+
   return headers.map((header) => {
-    const values = rows.map((row) => row[header]);
+    const values = dataToAnalyze.map((row) => row[header]);
     return profileColumn(header, values);
   });
 }

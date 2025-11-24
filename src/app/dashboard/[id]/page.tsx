@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Card,
@@ -11,18 +11,19 @@ import {
 import {
   ChartGrid,
   ChatInterface,
-  ExportButton,
+  StatusBanner,
+  AISummaryCard,
+  KeyMetricsStrip,
+  DatasetDetailsCard,
+  ChartCompareCard,
 } from "@/components/features";
 import {
   Loader2,
   AlertCircle,
-  Activity,
-  Database,
-  Columns3,
-  AlertTriangle,
 } from "lucide-react";
 import type { ChartConfig, Insight } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
+import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
 
 interface AnalysisData {
   datasetName: string;
@@ -34,21 +35,7 @@ interface AnalysisData {
   datasetType: string | null;
   rowCount: number;
   columnCount: number;
-}
-
-function getScoreLabel(score: number): string {
-  if (score >= 90) return "Excellent";
-  if (score >= 80) return "Good";
-  if (score >= 60) return "Fair";
-  if (score >= 40) return "Poor";
-  return "Critical";
-}
-
-function getScoreColor(score: number): string {
-  if (score >= 80) return "text-green-600 dark:text-green-400";
-  if (score >= 60) return "text-yellow-600 dark:text-yellow-400";
-  if (score >= 40) return "text-orange-600 dark:text-orange-400";
-  return "text-red-600 dark:text-red-400";
+  columnStats?: EnhancedColumnStats[]; // Optional for backward compatibility
 }
 
 export default function DashboardPage() {
@@ -60,6 +47,8 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [charts, setCharts] = useState<ChartConfig[]>([]);
+  const [isDownloadingPPTX, setIsDownloadingPPTX] = useState(false);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
   useEffect(() => {
     const loadData = () => {
@@ -67,8 +56,11 @@ export default function DashboardPage() {
         const storedData = sessionStorage.getItem(`analysis-${datasetId}`);
         if (storedData) {
           const parsed = JSON.parse(storedData);
+          // Ensure charts and insights are arrays
+          parsed.charts = Array.isArray(parsed.charts) ? parsed.charts : [];
+          parsed.insights = Array.isArray(parsed.insights) ? parsed.insights : [];
           setAnalysisData(parsed);
-          setCharts(Array.isArray(parsed.charts) ? parsed.charts : []);
+          setCharts(parsed.charts);
           setIsLoading(false);
           return;
         }
@@ -85,7 +77,7 @@ export default function DashboardPage() {
     loadData();
   }, [datasetId]);
 
-  const handleNewChart = (newChart: ChartConfig) => {
+  const handleNewChart = useCallback((newChart: ChartConfig) => {
     setCharts((prevCharts) => {
       const updatedCharts = [...prevCharts, newChart];
       
@@ -98,6 +90,82 @@ export default function DashboardPage() {
       
       return updatedCharts;
     });
+  }, [analysisData, datasetId]);
+
+  const handleDownloadPPTX = async () => {
+    if (!analysisData) return;
+    setIsDownloadingPPTX(true);
+
+    try {
+      const response = await fetch("/api/reports/pptx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          datasetName: analysisData.datasetName,
+          healthScore: analysisData.healthScore,
+          charts: charts,
+          insights: analysisData.insights || [],
+          datasetType: analysisData.datasetType || "general",
+          rowCount: analysisData.rowCount,
+          columnCount: analysisData.columnCount,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Generation failed");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${analysisData.datasetName.replace(/\s+/g, "_")}_Report.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to download PowerPoint. Please try again.");
+    } finally {
+      setIsDownloadingPPTX(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!analysisData) return;
+    setIsDownloadingPDF(true);
+
+    try {
+      const response = await fetch("/api/reports/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          datasetName: analysisData.datasetName,
+          healthScore: analysisData.healthScore,
+          charts: charts,
+          insights: analysisData.insights || [],
+          datasetType: analysisData.datasetType || "general",
+          rowCount: analysisData.rowCount,
+          columnCount: analysisData.columnCount,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Generation failed");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${analysisData.datasetName.replace(/\s+/g, "_")}_Report.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to download PDF. Please try again.");
+    } finally {
+      setIsDownloadingPDF(false);
+    }
   };
 
   if (isLoading) {
@@ -142,198 +210,98 @@ export default function DashboardPage() {
     headers,
     rows,
     healthScore,
-    insights,
     datasetType,
     rowCount,
     columnCount,
+    columnStats = [], // Default to empty array if not available
   } = analysisData;
 
-  // Ensure insights are arrays (charts now managed by state)
-  const validInsights = Array.isArray(insights) ? insights : [];
-
-  const missingDataPercent = healthScore
-    ? (100 - healthScore.breakdown.completeness).toFixed(1)
-    : "0.0";
-
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6">
-      {/* Top Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
-            {datasetName}
-          </h1>
-          {datasetType && (
-            <p className="mt-1 text-sm text-neutral-500">
-              Dataset type: <span className="font-medium capitalize">{datasetType}</span>
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          {healthScore && (
-            <ExportButton
-              datasetName={datasetName}
-              healthScore={healthScore}
-              charts={charts}
-              insights={validInsights}
-            />
-          )}
-          <button
-            onClick={() => router.push("/")}
-            className="text-sm text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-          >
-            Upload new file
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+      {/* Status Banner */}
+      <StatusBanner
+        datasetName={datasetName}
+        rowCount={rowCount}
+        columnCount={columnCount}
+        healthScore={healthScore}
+        onDownloadPPTX={handleDownloadPPTX}
+        onDownloadPDF={handleDownloadPDF}
+        isDownloadingPPTX={isDownloadingPPTX}
+        isDownloadingPDF={isDownloadingPDF}
+      />
 
-      {/* Summary Cards Row */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {/* Health Score Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30">
-                <Activity className="h-5 w-5 text-primary-600" />
-              </div>
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Health Score
-                </p>
-                <p className={`text-2xl font-bold ${getScoreColor(healthScore?.score || 0)}`}>
-                  {healthScore?.score || 0}
-                  <span className="text-sm font-normal text-neutral-400">/100</span>
-                </p>
-                <p className="text-xs text-neutral-500">
-                  {getScoreLabel(healthScore?.score || 0)}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* 2-Column Layout */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[65%_35%]">
+          {/* Left Column (65%) */}
+          <div className="space-y-6">
+            {/* AI Summary Card */}
+            <AISummaryCard healthScore={healthScore} />
 
-        {/* Rows Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <Database className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Rows
-                </p>
-                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
-                  {rowCount.toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Key Metrics Strip */}
+            {columnStats && columnStats.length > 0 && (
+              <KeyMetricsStrip columnStats={columnStats} rows={rows} />
+            )}
 
-        {/* Columns Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <Columns3 className="h-5 w-5 text-purple-600" />
+            {/* Charts Section */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                  Auto-Generated Charts
+                </h2>
+                <select className="text-sm px-3 py-1.5 border border-neutral-300 rounded-lg bg-white dark:bg-neutral-800 dark:border-neutral-600 dark:text-white">
+                  <option>Dataset view: All</option>
+                </select>
               </div>
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Columns
-                </p>
-                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
-                  {columnCount}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Missing Data Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
-                <AlertTriangle className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Missing Data
-                </p>
-                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
-                  {missingDataPercent}%
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Content Row: Insights (Left) + Charts (Right) */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Left: AI Insights Panel */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>AI Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {healthScore && healthScore.recommendations.length > 0 ? (
-                <div className="space-y-4">
-                  {healthScore.recommendations.slice(0, 5).map((rec, i) => (
-                    <div
-                      key={i}
-                      className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30"
-                    >
-                      <h4 className="font-medium text-blue-900 dark:text-blue-100">
-                        Insight #{i + 1}
-                      </h4>
-                      <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                        {rec}
-                      </p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="rounded-full bg-blue-200 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                          Suggested Action
-                        </span>
-                        <span className="text-xs text-blue-600 dark:text-blue-400">
-                          Priority: Medium
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {charts.length > 0 ? (
+                <ChartGrid charts={charts.slice(0, 5)} />
               ) : (
-                <p className="text-center text-sm text-neutral-500 py-8">
-                  No insights available yet. Your data looks good!
-                </p>
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <p className="text-neutral-500">No charts generated for this dataset.</p>
+                  </CardContent>
+                </Card>
               )}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
 
-        {/* Right: Charts Grid */}
-        <div>
-          <ChartGrid charts={charts.slice(0, 10)} />
-        </div>
-      </div>
+            {/* Chart Compare Panel (Optional) */}
+            {columnStats && columnStats.length > 0 && (
+              <ChartCompareCard
+                columnStats={columnStats}
+                charts={charts}
+                rows={rows}
+              />
+            )}
+          </div>
 
-      {/* Bottom: Chat Section */}
-      <div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Ask a question about this data</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChatInterface 
-              headers={headers} 
-              rows={rows} 
-              onNewChart={handleNewChart}
+          {/* Right Column (35%) */}
+          <div className="space-y-6">
+            {/* Chat Interface */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Ask your data</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChatInterface
+                  headers={headers}
+                  rows={rows}
+                  onNewChart={handleNewChart}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Dataset Details Card */}
+            <DatasetDetailsCard
+              datasetName={datasetName}
+              rowCount={rowCount}
+              columnCount={columnCount}
+              datasetType={datasetType}
+              healthScore={healthScore}
             />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-

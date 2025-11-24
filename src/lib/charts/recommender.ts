@@ -144,80 +144,159 @@ export function recommendCharts(
 
 /**
  * Generate chart data from rows based on recommendation
+ * Includes validation and error handling
  */
 export function generateChartData(
   recommendation: ChartRecommendation,
   rows: Record<string, unknown>[]
-): ChartConfig {
+): ChartConfig | null {
   const { chartType, xAxis, yAxis, title, columns } = recommendation;
+
+  // Validation: Check if required columns exist in data
+  if (!rows || rows.length === 0) {
+    console.warn(`Cannot generate chart "${title}": No data rows provided`);
+    return null;
+  }
+
+  // Validation: Check if xAxis column exists
+  const sampleRow = rows[0];
+  if (!sampleRow || !(xAxis in sampleRow)) {
+    console.warn(`Cannot generate chart "${title}": Column "${xAxis}" not found in data`);
+    return null;
+  }
+
+  // Validation: Check if yAxis column exists (for charts that need it)
+  if (chartType !== "pie" && chartType !== "histogram") {
+    const yAxisKey = Array.isArray(yAxis) ? yAxis[0] : yAxis;
+    if (!(yAxisKey in sampleRow)) {
+      console.warn(`Cannot generate chart "${title}": Column "${yAxisKey}" not found in data`);
+      return null;
+    }
+  }
 
   // Process data based on chart type
   let processedData: Record<string, unknown>[] = [];
 
-  if (chartType === "line" || chartType === "scatter" || chartType === "area") {
-    // For line/scatter/area: use rows as-is, just ensure columns exist
-    processedData = rows.map((row) => {
-      const dataPoint: Record<string, unknown> = {};
-      columns.forEach((col) => {
-        dataPoint[col] = row[col] ?? null;
-      });
-      return dataPoint;
-    });
-  } else if (chartType === "bar") {
-    // For bar: group by xAxis and sum/avg yAxis
-    const grouped = new Map<string, number[]>();
-    rows.forEach((row) => {
-      const key = String(row[xAxis] ?? "Unknown");
-      const value = Number(row[yAxis as string] ?? 0);
-      if (!grouped.has(key)) {
-        grouped.set(key, []);
+  try {
+    if (chartType === "line" || chartType === "scatter" || chartType === "area") {
+      // For line/scatter/area: use rows as-is, just ensure columns exist
+      processedData = rows
+        .map((row) => {
+          const dataPoint: Record<string, unknown> = {};
+          columns.forEach((col) => {
+            dataPoint[col] = row[col] ?? null;
+          });
+          return dataPoint;
+        })
+        .filter((point) => {
+          // Filter out rows with null/invalid data for required columns
+          const xValue = point[xAxis];
+          const yValue = point[Array.isArray(yAxis) ? yAxis[0] : yAxis];
+          return xValue != null && yValue != null;
+        });
+
+      // Validation: Ensure we have data after filtering
+      if (processedData.length === 0) {
+        console.warn(`Cannot generate ${chartType} chart "${title}": No valid data points after filtering`);
+        return null;
       }
-      grouped.get(key)!.push(value);
-    });
+    } else if (chartType === "bar") {
+      // For bar: group by xAxis and sum/avg yAxis
+      const grouped = new Map<string, number[]>();
+      rows.forEach((row) => {
+        const key = String(row[xAxis] ?? "Unknown");
+        const yAxisKey = Array.isArray(yAxis) ? yAxis[0] : yAxis;
+        const value = Number(row[yAxisKey] ?? 0);
+        
+        // Skip invalid values
+        if (isNaN(value)) return;
+        
+        if (!grouped.has(key)) {
+          grouped.set(key, []);
+        }
+        grouped.get(key)!.push(value);
+      });
 
-    processedData = Array.from(grouped.entries()).map(([key, values]) => ({
-      [xAxis]: key,
-      [yAxis as string]: values.reduce((a, b) => a + b, 0) / values.length, // Average
-    }));
-  } else if (chartType === "pie") {
-    // For pie: count occurrences
-    const counts = new Map<string, number>();
-    rows.forEach((row) => {
-      const key = String(row[xAxis] ?? "Unknown");
-      counts.set(key, (counts.get(key) || 0) + 1);
-    });
+      if (grouped.size === 0) {
+        console.warn(`Cannot generate bar chart "${title}": No valid data points`);
+        return null;
+      }
 
-    processedData = Array.from(counts.entries()).map(([key, value]) => ({
-      [xAxis]: key,
-      value,
-    }));
-  } else if (chartType === "histogram") {
-    // For histogram: create bins
-    const values = rows
-      .map((row) => Number(row[xAxis] ?? 0))
-      .filter((v) => !isNaN(v));
-    
-    if (values.length > 0) {
+      processedData = Array.from(grouped.entries()).map(([key, values]) => ({
+        [xAxis]: key,
+        [yAxis as string]: values.reduce((a, b) => a + b, 0) / values.length, // Average
+      }));
+    } else if (chartType === "pie") {
+      // For pie: count occurrences
+      const counts = new Map<string, number>();
+      rows.forEach((row) => {
+        const key = String(row[xAxis] ?? "Unknown");
+        if (key && key !== "null" && key !== "undefined") {
+          counts.set(key, (counts.get(key) || 0) + 1);
+        }
+      });
+
+      if (counts.size === 0) {
+        console.warn(`Cannot generate pie chart "${title}": No valid categories found`);
+        return null;
+      }
+
+      processedData = Array.from(counts.entries()).map(([key, value]) => ({
+        [xAxis]: key,
+        value,
+      }));
+    } else if (chartType === "histogram") {
+      // For histogram: create bins
+      const values = rows
+        .map((row) => Number(row[xAxis] ?? 0))
+        .filter((v) => !isNaN(v) && isFinite(v));
+      
+      if (values.length === 0) {
+        console.warn(`Cannot generate histogram "${title}": No valid numeric values found`);
+        return null;
+      }
+
       const min = Math.min(...values);
       const max = Math.max(...values);
-      const binCount = Math.min(10, Math.ceil(Math.sqrt(values.length)));
-      const binSize = (max - min) / binCount;
+      
+      // Handle edge case: all values are the same
+      if (min === max) {
+        processedData = [{
+          [xAxis]: `${min}`,
+          frequency: values.length,
+        }];
+      } else {
+        const binCount = Math.min(10, Math.max(3, Math.ceil(Math.sqrt(values.length))));
+        const binSize = (max - min) / binCount;
 
-      const bins = new Map<string, number>();
-      values.forEach((value) => {
-        const binIndex = Math.min(
-          Math.floor((value - min) / binSize),
-          binCount - 1
-        );
-        const binLabel = `${(min + binIndex * binSize).toFixed(1)}-${(min + (binIndex + 1) * binSize).toFixed(1)}`;
-        bins.set(binLabel, (bins.get(binLabel) || 0) + 1);
-      });
+        const bins = new Map<string, number>();
+        values.forEach((value) => {
+          const binIndex = Math.min(
+            Math.floor((value - min) / binSize),
+            binCount - 1
+          );
+          const binLabel = `${(min + binIndex * binSize).toFixed(1)}-${(min + (binIndex + 1) * binSize).toFixed(1)}`;
+          bins.set(binLabel, (bins.get(binLabel) || 0) + 1);
+        });
 
-      processedData = Array.from(bins.entries()).map(([key, value]) => ({
-        [xAxis]: key,
-        frequency: value,
-      }));
+        processedData = Array.from(bins.entries()).map(([key, value]) => ({
+          [xAxis]: key,
+          frequency: value,
+        }));
+      }
+    } else {
+      console.warn(`Unsupported chart type: ${chartType}`);
+      return null;
     }
+  } catch (error) {
+    console.error(`Error generating chart data for "${title}":`, error);
+    return null;
+  }
+
+  // Final validation: Ensure we have data
+  if (!processedData || processedData.length === 0) {
+    console.warn(`Chart "${title}" generated with no data`);
+    return null;
   }
 
   return {
@@ -248,12 +327,57 @@ function getDefaultColors(chartType: ChartType): string[] {
 
 /**
  * Generate multiple charts from column stats
+ * Includes validation and filters out failed chart generations
+ * Optimized for large datasets with sampling
  */
 export function generateCharts(
   columnStats: EnhancedColumnStats[],
   rows: Record<string, unknown>[]
 ): ChartConfig[] {
-  const recommendations = recommendCharts(columnStats, rows);
-  return recommendations.map((rec) => generateChartData(rec, rows));
+  // Validation: Check inputs
+  if (!columnStats || columnStats.length === 0) {
+    console.warn("Cannot generate charts: No column stats provided");
+    return [];
+  }
+
+  if (!rows || rows.length === 0) {
+    console.warn("Cannot generate charts: No data rows provided");
+    return [];
+  }
+
+  // Performance optimization: Sample large datasets for chart generation
+  const MAX_ROWS_FOR_CHARTS = 5000;
+  let dataForCharts = rows;
+  
+  if (rows.length > MAX_ROWS_FOR_CHARTS) {
+    // Sample data for chart generation (charts don't need all rows)
+    const sampleSize = MAX_ROWS_FOR_CHARTS;
+    const step = Math.floor(rows.length / sampleSize);
+    dataForCharts = [];
+    
+    for (let i = 0; i < rows.length; i += step) {
+      if (dataForCharts.length >= sampleSize) break;
+      dataForCharts.push(rows[i]);
+    }
+    
+    // Always include last row
+    if (dataForCharts.length < rows.length) {
+      dataForCharts.push(rows[rows.length - 1]);
+    }
+    
+    console.log(`Sampling ${dataForCharts.length} rows from ${rows.length} for chart generation`);
+  }
+
+  try {
+    const recommendations = recommendCharts(columnStats, dataForCharts);
+    const charts = recommendations
+      .map((rec) => generateChartData(rec, dataForCharts))
+      .filter((chart): chart is ChartConfig => chart !== null); // Filter out null results
+    
+    return charts;
+  } catch (error) {
+    console.error("Error in generateCharts:", error);
+    return [];
+  }
 }
 
