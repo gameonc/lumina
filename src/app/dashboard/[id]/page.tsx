@@ -241,7 +241,7 @@ export default function DashboardPage() {
   } = analysisData;
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30">
       {/* Status Banner */}
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
         <StatusBanner
