@@ -4,7 +4,14 @@ import { generatePowerPoint } from "@/lib/exports/powerpoint-generator";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { datasetName, charts, healthScore, datasetType, rowCount, columnCount } = body;
+    const {
+      datasetName,
+      charts,
+      healthScore,
+      datasetType,
+      rowCount,
+      columnCount,
+    } = body;
 
     if (!datasetName) {
       return NextResponse.json(
@@ -30,7 +37,8 @@ export async function POST(request: NextRequest) {
     return new NextResponse(buffer, {
       status: 200,
       headers: {
-        "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         "Content-Disposition": `attachment; filename="${datasetName.replace(/\.[^/.]+$/, "")}-report.pptx"`,
       },
     });

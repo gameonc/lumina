@@ -1,6 +1,6 @@
 /**
  * Chart Recommendation Engine
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: Rules-based chart recommendation and auto-generation
@@ -11,7 +11,13 @@
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
 import type { ChartConfig } from "@/types";
 
-export type ChartType = "line" | "bar" | "pie" | "scatter" | "area" | "histogram";
+export type ChartType =
+  | "line"
+  | "bar"
+  | "pie"
+  | "scatter"
+  | "area"
+  | "histogram";
 
 export interface ChartRecommendation {
   chartType: ChartType;
@@ -35,9 +41,7 @@ export function recommendCharts(
   const recommendations: ChartRecommendation[] = [];
 
   // Find date/time columns
-  const dateColumns = columnStats.filter(
-    (col) => col.inferredType === "date"
-  );
+  const dateColumns = columnStats.filter((col) => col.inferredType === "date");
 
   // Find numeric columns
   const numericColumns = columnStats.filter(
@@ -61,7 +65,8 @@ export function recommendCharts(
           yAxis: numCol.name,
           columns: [dateCol.name, numCol.name],
           priority: 5,
-          reasoning: "Time series data with numeric values - perfect for line chart",
+          reasoning:
+            "Time series data with numeric values - perfect for line chart",
         });
       });
     });
@@ -81,7 +86,8 @@ export function recommendCharts(
             yAxis: numCol.name,
             columns: [catCol.name, numCol.name],
             priority: 5,
-            reasoning: "Categorical data with numeric values - ideal for bar chart",
+            reasoning:
+              "Categorical data with numeric values - ideal for bar chart",
           });
         }
       });
@@ -120,7 +126,7 @@ export function recommendCharts(
         reasoning: "Low cardinality category - suitable for pie chart",
       });
     }
-  })
+  });
 
   // Rule 5: Single Numeric → Histogram
   numericColumns.forEach((numCol) => {
@@ -137,9 +143,7 @@ export function recommendCharts(
   });
 
   // Sort by priority (highest first) and return top 5
-  return recommendations
-    .sort((a, b) => b.priority - a.priority)
-    .slice(0, 5);
+  return recommendations.sort((a, b) => b.priority - a.priority).slice(0, 5);
 }
 
 /**
@@ -161,7 +165,9 @@ export function generateChartData(
   // Validation: Check if xAxis column exists
   const sampleRow = rows[0];
   if (!sampleRow || !(xAxis in sampleRow)) {
-    console.warn(`Cannot generate chart "${title}": Column "${xAxis}" not found in data`);
+    console.warn(
+      `Cannot generate chart "${title}": Column "${xAxis}" not found in data`
+    );
     return null;
   }
 
@@ -169,7 +175,9 @@ export function generateChartData(
   if (chartType !== "pie" && chartType !== "histogram") {
     const yAxisKey = Array.isArray(yAxis) ? yAxis[0] : yAxis;
     if (!(yAxisKey in sampleRow)) {
-      console.warn(`Cannot generate chart "${title}": Column "${yAxisKey}" not found in data`);
+      console.warn(
+        `Cannot generate chart "${title}": Column "${yAxisKey}" not found in data`
+      );
       return null;
     }
   }
@@ -178,7 +186,11 @@ export function generateChartData(
   let processedData: Record<string, unknown>[] = [];
 
   try {
-    if (chartType === "line" || chartType === "scatter" || chartType === "area") {
+    if (
+      chartType === "line" ||
+      chartType === "scatter" ||
+      chartType === "area"
+    ) {
       // For line/scatter/area: use rows as-is, just ensure columns exist
       processedData = rows
         .map((row) => {
@@ -197,7 +209,9 @@ export function generateChartData(
 
       // Validation: Ensure we have data after filtering
       if (processedData.length === 0) {
-        console.warn(`Cannot generate ${chartType} chart "${title}": No valid data points after filtering`);
+        console.warn(
+          `Cannot generate ${chartType} chart "${title}": No valid data points after filtering`
+        );
         return null;
       }
     } else if (chartType === "bar") {
@@ -207,10 +221,10 @@ export function generateChartData(
         const key = String(row[xAxis] ?? "Unknown");
         const yAxisKey = Array.isArray(yAxis) ? yAxis[0] : yAxis;
         const value = Number(row[yAxisKey] ?? 0);
-        
+
         // Skip invalid values
         if (isNaN(value)) return;
-        
+
         if (!grouped.has(key)) {
           grouped.set(key, []);
         }
@@ -218,7 +232,9 @@ export function generateChartData(
       });
 
       if (grouped.size === 0) {
-        console.warn(`Cannot generate bar chart "${title}": No valid data points`);
+        console.warn(
+          `Cannot generate bar chart "${title}": No valid data points`
+        );
         return null;
       }
 
@@ -237,7 +253,9 @@ export function generateChartData(
       });
 
       if (counts.size === 0) {
-        console.warn(`Cannot generate pie chart "${title}": No valid categories found`);
+        console.warn(
+          `Cannot generate pie chart "${title}": No valid categories found`
+        );
         return null;
       }
 
@@ -250,23 +268,30 @@ export function generateChartData(
       const values = rows
         .map((row) => Number(row[xAxis] ?? 0))
         .filter((v) => !isNaN(v) && isFinite(v));
-      
+
       if (values.length === 0) {
-        console.warn(`Cannot generate histogram "${title}": No valid numeric values found`);
+        console.warn(
+          `Cannot generate histogram "${title}": No valid numeric values found`
+        );
         return null;
       }
 
       const min = Math.min(...values);
       const max = Math.max(...values);
-      
+
       // Handle edge case: all values are the same
       if (min === max) {
-        processedData = [{
-          [xAxis]: `${min}`,
-          frequency: values.length,
-        }];
+        processedData = [
+          {
+            [xAxis]: `${min}`,
+            frequency: values.length,
+          },
+        ];
       } else {
-        const binCount = Math.min(10, Math.max(3, Math.ceil(Math.sqrt(values.length))));
+        const binCount = Math.min(
+          10,
+          Math.max(3, Math.ceil(Math.sqrt(values.length)))
+        );
         const binSize = (max - min) / binCount;
 
         const bins = new Map<string, number>();
@@ -348,24 +373,26 @@ export function generateCharts(
   // Performance optimization: Sample large datasets for chart generation
   const MAX_ROWS_FOR_CHARTS = 5000;
   let dataForCharts = rows;
-  
+
   if (rows.length > MAX_ROWS_FOR_CHARTS) {
     // Sample data for chart generation (charts don't need all rows)
     const sampleSize = MAX_ROWS_FOR_CHARTS;
     const step = Math.floor(rows.length / sampleSize);
     dataForCharts = [];
-    
+
     for (let i = 0; i < rows.length; i += step) {
       if (dataForCharts.length >= sampleSize) break;
       dataForCharts.push(rows[i]);
     }
-    
+
     // Always include last row
     if (dataForCharts.length < rows.length) {
       dataForCharts.push(rows[rows.length - 1]);
     }
-    
-    console.log(`Sampling ${dataForCharts.length} rows from ${rows.length} for chart generation`);
+
+    console.log(
+      `Sampling ${dataForCharts.length} rows from ${rows.length} for chart generation`
+    );
   }
 
   try {
@@ -373,11 +400,10 @@ export function generateCharts(
     const charts = recommendations
       .map((rec) => generateChartData(rec, dataForCharts))
       .filter((chart): chart is ChartConfig => chart !== null); // Filter out null results
-    
+
     return charts;
   } catch (error) {
     console.error("Error in generateCharts:", error);
     return [];
   }
 }
-

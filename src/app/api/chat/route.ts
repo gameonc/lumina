@@ -1,6 +1,6 @@
 /**
  * Chat With Your Data API
- * 
+ *
  * Current Work:
  * - Worker: Auto/Cursor
  * - Task: API endpoint for natural language chat
@@ -20,11 +20,15 @@ const chatRequestSchema = z.object({
   datasetId: z.string().optional(),
   headers: z.array(z.string()),
   rows: z.array(z.record(z.unknown())),
-  conversationHistory: z.array(z.object({
-    role: z.enum(["user", "assistant", "system"]),
-    content: z.string(),
-    timestamp: z.number().optional(),
-  })).optional(),
+  conversationHistory: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant", "system"]),
+        content: z.string(),
+        timestamp: z.number().optional(),
+      })
+    )
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -40,7 +44,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { message, datasetId, headers, rows, conversationHistory } = validationResult.data;
+    const { message, datasetId, headers, rows, conversationHistory } =
+      validationResult.data;
 
     if (!headers || headers.length === 0) {
       return NextResponse.json(
@@ -78,9 +83,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Chat processing error:", error);
     return NextResponse.json(
-      { 
+      {
         error: "Failed to process chat message",
-        message: error instanceof Error ? error.message : "Unknown error"
+        message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );
@@ -119,4 +124,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

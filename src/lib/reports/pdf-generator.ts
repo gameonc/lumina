@@ -1,6 +1,6 @@
 /**
  * PDF Report Generator
- * 
+ *
  * Current Work:
  * - Worker: Auto/Cursor
  * - Task: Generate PDF reports from analysis results
@@ -235,10 +235,10 @@ function generateHealthScoreSection(section: ReportSection): string {
     data.score >= 90
       ? "score-excellent"
       : data.score >= 70
-      ? "score-good"
-      : data.score >= 50
-      ? "score-fair"
-      : "score-poor";
+        ? "score-good"
+        : data.score >= 50
+          ? "score-fair"
+          : "score-poor";
 
   return `
     <div class="section">
@@ -296,7 +296,10 @@ function generateChartSection(section: ReportSection): string {
 }
 
 function generateInsightsSection(section: ReportSection): string {
-  const insights = section.data as Array<{ title: string; description: string }>;
+  const insights = section.data as Array<{
+    title: string;
+    description: string;
+  }>;
   return `
     <div class="section">
       <h2 class="section-title">${section.title || "Key Insights"}</h2>
@@ -387,4 +390,3 @@ export function createAnalysisReport(
     sections,
   };
 }
-

@@ -1,6 +1,6 @@
 /**
  * Enhanced Column Profiling Engine
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: Building enhanced column profiling with outliers, better type inference, category detection
@@ -13,28 +13,28 @@ import type { ColumnStats } from "@/types";
 export interface EnhancedColumnStats extends ColumnStats {
   // Enhanced type detection
   inferredType: "numeric" | "date" | "category" | "text" | "boolean" | "mixed";
-  
+
   // Outlier detection
   outliers?: {
     count: number;
     values: (number | string)[];
     method: "iqr" | "zscore" | "isolation";
   };
-  
+
   // Category-specific stats
   topCategories?: Array<{
     value: string | number;
     count: number;
     percentage: number;
   }>;
-  
+
   // Data quality metrics
   quality: {
     completeness: number; // 0-1, percentage of non-null values
     consistency: number; // 0-1, how consistent the data type is
     uniqueness: number; // 0-1, unique values / total values
   };
-  
+
   // Date-specific stats (if type is date)
   dateRange?: {
     min: Date;
@@ -95,7 +95,7 @@ export function inferColumnType(
         /^\d{1,2}\/\d{1,2}\/\d{4}$/, // M/D/YYYY
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, // ISO datetime
       ];
-      
+
       if (datePatterns.some((p) => p.test(value))) {
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
@@ -103,7 +103,7 @@ export function inferColumnType(
           continue;
         }
       }
-      
+
       // Try parsing as date
       const parsed = Date.parse(value);
       if (!isNaN(parsed)) {
@@ -125,7 +125,8 @@ export function inferColumnType(
 
   // Check for category (low cardinality string column)
   const uniqueRatio = uniqueStrings.size / total;
-  const isCategory = stringCount / total >= threshold && uniqueRatio < 0.5 && total > 10;
+  const isCategory =
+    stringCount / total >= threshold && uniqueRatio < 0.5 && total > 10;
 
   if (numberCount / total >= threshold) return "numeric";
   if (dateCount / total >= threshold) return "date";
@@ -186,12 +187,8 @@ export function calculateTopCategories(
   );
 
   nonNullValues.forEach((v) => {
-    const key: string | number = 
-      typeof v === "string" 
-        ? v.trim() 
-        : typeof v === "number" 
-        ? v 
-        : String(v);
+    const key: string | number =
+      typeof v === "string" ? v.trim() : typeof v === "number" ? v : String(v);
     counts.set(key, (counts.get(key) || 0) + 1);
   });
 
@@ -224,7 +221,14 @@ export function profileColumn(
 
   const stats: EnhancedColumnStats = {
     name: columnName,
-    type: inferredType === "category" ? "string" : inferredType === "numeric" ? "number" : inferredType === "text" ? "string" : inferredType,
+    type:
+      inferredType === "category"
+        ? "string"
+        : inferredType === "numeric"
+          ? "number"
+          : inferredType === "text"
+            ? "string"
+            : inferredType,
     inferredType,
     uniqueValues,
     nullCount,
@@ -237,7 +241,9 @@ export function profileColumn(
 
   // Numeric statistics
   if (inferredType === "numeric") {
-    const numbers = nonNullValues.map(Number).filter((n) => !isNaN(n) && isFinite(n));
+    const numbers = nonNullValues
+      .map(Number)
+      .filter((n) => !isNaN(n) && isFinite(n));
     if (numbers.length > 0) {
       stats.min = Math.min(...numbers);
       stats.max = Math.max(...numbers);
@@ -260,10 +266,11 @@ export function profileColumn(
       // Detect outliers
       const outliersIQR = detectOutliersIQR(numbers);
       const outliersZScore = detectOutliersZScore(numbers);
-      
+
       // Use IQR as primary, Z-score as fallback
-      const outlierValues = outliersIQR.length > 0 ? outliersIQR : outliersZScore;
-      
+      const outlierValues =
+        outliersIQR.length > 0 ? outliersIQR : outliersZScore;
+
       if (outlierValues.length > 0) {
         stats.outliers = {
           count: outlierValues.length,
@@ -314,9 +321,9 @@ export function profileColumn(
     }
 
     // Calculate consistency for text/category
-    const typeConsistency = nonNullValues.filter(
-      (v) => typeof v === "string"
-    ).length / nonNullValues.length;
+    const typeConsistency =
+      nonNullValues.filter((v) => typeof v === "string").length /
+      nonNullValues.length;
     stats.quality.consistency = typeConsistency;
   }
 
@@ -343,25 +350,27 @@ export function profileAllColumns(
   // Performance optimization: Sample large datasets
   const MAX_ROWS_FOR_FULL_ANALYSIS = 10000;
   const SAMPLE_SIZE = 5000;
-  
+
   let dataToAnalyze = rows;
   if (rows.length > MAX_ROWS_FOR_FULL_ANALYSIS) {
     // Use stratified sampling: take first, middle, and last portions
     const sampleSize = Math.min(SAMPLE_SIZE, rows.length);
     const step = Math.floor(rows.length / sampleSize);
     dataToAnalyze = [];
-    
+
     for (let i = 0; i < rows.length; i += step) {
       if (dataToAnalyze.length >= sampleSize) break;
       dataToAnalyze.push(rows[i]);
     }
-    
+
     // Always include last row for completeness
     if (dataToAnalyze.length < rows.length) {
       dataToAnalyze.push(rows[rows.length - 1]);
     }
-    
-    console.log(`Sampling ${dataToAnalyze.length} rows from ${rows.length} for performance`);
+
+    console.log(
+      `Sampling ${dataToAnalyze.length} rows from ${rows.length} for performance`
+    );
   }
 
   return headers.map((header) => {
@@ -369,4 +378,3 @@ export function profileAllColumns(
     return profileColumn(header, values);
   });
 }
-

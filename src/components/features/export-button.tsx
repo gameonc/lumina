@@ -131,10 +131,7 @@ export function ExportButton({
 
       {/* Click outside to close */}
       {showMenu && (
-        <div
-          className="fixed inset-0 z-0"
-          onClick={() => setShowMenu(false)}
-        />
+        <div className="fixed inset-0 z-0" onClick={() => setShowMenu(false)} />
       )}
     </div>
   );

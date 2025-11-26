@@ -1,6 +1,6 @@
 /**
  * Dataset Health Score Calculator
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: Calculate 0-100 health score based on data quality metrics
@@ -75,10 +75,10 @@ export function calculateHealthScore(
   // Calculate overall score (weighted average)
   breakdown.overall = Math.round(
     breakdown.completeness * 0.3 +
-    breakdown.uniqueness * 0.2 +
-    breakdown.consistency * 0.2 +
-    breakdown.headerQuality * 0.15 +
-    breakdown.anomalyScore * 0.15
+      breakdown.uniqueness * 0.2 +
+      breakdown.consistency * 0.2 +
+      breakdown.headerQuality * 0.15 +
+      breakdown.anomalyScore * 0.15
   );
 
   // Identify issues
@@ -123,7 +123,7 @@ function calculateUniqueness(
     // For ID columns, high uniqueness is good
     // For other columns, moderate uniqueness is better
     const uniquenessRatio = col.uniqueValues / totalRows;
-    
+
     if (uniquenessRatio > 0.95) {
       // Very unique - might be an ID (good)
       return 100;
@@ -195,7 +195,11 @@ function calculateHeaderQuality(headers: string[]): number {
     }
 
     // Check for spaces (snake_case or camelCase preferred)
-    if (header.includes(" ") && !header.includes("_") && !header.match(/[A-Z]/)) {
+    if (
+      header.includes(" ") &&
+      !header.includes("_") &&
+      !header.match(/[A-Z]/)
+    ) {
       score -= 3;
     }
   });
@@ -259,10 +263,11 @@ function identifyIssues(
   );
 
   if (missingDataColumns.length > 0) {
-    const severity =
-      missingDataColumns.some((col) => col.quality.completeness < 0.5)
-        ? "high"
-        : missingDataColumns.some((col) => col.quality.completeness < 0.7)
+    const severity = missingDataColumns.some(
+      (col) => col.quality.completeness < 0.5
+    )
+      ? "high"
+      : missingDataColumns.some((col) => col.quality.completeness < 0.7)
         ? "medium"
         : "low";
 
@@ -340,7 +345,11 @@ function identifyIssues(
 
     issues.duplication = {
       severity:
-        duplicatePercentage > 50 ? "high" : duplicatePercentage > 20 ? "medium" : "low",
+        duplicatePercentage > 50
+          ? "high"
+          : duplicatePercentage > 20
+            ? "medium"
+            : "low",
       message: `Potential duplicate rows detected (${duplicatePercentage.toFixed(1)}% estimated)`,
       duplicatePercentage: Math.round(duplicatePercentage),
     };
@@ -377,9 +386,7 @@ function generateRecommendations(
   }
 
   if (breakdown.anomalyScore < 70) {
-    recommendations.push(
-      "Investigate and handle outliers in numeric columns"
-    );
+    recommendations.push("Investigate and handle outliers in numeric columns");
   }
 
   if (issues.duplication && issues.duplication.severity !== "low") {
@@ -389,7 +396,9 @@ function generateRecommendations(
   if (breakdown.overall >= 90) {
     recommendations.push("Dataset quality is excellent! Ready for analysis.");
   } else if (breakdown.overall >= 70) {
-    recommendations.push("Dataset quality is good with minor improvements needed.");
+    recommendations.push(
+      "Dataset quality is good with minor improvements needed."
+    );
   } else {
     recommendations.push(
       "Dataset needs significant quality improvements before analysis."
@@ -398,4 +407,3 @@ function generateRecommendations(
 
   return recommendations;
 }
-

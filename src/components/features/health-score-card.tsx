@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, Progress } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Progress,
+} from "@/components/ui";
 import {
   Activity,
   AlertTriangle,
@@ -102,7 +108,10 @@ function HealthScoreSkeleton() {
         </div>
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-10 animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
+            <div
+              key={i}
+              className="h-10 animate-pulse rounded bg-neutral-100 dark:bg-neutral-800"
+            />
           ))}
         </div>
       </CardContent>
@@ -110,7 +119,10 @@ function HealthScoreSkeleton() {
   );
 }
 
-export function HealthScoreCard({ healthData, isLoading = false }: HealthScoreCardProps) {
+export function HealthScoreCard({
+  healthData,
+  isLoading = false,
+}: HealthScoreCardProps) {
   if (isLoading) {
     return <HealthScoreSkeleton />;
   }

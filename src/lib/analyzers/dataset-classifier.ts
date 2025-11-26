@@ -1,6 +1,6 @@
 /**
  * Auto Sheet Classification Engine
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: AI-powered dataset type classification
@@ -34,7 +34,7 @@ export async function classifyDataset(
 ): Promise<DatasetClassification> {
   // First, try heuristic-based classification (fast, no API call)
   const heuristicResult = classifyByHeuristics(headers);
-  
+
   // If confidence is high, return early
   if (heuristicResult.confidence > 0.8) {
     return heuristicResult;
@@ -53,9 +53,7 @@ export async function classifyDataset(
 /**
  * Heuristic-based classification (fast, no API call)
  */
-function classifyByHeuristics(
-  headers: string[]
-): DatasetClassification {
+function classifyByHeuristics(headers: string[]): DatasetClassification {
   const headerLower = headers.map((h) => h.toLowerCase());
   const headerString = headerLower.join(" ");
 
@@ -224,4 +222,3 @@ function classifyByHeuristics(
     indicators,
   };
 }
-

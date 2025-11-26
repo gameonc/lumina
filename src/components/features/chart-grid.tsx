@@ -19,7 +19,12 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import type { ChartConfig } from "@/types";
-import { TrendingUp, BarChart3, PieChartIcon, ScatterChartIcon } from "lucide-react";
+import {
+  TrendingUp,
+  BarChart3,
+  PieChartIcon,
+  ScatterChartIcon,
+} from "lucide-react";
 
 interface ChartGridProps {
   charts: ChartConfig[];
@@ -59,7 +64,7 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-[200px] sm:h-[250px] items-center justify-center text-neutral-500 text-sm">
+      <div className="flex h-[200px] items-center justify-center text-sm text-neutral-500 sm:h-[250px]">
         No data available
       </div>
     );
@@ -77,11 +82,7 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
         <ResponsiveContainer width="100%" height={250}>
           <LineChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis
-              dataKey={xAxis}
-              tick={{ fontSize: 12 }}
-              stroke="#9ca3af"
-            />
+            <XAxis dataKey={xAxis} tick={{ fontSize: 12 }} stroke="#9ca3af" />
             <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
             <Tooltip
               contentStyle={{
@@ -110,11 +111,7 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
         <ResponsiveContainer width="100%" height={250}>
           <BarChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis
-              dataKey={xAxis}
-              tick={{ fontSize: 12 }}
-              stroke="#9ca3af"
-            />
+            <XAxis dataKey={xAxis} tick={{ fontSize: 12 }} stroke="#9ca3af" />
             <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
             <Tooltip
               contentStyle={{
@@ -218,7 +215,7 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
 
 function ChartSkeleton() {
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm">
+    <Card className="border border-slate-200 bg-white shadow-sm">
       <CardHeader>
         <div className="h-5 w-32 animate-pulse rounded bg-slate-200" />
       </CardHeader>
@@ -244,13 +241,13 @@ export function ChartGrid({ charts, isLoading = false }: ChartGridProps) {
 
   if (!charts || charts.length === 0) {
     return (
-      <Card className="bg-white border border-slate-200 shadow-sm">
+      <Card className="border border-slate-200 bg-white shadow-sm">
         <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
-          <BarChart3 className="h-10 w-10 sm:h-12 sm:w-12 text-slate-300" />
-          <p className="mt-3 sm:mt-4 text-sm sm:text-base text-slate-500">
+          <BarChart3 className="h-10 w-10 text-slate-300 sm:h-12 sm:w-12" />
+          <p className="mt-3 text-sm text-slate-500 sm:mt-4 sm:text-base">
             No charts generated yet
           </p>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs text-slate-400 sm:text-sm">
             Upload data to generate automatic visualizations
           </p>
         </CardContent>
@@ -264,14 +261,17 @@ export function ChartGrid({ charts, isLoading = false }: ChartGridProps) {
         {charts.map((chart, index) => {
           const Icon = getChartIcon(chart.type);
           return (
-            <Card key={`chart-${index}`} className="overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-2 bg-slate-50/50 border-b border-slate-100/50">
-                <CardTitle className="flex items-center gap-2 text-sm sm:text-base text-slate-800">
-                  <Icon className="h-4 w-4 text-violet-500 flex-shrink-0" />
+            <Card
+              key={`chart-${index}`}
+              className="overflow-hidden border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+            >
+              <CardHeader className="border-b border-slate-100/50 bg-slate-50/50 p-4 pb-2 sm:p-6 sm:pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm text-slate-800 sm:text-base">
+                  <Icon className="h-4 w-4 flex-shrink-0 text-violet-500" />
                   <span className="truncate font-medium">{chart.title}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-4">
+              <CardContent className="p-4 pt-4 sm:p-6">
                 <ChartRenderer chart={chart} />
               </CardContent>
             </Card>

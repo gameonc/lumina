@@ -37,22 +37,22 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 p-8 shadow-lg text-center">
-            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <AlertTriangle className="w-8 h-8 text-amber-600" />
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-lg">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+              <AlertTriangle className="h-8 w-8 text-amber-600" />
             </div>
-            
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">
+
+            <h1 className="mb-2 text-2xl font-bold text-slate-900">
               Something went wrong
             </h1>
-            <p className="text-slate-500 mb-6">
+            <p className="mb-6 text-slate-500">
               We hit an unexpected error. Don't worry, your data is safe.
             </p>
 
             {process.env.NODE_ENV === "development" && this.state.error && (
-              <div className="mb-6 p-4 bg-slate-50 rounded-xl text-left">
-                <p className="text-xs font-mono text-red-600 break-all">
+              <div className="mb-6 rounded-xl bg-slate-50 p-4 text-left">
+                <p className="break-all font-mono text-xs text-red-600">
                   {this.state.error.message}
                 </p>
               </div>
@@ -61,16 +61,16 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="flex gap-3">
               <button
                 onClick={this.handleGoHome}
-                className="flex-1 py-3 px-4 border border-slate-200 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-50"
               >
-                <Home className="w-4 h-4" />
+                <Home className="h-4 w-4" />
                 Go Home
               </button>
               <button
                 onClick={this.handleRefresh}
-                className="flex-1 py-3 px-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:from-violet-500 hover:to-indigo-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-3 font-medium text-white shadow-lg shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-indigo-500"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="h-4 w-4" />
                 Try Again
               </button>
             </div>
@@ -82,4 +82,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-

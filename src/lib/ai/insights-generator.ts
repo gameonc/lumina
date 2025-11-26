@@ -69,7 +69,9 @@ export async function generateDatasetInsights(
         mean: col.mean?.toFixed(2),
         median: col.median,
       }),
-      ...(col.topCategories && { topCategories: col.topCategories.slice(0, 5) }),
+      ...(col.topCategories && {
+        topCategories: col.topCategories.slice(0, 5),
+      }),
     })),
     sampleData: rows.slice(0, 10),
   };
@@ -179,7 +181,8 @@ export async function generateChartExplanation(
       messages: [
         {
           role: "system",
-          content: "You are a data visualization expert. Explain charts in 1-2 clear, insightful sentences. Focus on the main trend or pattern, and what it means for the viewer. Be concise and avoid technical jargon.",
+          content:
+            "You are a data visualization expert. Explain charts in 1-2 clear, insightful sentences. Focus on the main trend or pattern, and what it means for the viewer. Be concise and avoid technical jargon.",
         },
         {
           role: "user",
@@ -195,7 +198,10 @@ What's the key takeaway from this visualization?`,
       max_tokens: 150,
     });
 
-    return response.choices[0]?.message?.content || "This chart visualizes the relationship between the selected data points.";
+    return (
+      response.choices[0]?.message?.content ||
+      "This chart visualizes the relationship between the selected data points."
+    );
   } catch (error) {
     console.error("Failed to generate chart explanation:", error);
     return `This ${chartType} chart shows ${yKey} across different ${xKey} values.`;
@@ -250,7 +256,8 @@ function generateFallbackInsights(
   } else {
     insights.push({
       title: "Data completeness looks good",
-      description: "Most columns have low or no missing values, indicating good data quality.",
+      description:
+        "Most columns have low or no missing values, indicating good data quality.",
       type: "positive",
     });
   }
@@ -272,7 +279,10 @@ function generateFallbackInsights(
         { label: "Total Rows", value: rowCount.toLocaleString() },
         { label: "Columns", value: columnStats.length.toString() },
         { label: "Numeric Fields", value: numericColumns.length.toString() },
-        { label: "Data Quality", value: highMissingCols.length === 0 ? "Good" : "Needs Review" },
+        {
+          label: "Data Quality",
+          value: highMissingCols.length === 0 ? "Good" : "Needs Review",
+        },
       ],
     },
     keyInsights: insights,

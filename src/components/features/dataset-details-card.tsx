@@ -1,7 +1,16 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
-import { FileText, Calendar, Database, Columns3, Activity, Download, RefreshCw, Info } from "lucide-react";
+import {
+  FileText,
+  Calendar,
+  Database,
+  Columns3,
+  Activity,
+  Download,
+  RefreshCw,
+  Info,
+} from "lucide-react";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
 
 interface DatasetDetailsCardProps {
@@ -37,35 +46,44 @@ export function DatasetDetailsCard({
   };
 
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden">
-      <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+    <Card className="overflow-hidden border border-slate-200 bg-white shadow-sm">
+      <CardHeader className="border-b border-slate-100 bg-slate-50/50 pb-4">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-white p-1.5 shadow-sm">
             <Info className="h-4 w-4 text-violet-600" />
           </div>
-          <CardTitle className="text-slate-800 text-base">Dataset Details</CardTitle>
+          <CardTitle className="text-base text-slate-800">
+            Dataset Details
+          </CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="p-6 space-y-6">
+      <CardContent className="space-y-6 p-6">
         <div className="space-y-4">
-          <div className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-            <div className="p-2 bg-white border border-slate-100 rounded-lg shadow-sm group-hover:border-slate-200 group-hover:shadow">
-              <FileText className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+          <div className="group flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-slate-50">
+            <div className="rounded-lg border border-slate-100 bg-white p-2 shadow-sm group-hover:border-slate-200 group-hover:shadow">
+              <FileText className="h-4 w-4 text-slate-400 transition-colors group-hover:text-violet-500" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-slate-400 mb-0.5">File Name</p>
-              <p className="text-sm font-semibold text-slate-700 truncate" title={datasetName}>
+            <div className="min-w-0 flex-1">
+              <p className="mb-0.5 text-xs font-medium text-slate-400">
+                File Name
+              </p>
+              <p
+                className="truncate text-sm font-semibold text-slate-700"
+                title={datasetName}
+              >
                 {datasetName}
               </p>
             </div>
           </div>
 
-          <div className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-            <div className="p-2 bg-white border border-slate-100 rounded-lg shadow-sm group-hover:border-slate-200 group-hover:shadow">
-              <Calendar className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+          <div className="group flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-slate-50">
+            <div className="rounded-lg border border-slate-100 bg-white p-2 shadow-sm group-hover:border-slate-200 group-hover:shadow">
+              <Calendar className="h-4 w-4 text-slate-400 transition-colors group-hover:text-violet-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 mb-0.5">Upload Date</p>
+              <p className="mb-0.5 text-xs font-medium text-slate-400">
+                Upload Date
+              </p>
               <p className="text-sm font-semibold text-slate-700">
                 {uploadDate ? formatDate(uploadDate) : "Just now"}
               </p>
@@ -73,43 +91,59 @@ export function DatasetDetailsCard({
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <div className="group flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-              <div className="p-2 bg-white border border-slate-100 rounded-lg shadow-sm group-hover:border-slate-200 group-hover:shadow">
-                <Database className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+            <div className="group flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-slate-50">
+              <div className="rounded-lg border border-slate-100 bg-white p-2 shadow-sm group-hover:border-slate-200 group-hover:shadow">
+                <Database className="h-4 w-4 text-slate-400 transition-colors group-hover:text-violet-500" />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-400 mb-0.5">Rows</p>
-                <p className="text-sm font-semibold text-slate-700">{rowCount.toLocaleString()}</p>
+                <p className="mb-0.5 text-xs font-medium text-slate-400">
+                  Rows
+                </p>
+                <p className="text-sm font-semibold text-slate-700">
+                  {rowCount.toLocaleString()}
+                </p>
               </div>
             </div>
-            <div className="group flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-              <div className="p-2 bg-white border border-slate-100 rounded-lg shadow-sm group-hover:border-slate-200 group-hover:shadow">
-                <Columns3 className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+            <div className="group flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-slate-50">
+              <div className="rounded-lg border border-slate-100 bg-white p-2 shadow-sm group-hover:border-slate-200 group-hover:shadow">
+                <Columns3 className="h-4 w-4 text-slate-400 transition-colors group-hover:text-violet-500" />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-400 mb-0.5">Columns</p>
-                <p className="text-sm font-semibold text-slate-700">{columnCount}</p>
+                <p className="mb-0.5 text-xs font-medium text-slate-400">
+                  Columns
+                </p>
+                <p className="text-sm font-semibold text-slate-700">
+                  {columnCount}
+                </p>
               </div>
             </div>
           </div>
 
           {healthScore && (
-            <div className="p-4 rounded-xl border bg-white shadow-sm">
-              <div className="flex items-center justify-between mb-2">
+            <div className="rounded-xl border bg-white p-4 shadow-sm">
+              <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Activity className="h-4 w-4 text-slate-400" />
-                  <span className="text-xs font-medium text-slate-500">Health Score</span>
+                  <span className="text-xs font-medium text-slate-500">
+                    Health Score
+                  </span>
                 </div>
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${getScoreColor(healthScore.score)}`}>
+                <span
+                  className={`rounded-full border px-2.5 py-0.5 text-xs font-bold ${getScoreColor(healthScore.score)}`}
+                >
                   {healthScore.score}/100
                 </span>
               </div>
-              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div 
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                <div
                   className={`h-full rounded-full transition-all duration-500 ${
-                    healthScore.score >= 80 ? "bg-emerald-500" : 
-                    healthScore.score >= 60 ? "bg-amber-500" : 
-                    healthScore.score >= 40 ? "bg-orange-500" : "bg-red-500"
+                    healthScore.score >= 80
+                      ? "bg-emerald-500"
+                      : healthScore.score >= 60
+                        ? "bg-amber-500"
+                        : healthScore.score >= 40
+                          ? "bg-orange-500"
+                          : "bg-red-500"
                   }`}
                   style={{ width: `${healthScore.score}%` }}
                 />
@@ -118,12 +152,12 @@ export function DatasetDetailsCard({
           )}
         </div>
 
-        <div className="pt-4 border-t border-slate-100 space-y-3">
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 rounded-xl transition-all shadow-sm">
+        <div className="space-y-3 border-t border-slate-100 pt-4">
+          <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900">
             <Download className="h-4 w-4" />
             Download Original
           </button>
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-xl transition-all">
+          <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-violet-100 bg-violet-50 px-4 py-2.5 text-sm font-medium text-violet-600 transition-all hover:bg-violet-100">
             <RefreshCw className="h-4 w-4" />
             Re-run Analysis
           </button>

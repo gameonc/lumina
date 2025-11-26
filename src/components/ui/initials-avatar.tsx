@@ -35,12 +35,12 @@ function getInitials(name?: string, email?: string): string {
     }
     return parts[0].substring(0, 2).toUpperCase();
   }
-  
+
   if (email) {
     const localPart = email.split("@")[0];
     return localPart.substring(0, 2).toUpperCase();
   }
-  
+
   return "U";
 }
 
@@ -49,34 +49,28 @@ function getGradientIndex(name?: string, email?: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash;
   }
   return Math.abs(hash) % GRADIENT_PAIRS.length;
 }
 
-export function InitialsAvatar({ 
-  name, 
-  email, 
+export function InitialsAvatar({
+  name,
+  email,
   size = "md",
-  className = "" 
+  className = "",
 }: InitialsAvatarProps) {
   const initials = useMemo(() => getInitials(name, email), [name, email]);
-  const gradientIndex = useMemo(() => getGradientIndex(name, email), [name, email]);
+  const gradientIndex = useMemo(
+    () => getGradientIndex(name, email),
+    [name, email]
+  );
   const [fromColor, toColor] = GRADIENT_PAIRS[gradientIndex];
 
   return (
     <div
-      className={`
-        ${sizeClasses[size]}
-        bg-gradient-to-br ${fromColor} ${toColor}
-        rounded-full
-        flex items-center justify-center
-        font-bold text-white
-        shadow-lg
-        ring-2 ring-white/20
-        ${className}
-      `}
+      className={` ${sizeClasses[size]} bg-gradient-to-br ${fromColor} ${toColor} flex items-center justify-center rounded-full font-bold text-white shadow-lg ring-2 ring-white/20 ${className} `}
     >
       {initials}
     </div>
@@ -84,4 +78,3 @@ export function InitialsAvatar({
 }
 
 export default InitialsAvatar;
-

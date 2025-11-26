@@ -4,7 +4,18 @@ const SHEETS_ID_ENV = "GOOGLE_SHEETS_ID";
 const SERVICE_ACCOUNT_EMAIL_ENV = "GOOGLE_SERVICE_ACCOUNT_EMAIL";
 const PRIVATE_KEY_ENV = "GOOGLE_PRIVATE_KEY";
 const SHEET_NAME = "Analyses";
-const HEADERS = ["ID", "Dataset Name", "Health Score", "Row Count", "Column Count", "Dataset Type", "Created At", "Charts JSON", "Column Stats JSON", "Full Data JSON"];
+const HEADERS = [
+  "ID",
+  "Dataset Name",
+  "Health Score",
+  "Row Count",
+  "Column Count",
+  "Dataset Type",
+  "Created At",
+  "Charts JSON",
+  "Column Stats JSON",
+  "Full Data JSON",
+];
 
 export interface AnalysisRecord {
   id: string;
@@ -39,11 +50,16 @@ export class GoogleSheetsStorage {
 
   constructor(config?: Partial<GoogleSheetsConfig>) {
     const spreadsheetId = config?.spreadsheetId || process.env[SHEETS_ID_ENV];
-    const serviceAccountEmail = config?.serviceAccountEmail || process.env[SERVICE_ACCOUNT_EMAIL_ENV];
+    const serviceAccountEmail =
+      config?.serviceAccountEmail || process.env[SERVICE_ACCOUNT_EMAIL_ENV];
     const privateKey = config?.privateKey || process.env[PRIVATE_KEY_ENV];
 
     if (spreadsheetId && serviceAccountEmail && privateKey) {
-      this.config = { spreadsheetId, serviceAccountEmail, privateKey: privateKey.replace(/\\n/g, "\n") };
+      this.config = {
+        spreadsheetId,
+        serviceAccountEmail,
+        privateKey: privateKey.replace(/\\n/g, "\n"),
+      };
     }
   }
 
@@ -78,7 +94,9 @@ export class GoogleSheetsStorage {
           requestBody: { values: [HEADERS] },
         });
       }
-    } catch { /* Sheet might not exist */ }
+    } catch {
+      /* Sheet might not exist */
+    }
   }
 
   private rowToRecord(row: string[]): AnalysisRecord {
@@ -92,7 +110,9 @@ export class GoogleSheetsStorage {
       createdAt: row[6] || "",
       charts: row[7] ? JSON.parse(row[7]) : [],
       columnStats: row[8] ? JSON.parse(row[8]) : [],
-      fullData: row[9] ? JSON.parse(row[9]) : { headers: [], rows: [], healthScore: null, insights: [] },
+      fullData: row[9]
+        ? JSON.parse(row[9])
+        : { headers: [], rows: [], healthScore: null, insights: [] },
     };
   }
 
@@ -112,12 +132,17 @@ export class GoogleSheetsStorage {
   }
 
   async saveAnalysis(analysis: AnalysisRecord): Promise<AnalysisRecord> {
-    if (!this.config) throw new Error("Google Sheets not configured. Set GOOGLE_SHEETS_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, and GOOGLE_PRIVATE_KEY.");
+    if (!this.config)
+      throw new Error(
+        "Google Sheets not configured. Set GOOGLE_SHEETS_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, and GOOGLE_PRIVATE_KEY."
+      );
     await this.initialize();
-    if (!this.sheets) throw new Error("Failed to initialize Google Sheets client");
+    if (!this.sheets)
+      throw new Error("Failed to initialize Google Sheets client");
 
     const existing = await this.getAnalysis(analysis.id);
-    if (existing) throw new Error("Analysis with ID " + analysis.id + " already exists");
+    if (existing)
+      throw new Error("Analysis with ID " + analysis.id + " already exists");
 
     await this.sheets.spreadsheets.values.append({
       spreadsheetId: this.config.spreadsheetId,
@@ -132,7 +157,8 @@ export class GoogleSheetsStorage {
   async getAnalysis(id: string): Promise<AnalysisRecord | null> {
     if (!this.config) throw new Error("Google Sheets not configured.");
     await this.initialize();
-    if (!this.sheets) throw new Error("Failed to initialize Google Sheets client");
+    if (!this.sheets)
+      throw new Error("Failed to initialize Google Sheets client");
 
     const response = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.config.spreadsheetId,
@@ -150,7 +176,8 @@ export class GoogleSheetsStorage {
   async listAnalyses(): Promise<AnalysisRecord[]> {
     if (!this.config) throw new Error("Google Sheets not configured.");
     await this.initialize();
-    if (!this.sheets) throw new Error("Failed to initialize Google Sheets client");
+    if (!this.sheets)
+      throw new Error("Failed to initialize Google Sheets client");
 
     const response = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.config.spreadsheetId,
@@ -161,10 +188,14 @@ export class GoogleSheetsStorage {
     return rows.slice(1).map((row) => this.rowToRecord(row));
   }
 
-  async updateAnalysis(id: string, updates: AnalysisRecordUpdate): Promise<AnalysisRecord | null> {
+  async updateAnalysis(
+    id: string,
+    updates: AnalysisRecordUpdate
+  ): Promise<AnalysisRecord | null> {
     if (!this.config) throw new Error("Google Sheets not configured.");
     await this.initialize();
-    if (!this.sheets) throw new Error("Failed to initialize Google Sheets client");
+    if (!this.sheets)
+      throw new Error("Failed to initialize Google Sheets client");
 
     const response = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.config.spreadsheetId,
@@ -175,7 +206,10 @@ export class GoogleSheetsStorage {
 
     let rowIndex = -1;
     for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === id) { rowIndex = i; break; }
+      if (rows[i][0] === id) {
+        rowIndex = i;
+        break;
+      }
     }
     if (rowIndex === -1) return null;
 
@@ -194,10 +228,15 @@ export class GoogleSheetsStorage {
   async deleteAnalysis(id: string): Promise<boolean> {
     if (!this.config) throw new Error("Google Sheets not configured.");
     await this.initialize();
-    if (!this.sheets) throw new Error("Failed to initialize Google Sheets client");
+    if (!this.sheets)
+      throw new Error("Failed to initialize Google Sheets client");
 
-    const spreadsheet = await this.sheets.spreadsheets.get({ spreadsheetId: this.config.spreadsheetId });
-    const sheet = spreadsheet.data.sheets?.find((s) => s.properties?.title === SHEET_NAME);
+    const spreadsheet = await this.sheets.spreadsheets.get({
+      spreadsheetId: this.config.spreadsheetId,
+    });
+    const sheet = spreadsheet.data.sheets?.find(
+      (s) => s.properties?.title === SHEET_NAME
+    );
     if (!sheet?.properties?.sheetId) throw new Error("Sheet not found");
     const sheetId = sheet.properties.sheetId;
 
@@ -210,14 +249,28 @@ export class GoogleSheetsStorage {
 
     let rowIndex = -1;
     for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === id) { rowIndex = i; break; }
+      if (rows[i][0] === id) {
+        rowIndex = i;
+        break;
+      }
     }
     if (rowIndex === -1) return false;
 
     await this.sheets.spreadsheets.batchUpdate({
       spreadsheetId: this.config.spreadsheetId,
       requestBody: {
-        requests: [{ deleteDimension: { range: { sheetId, dimension: "ROWS", startIndex: rowIndex, endIndex: rowIndex + 1 } } }],
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId,
+                dimension: "ROWS",
+                startIndex: rowIndex,
+                endIndex: rowIndex + 1,
+              },
+            },
+          },
+        ],
       },
     });
     return true;

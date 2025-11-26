@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGoogleSheetsStorage, AnalysisRecord } from "@/lib/storage/google-sheets";
+import {
+  getGoogleSheetsStorage,
+  AnalysisRecord,
+} from "@/lib/storage/google-sheets";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -20,7 +23,11 @@ export async function POST(request: NextRequest) {
 
     if (!storage.isConfigured()) {
       return NextResponse.json(
-        { success: false, error: "Google Sheets not configured. Set GOOGLE_SHEETS_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, and GOOGLE_PRIVATE_KEY environment variables." },
+        {
+          success: false,
+          error:
+            "Google Sheets not configured. Set GOOGLE_SHEETS_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, and GOOGLE_PRIVATE_KEY environment variables.",
+        },
         { status: 503 }
       );
     }
@@ -49,8 +56,14 @@ export async function POST(request: NextRequest) {
     console.error("Save analysis error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     if (message.includes("already exists")) {
-      return NextResponse.json({ success: false, error: message }, { status: 409 });
+      return NextResponse.json(
+        { success: false, error: message },
+        { status: 409 }
+      );
     }
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: message },
+      { status: 500 }
+    );
   }
 }

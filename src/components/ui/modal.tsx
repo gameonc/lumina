@@ -138,7 +138,9 @@ const ModalClose = React.forwardRef<HTMLButtonElement, ModalCloseProps>(
       onClick?.(e);
       // If no onClick provided, try to find and click the backdrop
       if (!onClick) {
-        const backdrop = document.querySelector('[aria-hidden="true"]') as HTMLElement;
+        const backdrop = document.querySelector(
+          '[aria-hidden="true"]'
+        ) as HTMLElement;
         backdrop?.click();
       }
     };

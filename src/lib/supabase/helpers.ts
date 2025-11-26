@@ -1,6 +1,6 @@
 /**
  * Supabase Storage & Database Helpers
- * 
+ *
  * Current Work:
  * - Worker: Auto/Cursor
  * - Task: Helper functions for file storage and data persistence
@@ -35,9 +35,9 @@ export async function uploadFile(
     throw new Error(`Failed to upload file: ${error.message}`);
   }
 
-  const { data: { publicUrl } } = supabase.storage
-    .from("uploads")
-    .getPublicUrl(data.path);
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("uploads").getPublicUrl(data.path);
 
   return {
     path: data.path,
@@ -179,13 +179,15 @@ export async function saveChart(
 /**
  * Get all charts for a dataset
  */
-export async function getCharts(uploadId: string): Promise<Array<{
-  id: string;
-  chart_type: string;
-  chart_data: Record<string, unknown>;
-  title: string;
-  created_at: string;
-}>> {
+export async function getCharts(uploadId: string): Promise<
+  Array<{
+    id: string;
+    chart_type: string;
+    chart_data: Record<string, unknown>;
+    title: string;
+    created_at: string;
+  }>
+> {
   const { data, error } = await supabase
     .from("charts")
     .select("id, chart_type, chart_data, title, created_at")
@@ -233,13 +235,15 @@ export async function getUpload(uploadId: string): Promise<{
 export async function getRecentUploads(
   userId: string,
   limit: number = 10
-): Promise<Array<{
-  id: string;
-  file_name: string;
-  row_count: number;
-  column_count: number;
-  created_at: string;
-}>> {
+): Promise<
+  Array<{
+    id: string;
+    file_name: string;
+    row_count: number;
+    column_count: number;
+    created_at: string;
+  }>
+> {
   const { data, error } = await supabase
     .from("uploads")
     .select("id, file_name, row_count, column_count, created_at")
@@ -265,13 +269,9 @@ export async function deleteUpload(uploadId: string): Promise<void> {
   }
 
   // Delete from database (cascades to related tables)
-  const { error } = await supabase
-    .from("uploads")
-    .delete()
-    .eq("id", uploadId);
+  const { error } = await supabase.from("uploads").delete().eq("id", uploadId);
 
   if (error) {
     throw new Error(`Failed to delete upload: ${error.message}`);
   }
 }
-

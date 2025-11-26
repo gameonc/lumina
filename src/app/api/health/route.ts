@@ -1,6 +1,6 @@
 /**
  * Dataset Health Score API
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: API endpoint for health score calculation
@@ -71,4 +71,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

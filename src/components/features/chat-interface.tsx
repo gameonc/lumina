@@ -19,13 +19,7 @@ import {
   Cell,
 } from "recharts";
 import { CardContent } from "@/components/ui";
-import {
-  Send,
-  Loader2,
-  User,
-  Bot,
-  Sparkles,
-} from "lucide-react";
+import { Send, Loader2, User, Bot, Sparkles } from "lucide-react";
 import type { ChartConfig } from "@/types";
 
 interface ChatMessage {
@@ -72,9 +66,7 @@ function InlineChart({ chart }: { chart: ChartConfig }) {
   return (
     <div className="mt-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       {title && (
-        <h4 className="mb-3 text-sm font-semibold text-slate-700">
-          {title}
-        </h4>
+        <h4 className="mb-3 text-sm font-semibold text-slate-700">{title}</h4>
       )}
       <ResponsiveContainer width="100%" height={200}>
         {type === "line" ? (
@@ -166,24 +158,22 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full shadow-sm ${
           isUser
             ? "bg-gradient-to-br from-violet-500 to-indigo-600 text-white"
-            : "bg-white border border-slate-200 text-violet-600"
+            : "border border-slate-200 bg-white text-violet-600"
         }`}
       >
-        {isUser ? (
-          <User className="h-4 w-4" />
-        ) : (
-          <Bot className="h-4 w-4" />
-        )}
+        {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
       </div>
       <div className={`max-w-[85%] ${isUser ? "text-right" : ""}`}>
         <div
           className={`rounded-2xl px-4 py-3 shadow-sm ${
             isUser
-              ? "bg-violet-600 text-white rounded-tr-none"
-              : "bg-white border border-slate-100 text-slate-700 rounded-tl-none"
+              ? "rounded-tr-none bg-violet-600 text-white"
+              : "rounded-tl-none border border-slate-100 bg-white text-slate-700"
           }`}
         >
-          <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed">
+            {message.content}
+          </p>
         </div>
 
         {/* Inline Chart */}
@@ -195,7 +185,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             {message.suggestions.map((suggestion, i) => (
               <button
                 key={i}
-                className="rounded-full bg-white border border-violet-100 px-3 py-1.5 text-xs font-medium text-violet-600 transition-all hover:bg-violet-50 hover:border-violet-200 shadow-sm"
+                className="rounded-full border border-violet-100 bg-white px-3 py-1.5 text-xs font-medium text-violet-600 shadow-sm transition-all hover:border-violet-200 hover:bg-violet-50"
               >
                 {suggestion}
               </button>
@@ -203,7 +193,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           </div>
         )}
 
-        <span className="mt-1.5 block text-[10px] text-slate-400 font-medium">
+        <span className="mt-1.5 block text-[10px] font-medium text-slate-400">
           {message.timestamp.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -214,7 +204,11 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   );
 }
 
-export function ChatInterface({ headers, rows, onNewChart }: ChatInterfaceProps) {
+export function ChatInterface({
+  headers,
+  rows,
+  onNewChart,
+}: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
@@ -329,19 +323,19 @@ export function ChatInterface({ headers, rows, onNewChart }: ChatInterfaceProps)
   return (
     <div className="flex h-full flex-col">
       {/* Header info - Removed since it's in the card header now */}
-      
+
       {/* Messages */}
-      <CardContent className="flex-1 space-y-6 overflow-y-auto p-4 bg-slate-50/50">
+      <CardContent className="flex-1 space-y-6 overflow-y-auto bg-slate-50/50 p-4">
         {messages.map((message) => (
           <div key={message.id}>
             <MessageBubble message={message} />
             {message.id === "welcome" && message.suggestions && (
-              <div className="mt-3 ml-11 flex flex-wrap gap-2">
+              <div className="ml-11 mt-3 flex flex-wrap gap-2">
                 {message.suggestions.map((suggestion, i) => (
                   <button
                     key={i}
                     onClick={() => handleWelcomeSuggestionClick(suggestion)}
-                    className="rounded-full bg-white border border-violet-100 px-3 py-1.5 text-xs font-medium text-violet-600 transition-colors hover:bg-violet-50 hover:border-violet-200 shadow-sm"
+                    className="rounded-full border border-violet-100 bg-white px-3 py-1.5 text-xs font-medium text-violet-600 shadow-sm transition-colors hover:border-violet-200 hover:bg-violet-50"
                   >
                     <Sparkles className="mr-1 inline-block h-3 w-3 text-violet-500" />
                     {suggestion}
@@ -354,10 +348,10 @@ export function ChatInterface({ headers, rows, onNewChart }: ChatInterfaceProps)
 
         {isLoading && (
           <div className="flex gap-3">
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white border border-slate-200 shadow-sm">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm">
               <Bot className="h-4 w-4 text-violet-600" />
             </div>
-            <div className="rounded-2xl bg-white border border-slate-100 px-4 py-2 shadow-sm rounded-tl-none">
+            <div className="rounded-2xl rounded-tl-none border border-slate-100 bg-white px-4 py-2 shadow-sm">
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin text-violet-500" />
                 <span className="text-sm text-slate-500">Thinking...</span>
@@ -370,7 +364,7 @@ export function ChatInterface({ headers, rows, onNewChart }: ChatInterfaceProps)
       </CardContent>
 
       {/* Input */}
-      <div className="border-t border-slate-100 p-4 bg-white">
+      <div className="border-t border-slate-100 bg-white p-4">
         {messages.length <= 1 && (
           <div className="mb-3 flex flex-wrap gap-2">
             <button
@@ -378,7 +372,7 @@ export function ChatInterface({ headers, rows, onNewChart }: ChatInterfaceProps)
                 setInput("What are the top 3 trends here?");
                 setTimeout(() => sendMessage(), 100);
               }}
-              className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:bg-slate-100 hover:border-slate-200"
+              className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-slate-200 hover:bg-slate-100"
             >
               What are the top 3 trends here?
             </button>
@@ -387,14 +381,14 @@ export function ChatInterface({ headers, rows, onNewChart }: ChatInterfaceProps)
                 setInput("Show me the last 30 days only");
                 setTimeout(() => sendMessage(), 100);
               }}
-              className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:bg-slate-100 hover:border-slate-200"
+              className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-slate-200 hover:bg-slate-100"
             >
               Show me the last 30 days only
             </button>
           </div>
         )}
-        
-        <div className="flex gap-2 relative">
+
+        <div className="relative flex gap-2">
           <input
             ref={inputRef}
             type="text"
@@ -402,7 +396,7 @@ export function ChatInterface({ headers, rows, onNewChart }: ChatInterfaceProps)
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask about your data..."
-            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-12 text-sm text-slate-700 placeholder:text-slate-400 focus:border-violet-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all shadow-sm"
+            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-12 text-sm text-slate-700 shadow-sm transition-all placeholder:text-slate-400 focus:border-violet-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-violet-500"
             disabled={isLoading}
           />
           <button
@@ -417,7 +411,7 @@ export function ChatInterface({ headers, rows, onNewChart }: ChatInterfaceProps)
             )}
           </button>
         </div>
-        <p className="mt-2 text-center text-[10px] text-slate-400 font-medium">
+        <p className="mt-2 text-center text-[10px] font-medium text-slate-400">
           AI can make mistakes. Double check important info.
         </p>
       </div>

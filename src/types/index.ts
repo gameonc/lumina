@@ -78,28 +78,28 @@ export interface ColumnStats {
 export interface EnhancedColumnStats extends ColumnStats {
   // Enhanced type detection
   inferredType: "numeric" | "date" | "category" | "text" | "boolean" | "mixed";
-  
+
   // Outlier detection
   outliers?: {
     count: number;
     values: (number | string)[];
     method: "iqr" | "zscore" | "isolation";
   };
-  
+
   // Category-specific stats
   topCategories?: Array<{
     value: string | number;
     count: number;
     percentage: number;
   }>;
-  
+
   // Data quality metrics
   quality: {
     completeness: number; // 0-1, percentage of non-null values
     consistency: number; // 0-1, how consistent the data type is
     uniqueness: number; // 0-1, unique values / total values
   };
-  
+
   // Date-specific stats (if type is date)
   dateRange?: {
     min: Date;
@@ -150,7 +150,15 @@ export interface Insight {
  * Chart configuration
  */
 export interface ChartConfig {
-  type: "line" | "bar" | "pie" | "scatter" | "area" | "radar" | "heatmap" | "histogram";
+  type:
+    | "line"
+    | "bar"
+    | "pie"
+    | "scatter"
+    | "area"
+    | "radar"
+    | "heatmap"
+    | "histogram";
   title: string;
   data: Record<string, unknown>[];
   xAxis?: string;

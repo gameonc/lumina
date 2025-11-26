@@ -57,25 +57,29 @@ export function ToastContainer() {
         <div
           key={t.id}
           className={cn(
-            "flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border animate-in slide-in-from-right-5 fade-in duration-300",
-            t.type === "success" && "bg-emerald-50 border-emerald-200 text-emerald-800",
-            t.type === "error" && "bg-red-50 border-red-200 text-red-800",
-            t.type === "info" && "bg-blue-50 border-blue-200 text-blue-800"
+            "animate-in slide-in-from-right-5 fade-in flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg duration-300",
+            t.type === "success" &&
+              "border-emerald-200 bg-emerald-50 text-emerald-800",
+            t.type === "error" && "border-red-200 bg-red-50 text-red-800",
+            t.type === "info" && "border-blue-200 bg-blue-50 text-blue-800"
           )}
         >
-          {t.type === "success" && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-          {t.type === "error" && <AlertCircle className="w-5 h-5 text-red-600" />}
-          {t.type === "info" && <Info className="w-5 h-5 text-blue-600" />}
-          <span className="font-medium text-sm">{t.message}</span>
+          {t.type === "success" && (
+            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          )}
+          {t.type === "error" && (
+            <AlertCircle className="h-5 w-5 text-red-600" />
+          )}
+          {t.type === "info" && <Info className="h-5 w-5 text-blue-600" />}
+          <span className="text-sm font-medium">{t.message}</span>
           <button
             onClick={() => removeToast(t.id)}
-            className="ml-2 p-1 hover:bg-black/5 rounded-lg transition-colors"
+            className="ml-2 rounded-lg p-1 transition-colors hover:bg-black/5"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
       ))}
     </div>
   );
 }
-

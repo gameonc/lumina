@@ -1,6 +1,6 @@
 /**
  * Supabase Library
- * 
+ *
  * Current Work:
  * - Worker: Auto/Cursor
  * - Task: Database integration helpers

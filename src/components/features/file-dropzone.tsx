@@ -89,15 +89,13 @@ export function FileDropzone({
         <div className="flex items-center gap-4">
           {getFileIcon()}
           <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold text-slate-900">
-              {file.name}
-            </p>
+            <p className="truncate font-semibold text-slate-900">{file.name}</p>
             <p className="text-sm text-slate-500">{formatBytes(file.size)}</p>
           </div>
           {!isUploading && (
             <button
               onClick={removeFile}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
             >
               <X className="h-4 w-4" />
             </button>
@@ -107,9 +105,7 @@ export function FileDropzone({
         {isUploading && (
           <div className="mt-4">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600">
-                Processing...
-              </span>
+              <span className="text-slate-600">Processing...</span>
               <span className="font-semibold text-violet-600">
                 {uploadProgress}%
               </span>
@@ -140,9 +136,7 @@ export function FileDropzone({
         <div
           className={cn(
             "flex h-16 w-16 items-center justify-center rounded-full",
-            isDragReject
-              ? "bg-red-100"
-              : "bg-violet-100"
+            isDragReject ? "bg-red-100" : "bg-violet-100"
           )}
         >
           {isDragReject ? (
@@ -170,7 +164,7 @@ export function FileDropzone({
       </div>
 
       {error && (
-        <div className="mt-4 flex items-center gap-3 rounded-lg bg-red-50 border border-red-100 p-4">
+        <div className="mt-4 flex items-center gap-3 rounded-lg border border-red-100 bg-red-50 p-4">
           <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
           <p className="text-sm text-red-600">{error}</p>
         </div>

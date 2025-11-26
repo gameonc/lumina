@@ -138,11 +138,16 @@ export default function UploadPage() {
         aiInsights: results.aiInsights,
       };
 
-      sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));
+      sessionStorage.setItem(
+        `analysis-${datasetId}`,
+        JSON.stringify(analysisData)
+      );
       router.push(`/dashboard/${datasetId}`);
     } catch (err) {
       console.error("Analysis error:", err);
-      setAnalysisError(err instanceof Error ? err.message : "Failed to analyze data.");
+      setAnalysisError(
+        err instanceof Error ? err.message : "Failed to analyze data."
+      );
       setIsAnalyzing(false);
     }
   };
@@ -165,38 +170,38 @@ export default function UploadPage() {
   const CurrentIcon = ANALYZING_MESSAGES[analyzeStep].icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex flex-col">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       {/* Analyzing Overlay */}
       {isAnalyzing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-sm">
-          <div className="text-center max-w-md px-6">
+          <div className="max-w-md px-6 text-center">
             {/* Animated Icon */}
             <div className="relative mx-auto mb-8">
-              <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl animate-pulse" />
-              <div className="relative w-24 h-24 mx-auto bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/30 animate-bounce">
-                <CurrentIcon className="w-12 h-12 text-white" />
+              <div className="absolute inset-0 animate-pulse rounded-full bg-indigo-500/20 blur-2xl" />
+              <div className="relative mx-auto flex h-24 w-24 animate-bounce items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-2xl shadow-indigo-500/30">
+                <CurrentIcon className="h-12 w-12 text-white" />
               </div>
             </div>
 
             {/* Message */}
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            <h2 className="mb-2 text-2xl font-bold text-slate-900">
               Analyzing Your Data
             </h2>
-            <p className="text-lg text-indigo-600 font-medium mb-4 h-7 transition-all">
+            <p className="mb-4 h-7 text-lg font-medium text-indigo-600 transition-all">
               {ANALYZING_MESSAGES[analyzeStep].text}
             </p>
 
             {/* Progress dots */}
-            <div className="flex justify-center gap-2 mb-6">
+            <div className="mb-6 flex justify-center gap-2">
               {ANALYZING_MESSAGES.map((_, i) => (
                 <div
                   key={i}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  className={`h-2 w-2 rounded-full transition-all duration-300 ${
                     i === analyzeStep
-                      ? "bg-indigo-600 w-6"
+                      ? "w-6 bg-indigo-600"
                       : i < analyzeStep
-                      ? "bg-indigo-400"
-                      : "bg-slate-200"
+                        ? "bg-indigo-400"
+                        : "bg-slate-200"
                   }`}
                 />
               ))}
@@ -210,14 +215,14 @@ export default function UploadPage() {
       )}
 
       {/* Clean Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
           <div
-            className="flex items-center gap-2.5 font-bold text-xl cursor-pointer"
+            className="flex cursor-pointer items-center gap-2.5 text-xl font-bold"
             onClick={() => router.push("/")}
           >
-            <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-2 rounded-xl shadow-lg shadow-indigo-500/20">
-              <FileSpreadsheet className="w-5 h-5" />
+            <div className="rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-2 text-white shadow-lg shadow-indigo-500/20">
+              <FileSpreadsheet className="h-5 w-5" />
             </div>
             <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
               Lumina
@@ -225,18 +230,18 @@ export default function UploadPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-full text-sm font-medium">
-              <Star className="w-4 h-4" />
+            <div className="flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700">
+              <Star className="h-4 w-4" />
               <span>{credits} credits</span>
             </div>
             <div className="flex items-center gap-3">
               <InitialsAvatar name={userName} email={userEmail} size="md" />
               <button
                 onClick={handleLogout}
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                 title="Sign out"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -244,18 +249,18 @@ export default function UploadPage() {
       </header>
 
       {/* Main Content - Centered Upload */}
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
+      <main className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-2xl">
           {/* Title */}
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500/10 to-indigo-600/10 rounded-full text-indigo-700 text-sm font-medium mb-4">
-              <Sparkles className="w-4 h-4" />
+          <div className="mb-10 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500/10 to-indigo-600/10 px-4 py-2 text-sm font-medium text-indigo-700">
+              <Sparkles className="h-4 w-4" />
               AI-Powered Analysis
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
+            <h1 className="mb-3 text-3xl font-bold text-slate-900 sm:text-4xl">
               Upload Your Spreadsheet
             </h1>
-            <p className="text-slate-500 text-lg">
+            <p className="text-lg text-slate-500">
               Drop your file and watch the magic happen
             </p>
           </div>
@@ -264,18 +269,18 @@ export default function UploadPage() {
           {!parsedData && (
             <div
               {...getRootProps()}
-              className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 sm:p-16 text-center transition-all ${
+              className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition-all sm:p-16 ${
                 isDragActive
-                  ? "border-indigo-500 bg-indigo-50 scale-[1.02]"
+                  ? "scale-[1.02] border-indigo-500 bg-indigo-50"
                   : "border-slate-300 bg-white hover:border-indigo-400 hover:bg-indigo-50/30 hover:shadow-lg"
               }`}
             >
               <input {...getInputProps()} />
-              <div className="flex justify-center mb-6">
+              <div className="mb-6 flex justify-center">
                 <div
                   className={`flex h-20 w-20 items-center justify-center rounded-2xl transition-all ${
                     isDragActive
-                      ? "bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/30 scale-110"
+                      ? "scale-110 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/30"
                       : "bg-gradient-to-br from-slate-100 to-slate-200"
                   }`}
                 >
@@ -286,61 +291,78 @@ export default function UploadPage() {
                   />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">
-                {isDragActive ? "Drop your file here" : "Drag and drop your file"}
+              <h3 className="mb-2 text-xl font-semibold text-slate-900">
+                {isDragActive
+                  ? "Drop your file here"
+                  : "Drag and drop your file"}
               </h3>
-              <p className="text-slate-500 mb-6">or click to browse from your computer</p>
+              <p className="mb-6 text-slate-500">
+                or click to browse from your computer
+              </p>
               <div className="flex justify-center gap-2 text-xs">
                 {[".xlsx", ".xls", ".csv"].map((ext) => (
                   <span
                     key={ext}
-                    className="rounded-lg bg-indigo-100 text-indigo-700 px-3 py-1.5 font-medium"
+                    className="rounded-lg bg-indigo-100 px-3 py-1.5 font-medium text-indigo-700"
                   >
                     {ext}
                   </span>
                 ))}
-                <span className="text-slate-400 py-1.5 ml-1">up to 20MB</span>
+                <span className="ml-1 py-1.5 text-slate-400">up to 20MB</span>
               </div>
             </div>
           )}
 
           {/* Error State */}
           {error && (
-            <div className="mt-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+            <div className="mt-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
           {/* File Preview Card */}
           {parsedData && file && (
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm space-y-6">
+            <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-4">
                 <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-500/25">
                   <CheckCircle className="h-7 w-7 text-white" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-900 text-lg">File Ready</h3>
-                  <p className="text-sm text-slate-500 truncate">{file.name}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    File Ready
+                  </h3>
+                  <p className="truncate text-sm text-slate-500">{file.name}</p>
                 </div>
                 <button
                   onClick={reset}
-                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { label: "Rows", value: parsedData.rowCount.toLocaleString() },
+                  {
+                    label: "Rows",
+                    value: parsedData.rowCount.toLocaleString(),
+                  },
                   { label: "Columns", value: parsedData.columnCount },
-                  { label: "Sheets", value: parsedData.sheetNames?.length || 1 },
+                  {
+                    label: "Sheets",
+                    value: parsedData.sheetNames?.length || 1,
+                  },
                 ].map((stat, i) => (
-                  <div key={i} className="rounded-xl bg-slate-50 p-4 text-center">
-                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                    <p className="text-xs text-slate-500 uppercase tracking-wider">
+                  <div
+                    key={i}
+                    className="rounded-xl bg-slate-50 p-4 text-center"
+                  >
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stat.value}
+                    </p>
+                    <p className="text-xs uppercase tracking-wider text-slate-500">
                       {stat.label}
                     </p>
                   </div>
@@ -349,12 +371,14 @@ export default function UploadPage() {
 
               {/* Columns Preview */}
               <div>
-                <h4 className="text-sm font-medium text-slate-700 mb-3">Columns Detected</h4>
+                <h4 className="mb-3 text-sm font-medium text-slate-700">
+                  Columns Detected
+                </h4>
                 <div className="flex flex-wrap gap-2">
                   {parsedData.headers.slice(0, 6).map((header) => (
                     <span
                       key={header}
-                      className="rounded-full bg-indigo-100 text-indigo-700 px-3 py-1 text-sm font-medium"
+                      className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700"
                     >
                       {header}
                     </span>
@@ -369,8 +393,8 @@ export default function UploadPage() {
 
               {/* Analysis Error */}
               {analysisError && (
-                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                  <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
                   <p className="text-sm text-red-600">{analysisError}</p>
                 </div>
               )}
@@ -379,14 +403,14 @@ export default function UploadPage() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={reset}
-                  className="flex-1 py-3.5 px-4 border border-slate-200 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                  className="flex-1 rounded-xl border border-slate-200 px-4 py-3.5 font-medium text-slate-700 transition-colors hover:bg-slate-50"
                 >
                   Change File
                 </button>
                 <button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing || credits <= 0}
-                  className="flex-[2] py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-semibold hover:from-indigo-500 hover:to-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 py-3.5 font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:scale-[1.02] hover:from-indigo-500 hover:to-indigo-600 hover:shadow-indigo-500/50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Sparkles className="h-5 w-5" />
                   Analyze with AI
@@ -396,13 +420,14 @@ export default function UploadPage() {
           )}
 
           {/* Pro Tip */}
-          <div className="mt-8 flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
-            <div className="p-1.5 bg-amber-100 rounded-lg flex-shrink-0">
-              <Lightbulb className="w-4 h-4 text-amber-600" />
+          <div className="mt-8 flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
+            <div className="flex-shrink-0 rounded-lg bg-amber-100 p-1.5">
+              <Lightbulb className="h-4 w-4 text-amber-600" />
             </div>
             <p className="text-sm text-slate-600">
-              <span className="font-medium text-slate-700">Pro tip:</span> Include headers in your
-              first row and keep your data clean for the best analysis results.
+              <span className="font-medium text-slate-700">Pro tip:</span>{" "}
+              Include headers in your first row and keep your data clean for the
+              best analysis results.
             </p>
           </div>
         </div>

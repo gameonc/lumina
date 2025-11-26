@@ -47,9 +47,7 @@ export function Providers({ children }: ProvidersProps) {
         enableSystem={false}
         disableTransitionOnChange
       >
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <ErrorBoundary>{children}</ErrorBoundary>
         <ToastContainer />
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />

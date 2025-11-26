@@ -114,24 +114,24 @@
   }
 
   .card-hover {
-    @apply card hover:shadow-premium hover:-translate-y-0.5 transition-all duration-300;
+    @apply card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-premium;
   }
 
   /* Premium button base styles */
   .btn {
-    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98];
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
 
   .btn-primary {
-    @apply btn bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-700 hover:to-brand-600 focus:ring-brand-500/20 shadow-sm shadow-brand-500/10 hover:shadow-lg hover:shadow-brand-500/20;
+    @apply btn bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-sm shadow-brand-500/10 hover:from-brand-700 hover:to-brand-600 hover:shadow-lg hover:shadow-brand-500/20 focus:ring-brand-500/20;
   }
 
   .btn-accent {
-    @apply btn bg-gradient-to-r from-accent-600 to-accent-500 text-white hover:from-accent-700 hover:to-accent-600 focus:ring-accent-500/20 shadow-sm shadow-accent-500/10 hover:shadow-lg hover:shadow-accent-500/20;
+    @apply btn bg-gradient-to-r from-accent-600 to-accent-500 text-white shadow-sm shadow-accent-500/10 hover:from-accent-700 hover:to-accent-600 hover:shadow-lg hover:shadow-accent-500/20 focus:ring-accent-500/20;
   }
 
   .btn-secondary {
-    @apply btn bg-neutral-900 text-white hover:bg-neutral-800 focus:ring-neutral-500/20 shadow-sm hover:shadow-lg;
+    @apply btn bg-neutral-900 text-white shadow-sm hover:bg-neutral-800 hover:shadow-lg focus:ring-neutral-500/20;
   }
 
   .btn-outline {
@@ -193,7 +193,7 @@
 
   /* Premium glass effect */
   .glass {
-    @apply bg-white/90 backdrop-blur-xl border border-white/20 dark:bg-neutral-900/90 dark:border-neutral-700/20;
+    @apply border border-white/20 bg-white/90 backdrop-blur-xl dark:border-neutral-700/20 dark:bg-neutral-900/90;
   }
 }
 

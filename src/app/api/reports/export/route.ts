@@ -1,11 +1,11 @@
 /**
  * PDF Export API
- * 
+ *
  * Current Work:
  * - Worker: Auto/Cursor
  * - Task: API endpoint for PDF report generation
  * - Status: in_progress
- * 
+ *
  * Note: This generates HTML for PDF. In production, you'd use:
  * - puppeteer for server-side PDF generation
  * - jsPDF for client-side generation
@@ -138,4 +138,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

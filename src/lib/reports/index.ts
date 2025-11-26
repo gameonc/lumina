@@ -1,6 +1,6 @@
 /**
  * Reports Library
- * 
+ *
  * Current Work:
  * - Worker: Auto/Cursor
  * - Task: PDF report generation
@@ -14,4 +14,3 @@ export {
   type ReportSection,
   type PDFExportOptions,
 } from "./pdf-generator";
-

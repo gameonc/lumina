@@ -38,6 +38,9 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error("Delete analysis error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: message },
+      { status: 500 }
+    );
   }
 }

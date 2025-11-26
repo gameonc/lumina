@@ -209,7 +209,13 @@ ${JSON.stringify(data.slice(0, 50), null, 2)}`,
  * Dataset type classification result
  */
 export interface DatasetClassification {
-  type: "finance" | "sales" | "inventory" | "marketing" | "operations" | "general";
+  type:
+    | "finance"
+    | "sales"
+    | "inventory"
+    | "marketing"
+    | "operations"
+    | "general";
   confidence: number;
   reasoning: string;
   indicators: string[];

@@ -1,6 +1,6 @@
 /**
  * Column Statistics Table Component
- * 
+ *
  * Current Work:
  * - Worker: Auto/Cursor
  * - Task: Display column profiling results in interactive table
@@ -13,7 +13,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tooltip } from "@/components/ui/tooltip";
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
-import { AlertCircle, CheckCircle2, TrendingUp, AlertTriangle } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  TrendingUp,
+  AlertTriangle,
+} from "lucide-react";
 
 interface ColumnStatsTableProps {
   columnStats: EnhancedColumnStats[];
@@ -24,19 +29,21 @@ export function ColumnStatsTable({ columnStats }: ColumnStatsTableProps) {
     <Card className="p-6">
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Column Analysis</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Detailed statistics and quality metrics for each column
         </p>
       </div>
 
-      <div className="rounded-md border overflow-x-auto">
+      <div className="overflow-x-auto rounded-md border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr className="border-b">
               <th className="px-4 py-3 text-left font-medium">Column Name</th>
               <th className="px-4 py-3 text-left font-medium">Type</th>
               <th className="px-4 py-3 text-left font-medium">Quality</th>
-              <th className="px-4 py-3 text-right font-medium">Unique Values</th>
+              <th className="px-4 py-3 text-right font-medium">
+                Unique Values
+              </th>
               <th className="px-4 py-3 text-right font-medium">Missing</th>
               <th className="px-4 py-3 text-right font-medium">Outliers</th>
               <th className="px-4 py-3 text-left font-medium">Stats</th>
@@ -44,7 +51,10 @@ export function ColumnStatsTable({ columnStats }: ColumnStatsTableProps) {
           </thead>
           <tbody>
             {columnStats.map((col) => (
-              <tr key={col.name} className="border-b last:border-0 hover:bg-muted/50">
+              <tr
+                key={col.name}
+                className="hover:bg-muted/50 border-b last:border-0"
+              >
                 <td className="px-4 py-3 font-medium">{col.name}</td>
                 <td className="px-4 py-3">
                   <TypeBadge type={col.inferredType} />
@@ -71,7 +81,7 @@ export function ColumnStatsTable({ columnStats }: ColumnStatsTableProps) {
       </div>
 
       {columnStats.length === 0 && (
-        <div className="py-8 text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground py-8 text-center text-sm">
           No column statistics available
         </div>
       )}
@@ -83,7 +93,8 @@ function TypeBadge({ type }: { type: string }) {
   const typeColors: Record<string, string> = {
     numeric: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
     date: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-    category: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+    category:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
     text: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
     boolean: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
     mixed: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
@@ -96,9 +107,14 @@ function TypeBadge({ type }: { type: string }) {
   );
 }
 
-function QualityIndicator({ quality }: { quality: { completeness: number; consistency: number; uniqueness: number } }) {
-  const avgQuality = (quality.completeness + quality.consistency + quality.uniqueness) / 3;
-  
+function QualityIndicator({
+  quality,
+}: {
+  quality: { completeness: number; consistency: number; uniqueness: number };
+}) {
+  const avgQuality =
+    (quality.completeness + quality.consistency + quality.uniqueness) / 3;
+
   let icon;
   let color;
   let label;
@@ -141,10 +157,11 @@ function QualityIndicator({ quality }: { quality: { completeness: number; consis
 
 function MissingDataBadge({ nullCount }: { nullCount: number }) {
   if (nullCount === 0) {
-    return <span className="text-sm text-muted-foreground">0</span>;
+    return <span className="text-muted-foreground text-sm">0</span>;
   }
 
-  const variant = nullCount > 100 ? "error" : nullCount > 10 ? "warning" : "default";
+  const variant =
+    nullCount > 100 ? "error" : nullCount > 10 ? "warning" : "default";
 
   return (
     <Badge variant={variant} className="text-xs">
@@ -153,9 +170,13 @@ function MissingDataBadge({ nullCount }: { nullCount: number }) {
   );
 }
 
-function OutliersBadge({ outliers }: { outliers?: { count: number; values: (number | string)[]; method: string } }) {
+function OutliersBadge({
+  outliers,
+}: {
+  outliers?: { count: number; values: (number | string)[]; method: string };
+}) {
   if (!outliers || outliers.count === 0) {
-    return <span className="text-sm text-muted-foreground">0</span>;
+    return <span className="text-muted-foreground text-sm">0</span>;
   }
 
   return (
@@ -173,7 +194,10 @@ function OutliersBadge({ outliers }: { outliers?: { count: number; values: (numb
         </div>
       }
     >
-      <Badge variant="warning" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
+      <Badge
+        variant="warning"
+        className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"
+      >
         {outliers.count}
       </Badge>
     </Tooltip>
@@ -184,7 +208,7 @@ function StatsTooltip({ stats }: { stats: EnhancedColumnStats }) {
   const hasStats = stats.mean !== undefined || stats.min !== undefined;
 
   if (!hasStats) {
-    return <span className="text-sm text-muted-foreground">-</span>;
+    return <span className="text-muted-foreground text-sm">-</span>;
   }
 
   return (
@@ -219,4 +243,3 @@ function StatsTooltip({ stats }: { stats: EnhancedColumnStats }) {
     </Tooltip>
   );
 }
-

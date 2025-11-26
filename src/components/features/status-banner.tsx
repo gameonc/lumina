@@ -45,36 +45,41 @@ export function StatusBanner({
   const scoreColor = getScoreColor(score);
 
   return (
-    <div className="w-full bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-b border-emerald-200/50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 py-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="w-full border-b border-emerald-200/50 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 shadow-sm">
+      <div className="mx-auto max-w-7xl px-6 py-5">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           {/* Left: Status Message */}
-          <div className="flex items-center gap-4 flex-1">
+          <div className="flex flex-1 items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-500/30 ring-2 ring-white/50">
               <CheckCircle2 className="h-6 w-6 text-white" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-emerald-900 mb-1">
-                Analysis complete for <span className="font-bold">{datasetName}</span>
+            <div className="min-w-0 flex-1">
+              <p className="mb-1 text-sm font-semibold text-emerald-900">
+                Analysis complete for{" "}
+                <span className="font-bold">{datasetName}</span>
               </p>
               <div className="flex flex-wrap items-center gap-3 text-xs text-emerald-700">
-                <span className="font-medium">{rowCount.toLocaleString()} rows</span>
+                <span className="font-medium">
+                  {rowCount.toLocaleString()} rows
+                </span>
                 <span className="text-emerald-400">·</span>
                 <span className="font-medium">{columnCount} columns</span>
                 <span className="text-emerald-400">·</span>
                 <span className="font-medium">
-                  Health: <span className={`font-bold ${scoreColor}`}>{score}/100</span> ({label})
+                  Health:{" "}
+                  <span className={`font-bold ${scoreColor}`}>{score}/100</span>{" "}
+                  ({label})
                 </span>
               </div>
             </div>
           </div>
 
           {/* Right: Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+          <div className="flex w-full flex-col items-stretch gap-2.5 sm:w-auto sm:flex-row sm:items-center">
             <button
               onClick={onDownloadPPTX}
               disabled={isDownloadingPPTX || isDownloadingPDF}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 disabled:opacity-70 disabled:cursor-not-allowed text-sm"
+              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition-all hover:from-orange-600 hover:to-red-600 hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isDownloadingPPTX ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -87,7 +92,7 @@ export function StatusBanner({
             <button
               onClick={onDownloadPDF}
               disabled={isDownloadingPPTX || isDownloadingPDF}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-semibold hover:from-slate-600 hover:to-slate-800 transition-all shadow-lg shadow-slate-500/30 hover:shadow-slate-500/40 disabled:opacity-70 disabled:cursor-not-allowed text-sm"
+              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-slate-700 to-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-500/30 transition-all hover:from-slate-600 hover:to-slate-800 hover:shadow-slate-500/40 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isDownloadingPDF ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

@@ -6,7 +6,11 @@ interface SparklineProps {
   height?: number;
 }
 
-export function Sparkline({ data, color = "#3b82f6", height = 48 }: SparklineProps) {
+export function Sparkline({
+  data,
+  color = "#3b82f6",
+  height = 48,
+}: SparklineProps) {
   if (data.length < 2) {
     return null;
   }
@@ -53,4 +57,3 @@ export function Sparkline({ data, color = "#3b82f6", height = 48 }: SparklinePro
     </svg>
   );
 }
-

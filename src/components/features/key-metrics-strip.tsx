@@ -26,10 +26,10 @@ export function KeyMetricsStrip({ columnStats, rows }: KeyMetricsStripProps) {
       const mean = col.mean || 0;
       const max = typeof col.max === "number" ? col.max : 0;
       const min = typeof col.min === "number" ? col.min : 0;
-      
+
       // Priority: higher mean, larger range, more complete data
       const priority = Math.abs(mean) * col.quality.completeness * (max - min);
-      
+
       return { col, priority };
     })
     .sort((a, b) => b.priority - a.priority)
@@ -94,17 +94,17 @@ export function KeyMetricsStrip({ columnStats, rows }: KeyMetricsStripProps) {
         <Card key={metric.name}>
           <CardContent className="p-4">
             <div className="space-y-2">
-              <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+              <p className="text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                 {metric.label}
               </p>
               <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {metric.formattedValue}
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+              <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
                 {metric.name}
               </p>
               {metric.sparklineData.length > 1 && (
-                <div className="h-12 w-full mt-2">
+                <div className="mt-2 h-12 w-full">
                   <Sparkline data={metric.sparklineData} />
                 </div>
               )}
@@ -131,4 +131,3 @@ function formatNumber(value: number): string {
     minimumFractionDigits: 0,
   });
 }
-

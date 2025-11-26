@@ -1,6 +1,6 @@
 /**
  * Chat Handler - Process natural language questions about data
- * 
+ *
  * Current Work:
  * - Worker: Auto/Cursor
  * - Task: Backend logic for "Chat With Your Data"
@@ -11,7 +11,10 @@
 import OpenAI from "openai";
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
 import type { ChartConfig } from "@/types";
-import { generateChartData, type ChartRecommendation } from "@/lib/charts/recommender";
+import {
+  generateChartData,
+  type ChartRecommendation,
+} from "@/lib/charts/recommender";
 
 // Lazy-initialize OpenAI client to avoid build-time errors
 let openai: OpenAI | null = null;
@@ -177,7 +180,8 @@ Create a chart specification for this question.`,
   if (!content) {
     return {
       type: "text",
-      message: "I couldn't generate a chart for that question. Could you rephrase it?",
+      message:
+        "I couldn't generate a chart for that question. Could you rephrase it?",
     };
   }
 
@@ -347,4 +351,3 @@ function generateSuggestions(
 export function formatChartForChat(chart: ChartConfig): string {
   return `[Chart: ${chart.title}]\nType: ${chart.type}\nShowing: ${chart.xAxis} vs ${chart.yAxis}`;
 }
-

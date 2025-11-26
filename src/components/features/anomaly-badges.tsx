@@ -41,12 +41,12 @@ function getTypeIcon(type: Anomaly["type"]) {
   switch (type) {
     case "outlier":
     case "unusual_pattern":
-      return <AlertTriangle className="w-4 h-4" />;
+      return <AlertTriangle className="h-4 w-4" />;
     case "missing":
     case "data_quality":
-      return <AlertCircle className="w-4 h-4" />;
+      return <AlertCircle className="h-4 w-4" />;
     default:
-      return <Info className="w-4 h-4" />;
+      return <Info className="h-4 w-4" />;
   }
 }
 
@@ -65,7 +65,10 @@ function getTypeLabel(type: Anomaly["type"]) {
   }
 }
 
-export function AnomalyBadges({ anomalies, maxDisplay = 5 }: AnomalyBadgesProps) {
+export function AnomalyBadges({
+  anomalies,
+  maxDisplay = 5,
+}: AnomalyBadgesProps) {
   if (!anomalies || anomalies.length === 0) {
     return null;
   }
@@ -74,13 +77,13 @@ export function AnomalyBadges({ anomalies, maxDisplay = 5 }: AnomalyBadgesProps)
   const remainingCount = anomalies.length - maxDisplay;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-2 bg-amber-100 rounded-lg">
-          <AlertTriangle className="w-5 h-5 text-amber-600" />
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mb-4 flex items-center gap-2">
+        <div className="rounded-lg bg-amber-100 p-2">
+          <AlertTriangle className="h-5 w-5 text-amber-600" />
         </div>
         <h2 className="text-lg font-semibold text-slate-900">Data Alerts</h2>
-        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
           {anomalies.length} found
         </span>
       </div>
@@ -91,28 +94,33 @@ export function AnomalyBadges({ anomalies, maxDisplay = 5 }: AnomalyBadgesProps)
           return (
             <div
               key={index}
-              className={`flex items-start gap-3 p-3 rounded-xl ${styles.bg} border ${styles.border}`}
+              className={`flex items-start gap-3 rounded-xl p-3 ${styles.bg} border ${styles.border}`}
             >
               <div className={`mt-0.5 ${styles.icon}`}>
                 {getTypeIcon(anomaly.type)}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className={`text-sm font-medium ${styles.text}`}>
                     {anomaly.column}
                   </span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${styles.badge}`}>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${styles.badge}`}
+                  >
                     {getTypeLabel(anomaly.type)}
                   </span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${styles.badge}`}>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs capitalize ${styles.badge}`}
+                  >
                     {anomaly.severity}
                   </span>
                 </div>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="mt-1 text-sm text-slate-600">
                   {anomaly.description}
                   {anomaly.affectedRows && (
                     <span className="text-slate-500">
-                      {" "}({anomaly.affectedRows.toLocaleString()} rows affected)
+                      {" "}
+                      ({anomaly.affectedRows.toLocaleString()} rows affected)
                     </span>
                   )}
                 </p>
@@ -122,7 +130,7 @@ export function AnomalyBadges({ anomalies, maxDisplay = 5 }: AnomalyBadgesProps)
         })}
 
         {remainingCount > 0 && (
-          <p className="text-sm text-slate-500 text-center py-2">
+          <p className="py-2 text-center text-sm text-slate-500">
             +{remainingCount} more {remainingCount === 1 ? "alert" : "alerts"}
           </p>
         )}

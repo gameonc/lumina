@@ -2,7 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, ToastContainer, toast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  ToastContainer,
+  toast,
+} from "@/components/ui";
 import {
   ChartGrid,
   ChatInterface,
@@ -46,36 +53,36 @@ function LoadingSkeleton() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       {/* Header Skeleton */}
-      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-slate-200 rounded-lg animate-pulse" />
+            <div className="h-10 w-10 animate-pulse rounded-lg bg-slate-200" />
             <div>
-              <div className="h-5 w-40 bg-slate-200 rounded animate-pulse mb-1" />
-              <div className="h-3 w-24 bg-slate-100 rounded animate-pulse" />
+              <div className="mb-1 h-5 w-40 animate-pulse rounded bg-slate-200" />
+              <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
             </div>
           </div>
-          <div className="h-10 w-36 bg-slate-200 rounded-lg animate-pulse" />
+          <div className="h-10 w-36 animate-pulse rounded-lg bg-slate-200" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
           <div className="space-y-6">
             {/* Health Score Skeleton */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6">
-              <div className="flex justify-between mb-4">
-                <div className="h-6 w-32 bg-slate-200 rounded animate-pulse" />
-                <div className="h-8 w-16 bg-slate-200 rounded animate-pulse" />
+            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+              <div className="mb-4 flex justify-between">
+                <div className="h-6 w-32 animate-pulse rounded bg-slate-200" />
+                <div className="h-8 w-16 animate-pulse rounded bg-slate-200" />
               </div>
-              <div className="h-2 bg-slate-100 rounded-full mb-4 overflow-hidden">
-                <div className="h-full w-3/4 bg-slate-200 rounded-full animate-pulse" />
+              <div className="mb-4 h-2 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-full w-3/4 animate-pulse rounded-full bg-slate-200" />
               </div>
               <div className="space-y-2">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-slate-200 rounded animate-pulse" />
-                    <div className="h-4 flex-1 bg-slate-100 rounded animate-pulse" />
+                    <div className="h-4 w-4 animate-pulse rounded bg-slate-200" />
+                    <div className="h-4 flex-1 animate-pulse rounded bg-slate-100" />
                   </div>
                 ))}
               </div>
@@ -83,12 +90,15 @@ function LoadingSkeleton() {
 
             {/* Charts Skeleton */}
             <div className="space-y-4">
-              <div className="h-6 w-24 bg-slate-200 rounded animate-pulse" />
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="h-6 w-24 animate-pulse rounded bg-slate-200" />
+              <div className="grid gap-4 md:grid-cols-2">
                 {[1, 2].map((i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 h-72">
-                    <div className="h-5 w-32 bg-slate-200 rounded animate-pulse mb-4" />
-                    <div className="h-full bg-slate-100 rounded-xl animate-pulse" />
+                  <div
+                    key={i}
+                    className="h-72 rounded-2xl border border-slate-200 bg-white p-6"
+                  >
+                    <div className="mb-4 h-5 w-32 animate-pulse rounded bg-slate-200" />
+                    <div className="h-full animate-pulse rounded-xl bg-slate-100" />
                   </div>
                 ))}
               </div>
@@ -97,12 +107,17 @@ function LoadingSkeleton() {
 
           {/* Chat Skeleton */}
           <div className="hidden lg:block">
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
               <div className="h-14 bg-gradient-to-r from-indigo-600 to-indigo-700" />
-              <div className="h-[500px] p-4 space-y-4">
+              <div className="h-[500px] space-y-4 p-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : ""}`}>
-                    <div className={`h-16 rounded-2xl animate-pulse ${i % 2 === 0 ? "w-2/3 bg-indigo-100" : "w-3/4 bg-slate-100"}`} />
+                  <div
+                    key={i}
+                    className={`flex ${i % 2 === 0 ? "justify-end" : ""}`}
+                  >
+                    <div
+                      className={`h-16 animate-pulse rounded-2xl ${i % 2 === 0 ? "w-2/3 bg-indigo-100" : "w-3/4 bg-slate-100"}`}
+                    />
                   </div>
                 ))}
               </div>
@@ -149,18 +164,24 @@ export default function DashboardPage() {
     loadData();
   }, [datasetId]);
 
-  const handleNewChart = useCallback((newChart: ChartConfig) => {
-    setCharts((prev) => {
-      const updated = [...prev, newChart];
-      if (analysisData) {
-        const updatedData = { ...analysisData, charts: updated };
-        sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(updatedData));
-        setAnalysisData(updatedData);
-      }
-      return updated;
-    });
-    toast("New chart added! 📊", "success");
-  }, [analysisData, datasetId]);
+  const handleNewChart = useCallback(
+    (newChart: ChartConfig) => {
+      setCharts((prev) => {
+        const updated = [...prev, newChart];
+        if (analysisData) {
+          const updatedData = { ...analysisData, charts: updated };
+          sessionStorage.setItem(
+            `analysis-${datasetId}`,
+            JSON.stringify(updatedData)
+          );
+          setAnalysisData(updatedData);
+        }
+        return updated;
+      });
+      toast("New chart added! 📊", "success");
+    },
+    [analysisData, datasetId]
+  );
 
   const handleDownloadPPTX = async () => {
     if (!analysisData) return;
@@ -203,19 +224,21 @@ export default function DashboardPage() {
 
   if (error || !analysisData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center p-6">
-        <Card className="max-w-md w-full">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-6">
+        <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center py-12">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
               <AlertCircle className="h-8 w-8 text-red-500" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Analysis Not Found</h2>
-            <p className="text-slate-500 text-center mb-6">
+            <h2 className="mb-2 text-xl font-bold text-slate-900">
+              Analysis Not Found
+            </h2>
+            <p className="mb-6 text-center text-slate-500">
               {error || "We couldn't find this analysis. It may have expired."}
             </p>
             <button
               onClick={() => router.push("/dashboard")}
-              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-medium hover:from-indigo-500 hover:to-indigo-600 transition-all shadow-lg shadow-indigo-500/25"
+              className="rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3 font-medium text-white shadow-lg shadow-indigo-500/25 transition-all hover:from-indigo-500 hover:to-indigo-600"
             >
               Upload New File
             </button>
@@ -225,7 +248,15 @@ export default function DashboardPage() {
     );
   }
 
-  const { datasetName, headers, rows, healthScore, rowCount, columnCount, aiInsights } = analysisData;
+  const {
+    datasetName,
+    headers,
+    rows,
+    healthScore,
+    rowCount,
+    columnCount,
+    aiInsights,
+  } = analysisData;
   const score = healthScore?.score ?? 0;
 
   return (
@@ -235,15 +266,21 @@ export default function DashboardPage() {
       {/* Mobile Chat Modal */}
       {isChatOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsChatOpen(false)} />
-          <div className="absolute inset-4 top-12 bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 fade-in duration-200">
-            <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 py-3 flex items-center justify-between">
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setIsChatOpen(false)}
+          />
+          <div className="animate-in zoom-in-95 fade-in absolute inset-4 top-12 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl duration-200">
+            <div className="flex items-center justify-between bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 py-3 text-white">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="h-5 w-5" />
                 <span className="font-semibold">Ask AI About Your Data</span>
               </div>
-              <button onClick={() => setIsChatOpen(false)} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
-                <X className="w-5 h-5" />
+              <button
+                onClick={() => setIsChatOpen(false)}
+                className="rounded-lg p-1 transition-colors hover:bg-white/20"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
             <div className="flex-1 overflow-hidden">
@@ -258,24 +295,26 @@ export default function DashboardPage() {
       )}
 
       {/* Top Bar */}
-      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/dashboard")}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              className="rounded-lg p-2 transition-colors hover:bg-slate-100"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
+              <ArrowLeft className="h-5 w-5 text-slate-600" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <FileSpreadsheet className="w-5 h-5 text-indigo-600" />
+              <div className="rounded-lg bg-indigo-100 p-2">
+                <FileSpreadsheet className="h-5 w-5 text-indigo-600" />
               </div>
               <div>
-                <h1 className="font-semibold text-slate-900 truncate max-w-[200px] sm:max-w-none">
+                <h1 className="max-w-[200px] truncate font-semibold text-slate-900 sm:max-w-none">
                   {datasetName}
                 </h1>
-                <p className="text-xs text-slate-500">{rowCount.toLocaleString()} rows · {columnCount} columns</p>
+                <p className="text-xs text-slate-500">
+                  {rowCount.toLocaleString()} rows · {columnCount} columns
+                </p>
               </div>
             </div>
           </div>
@@ -284,21 +323,21 @@ export default function DashboardPage() {
             {/* Mobile Chat Button */}
             <button
               onClick={() => setIsChatOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-medium"
+              className="flex items-center gap-2 rounded-lg bg-indigo-100 px-3 py-2 font-medium text-indigo-700 lg:hidden"
             >
-              <MessageSquare className="w-4 h-4" />
+              <MessageSquare className="h-4 w-4" />
               <span className="hidden sm:inline">AI Chat</span>
             </button>
 
             <button
               onClick={handleDownloadPPTX}
               disabled={isDownloadingPPTX}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-lg font-medium hover:from-indigo-500 hover:to-indigo-600 disabled:opacity-50 transition-all shadow-lg shadow-indigo-500/20"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 py-2 font-medium text-white shadow-lg shadow-indigo-500/20 transition-all hover:from-indigo-500 hover:to-indigo-600 disabled:opacity-50"
             >
               {isDownloadingPPTX ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Download className="w-4 h-4" />
+                <Download className="h-4 w-4" />
               )}
               <span className="hidden sm:inline">Download PowerPoint</span>
               <span className="sm:hidden">Export</span>
@@ -308,9 +347,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
-
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
           {/* Left Column */}
           <div className="space-y-6">
             {/* Dataset Summary - AI Generated */}
@@ -324,37 +362,43 @@ export default function DashboardPage() {
             )}
 
             {/* Health Score Summary */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-slate-900">Data Quality</h2>
-                <div className={`text-2xl font-bold ${score >= 80 ? 'text-emerald-600' : score >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Data Quality
+                </h2>
+                <div
+                  className={`text-2xl font-bold ${score >= 80 ? "text-emerald-600" : score >= 60 ? "text-amber-600" : "text-red-600"}`}
+                >
                   {score}/100
                 </div>
               </div>
 
               {/* Progress bar */}
-              <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-4">
+              <div className="mb-4 h-3 overflow-hidden rounded-full bg-slate-100">
                 <div
-                  className={`h-full rounded-full transition-all duration-1000 ${score >= 80 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : score >= 60 ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-red-400 to-red-500'}`}
+                  className={`h-full rounded-full transition-all duration-1000 ${score >= 80 ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : score >= 60 ? "bg-gradient-to-r from-amber-400 to-amber-500" : "bg-gradient-to-r from-red-400 to-red-500"}`}
                   style={{ width: `${score}%` }}
                 />
               </div>
 
               {/* Recommendations */}
-              {healthScore?.recommendations && healthScore.recommendations.length > 0 && (
-                <div className="space-y-2">
-                  {healthScore.recommendations.slice(0, 3).map((rec, i) => (
-                    <div key={i} className="flex items-start gap-2 text-sm">
-                      {rec.toLowerCase().includes('good') || rec.toLowerCase().includes('complete') ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      ) : (
-                        <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                      )}
-                      <span className="text-slate-600">{rec}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {healthScore?.recommendations &&
+                healthScore.recommendations.length > 0 && (
+                  <div className="space-y-2">
+                    {healthScore.recommendations.slice(0, 3).map((rec, i) => (
+                      <div key={i} className="flex items-start gap-2 text-sm">
+                        {rec.toLowerCase().includes("good") ||
+                        rec.toLowerCase().includes("complete") ? (
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                        ) : (
+                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                        )}
+                        <span className="text-slate-600">{rec}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
             </div>
 
             {/* Anomaly Badges */}
@@ -365,27 +409,39 @@ export default function DashboardPage() {
             {/* Charts Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-indigo-600" />
+                <BarChart3 className="h-5 w-5 text-indigo-600" />
                 <h2 className="text-lg font-semibold text-slate-900">Charts</h2>
                 {charts.length > 0 && (
-                  <span className="text-sm text-slate-500">({charts.length})</span>
+                  <span className="text-sm text-slate-500">
+                    ({charts.length})
+                  </span>
                 )}
               </div>
 
               {charts.length > 0 ? (
                 <ChartGrid charts={charts} />
               ) : (
-                <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center">
-                  <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <BarChart3 className="w-8 h-8 text-indigo-600" />
+                <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100">
+                    <BarChart3 className="h-8 w-8 text-indigo-600" />
                   </div>
-                  <h3 className="font-semibold text-slate-900 mb-2">No charts yet</h3>
-                  <p className="text-slate-500 mb-4 max-w-sm mx-auto">
-                    Use the AI chat to generate charts from your data. Try asking:
+                  <h3 className="mb-2 font-semibold text-slate-900">
+                    No charts yet
+                  </h3>
+                  <p className="mx-auto mb-4 max-w-sm text-slate-500">
+                    Use the AI chat to generate charts from your data. Try
+                    asking:
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    {["Show me a bar chart", "Create a pie chart", "Visualize trends"].map((q) => (
-                      <span key={q} className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full font-medium">
+                    {[
+                      "Show me a bar chart",
+                      "Create a pie chart",
+                      "Visualize trends",
+                    ].map((q) => (
+                      <span
+                        key={q}
+                        className="rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-medium text-indigo-700"
+                      >
                         "{q}"
                       </span>
                     ))}
@@ -396,15 +452,15 @@ export default function DashboardPage() {
           </div>
 
           {/* Right Column - Chat (Desktop Only) */}
-          <div className="hidden lg:block lg:sticky lg:top-24 h-fit">
-            <Card className="shadow-lg border-slate-200 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-4">
+          <div className="hidden h-fit lg:sticky lg:top-24 lg:block">
+            <Card className="overflow-hidden border-slate-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-indigo-600 to-indigo-700 py-4 text-white">
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <Sparkles className="w-5 h-5" />
+                  <Sparkles className="h-5 w-5" />
                   Ask AI About Your Data
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0 h-[500px]">
+              <CardContent className="h-[500px] p-0">
                 <ChatInterface
                   headers={headers}
                   rows={rows}
@@ -419,9 +475,9 @@ export default function DashboardPage() {
       {/* Mobile Floating Chat Button */}
       <button
         onClick={() => setIsChatOpen(true)}
-        className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-full shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-40"
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/30 transition-transform hover:scale-110 active:scale-95 lg:hidden"
       >
-        <MessageSquare className="w-6 h-6" />
+        <MessageSquare className="h-6 w-6" />
       </button>
     </div>
   );

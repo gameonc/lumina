@@ -1,6 +1,6 @@
 /**
  * Column Profiling API
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: API endpoint for enhanced column profiling
@@ -67,4 +67,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

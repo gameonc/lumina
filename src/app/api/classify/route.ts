@@ -1,6 +1,6 @@
 /**
  * Dataset Classification API
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: API endpoint for dataset type classification
@@ -63,4 +63,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

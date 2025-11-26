@@ -6,7 +6,10 @@ import {
   calculateHealthScore,
 } from "@/lib/analyzers";
 import { generateCharts } from "@/lib/charts";
-import { generateDatasetInsights, type AIInsights } from "@/lib/ai/insights-generator";
+import {
+  generateDatasetInsights,
+  type AIInsights,
+} from "@/lib/ai/insights-generator";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -19,7 +22,7 @@ const analyzeRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  
+
   try {
     // Parse and validate request body
     let body;
@@ -28,10 +31,10 @@ export async function POST(request: NextRequest) {
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: "Invalid JSON in request body",
-          message: "Please ensure your request contains valid JSON data"
+          message: "Please ensure your request contains valid JSON data",
         },
         { status: 400 }
       );
@@ -41,11 +44,11 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: "Invalid request data",
           details: validationResult.error.errors,
-          message: "Please check that headers and rows are provided correctly"
+          message: "Please check that headers and rows are provided correctly",
         },
         { status: 400 }
       );
@@ -56,10 +59,10 @@ export async function POST(request: NextRequest) {
     // Additional validation: Check for empty data
     if (headers.length === 0) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: "No columns found",
-          message: "Your dataset must contain at least one column"
+          message: "Your dataset must contain at least one column",
         },
         { status: 400 }
       );
@@ -67,10 +70,10 @@ export async function POST(request: NextRequest) {
 
     if (rows.length === 0) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: "No data rows found",
-          message: "Your dataset must contain at least one row of data"
+          message: "Your dataset must contain at least one row of data",
         },
         { status: 400 }
       );
@@ -80,10 +83,10 @@ export async function POST(request: NextRequest) {
     const MAX_ROWS_FOR_ANALYSIS = 100000;
     if (rows.length > MAX_ROWS_FOR_ANALYSIS) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: "Dataset too large",
-          message: `Datasets with more than ${MAX_ROWS_FOR_ANALYSIS.toLocaleString()} rows are not supported. Please use a smaller dataset or sample your data.`
+          message: `Datasets with more than ${MAX_ROWS_FOR_ANALYSIS.toLocaleString()} rows are not supported. Please use a smaller dataset or sample your data.`,
         },
         { status: 400 }
       );
@@ -92,17 +95,19 @@ export async function POST(request: NextRequest) {
     // Performance check: Warn about large datasets
     const MAX_ROWS_WARNING = 50000;
     if (rows.length > MAX_ROWS_WARNING) {
-      console.warn(`Large dataset detected: ${rows.length} rows. Analysis may take longer.`);
+      console.warn(
+        `Large dataset detected: ${rows.length} rows. Analysis may take longer.`
+      );
     }
 
     // Performance optimization: Limit number of columns
     const MAX_COLUMNS = 100;
     if (headers.length > MAX_COLUMNS) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: "Too many columns",
-          message: `Datasets with more than ${MAX_COLUMNS} columns are not supported. Please use a dataset with fewer columns.`
+          message: `Datasets with more than ${MAX_COLUMNS} columns are not supported. Please use a dataset with fewer columns.`,
         },
         { status: 400 }
       );
@@ -115,10 +120,11 @@ export async function POST(request: NextRequest) {
     } catch (profileError) {
       console.error("Column profiling error:", profileError);
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: "Failed to analyze columns",
-          message: "An error occurred while analyzing your data columns. Please check your data format."
+          message:
+            "An error occurred while analyzing your data columns. Please check your data format.",
         },
         { status: 500 }
       );
@@ -132,7 +138,9 @@ export async function POST(request: NextRequest) {
     } catch (classifyError) {
       console.error("Dataset classification error:", classifyError);
       // Non-critical error - continue with default type
-      console.warn("Using default dataset type 'general' due to classification error");
+      console.warn(
+        "Using default dataset type 'general' due to classification error"
+      );
     }
 
     // Generate chart configs with error handling
@@ -155,7 +163,8 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Failed to calculate data health score",
-          message: "An error occurred while analyzing data quality. Please try again."
+          message:
+            "An error occurred while analyzing data quality. Please try again.",
         },
         { status: 500 }
       );
@@ -164,11 +173,18 @@ export async function POST(request: NextRequest) {
     // Generate AI insights (non-blocking, with fallback)
     let aiInsights: AIInsights | null = null;
     try {
-      aiInsights = await generateDatasetInsights(headers, rows, columnStats, datasetType);
+      aiInsights = await generateDatasetInsights(
+        headers,
+        rows,
+        columnStats,
+        datasetType
+      );
     } catch (insightsError) {
       console.error("AI insights generation error:", insightsError);
       // Non-critical error - continue without AI insights
-      console.warn("AI insights generation failed, continuing without insights");
+      console.warn(
+        "AI insights generation failed, continuing without insights"
+      );
     }
 
     const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
@@ -188,19 +204,21 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Analyze endpoint error:", error);
-    
+
     // Provide more specific error messages
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: "Failed to analyze dataset",
-        message: "An unexpected error occurred. Please try again or contact support if the issue persists.",
-        details: process.env.NODE_ENV === "development" ? errorMessage : undefined
+        message:
+          "An unexpected error occurred. Please try again or contact support if the issue persists.",
+        details:
+          process.env.NODE_ENV === "development" ? errorMessage : undefined,
       },
       { status: 500 }
     );
   }
 }
-

@@ -23,7 +23,7 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
   // Slide 1: Title Slide
   const titleSlide = pptx.addSlide();
   titleSlide.background = { color: "F8FAFC" };
-  
+
   titleSlide.addText(data.datasetName, {
     x: 1,
     y: 2,
@@ -45,15 +45,18 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
     color: "64748B",
   });
 
-  titleSlide.addText(`${data.rowCount.toLocaleString()} rows • ${data.columnCount} columns`, {
-    x: 1,
-    y: 4.2,
-    w: 11,
-    h: 0.4,
-    fontSize: 14,
-    align: "center",
-    color: "94A3B8",
-  });
+  titleSlide.addText(
+    `${data.rowCount.toLocaleString()} rows • ${data.columnCount} columns`,
+    {
+      x: 1,
+      y: 4.2,
+      w: 11,
+      h: 0.4,
+      fontSize: 14,
+      align: "center",
+      color: "94A3B8",
+    }
+  );
 
   // Slide 2: Executive Summary (Health Score)
   if (data.healthScore) {
@@ -71,9 +74,13 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
     });
 
     // Health Score - Large display
-    const scoreColor = data.healthScore.score >= 80 ? "10B981" : 
-                       data.healthScore.score >= 60 ? "F59E0B" : "EF4444";
-    
+    const scoreColor =
+      data.healthScore.score >= 80
+        ? "10B981"
+        : data.healthScore.score >= 60
+          ? "F59E0B"
+          : "EF4444";
+
     summarySlide.addText(`${data.healthScore.score}`, {
       x: 1,
       y: 1.5,
@@ -114,7 +121,7 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
     ];
 
     metrics.forEach((metric, i) => {
-      const yPos = 1.5 + (i * 0.6);
+      const yPos = 1.5 + i * 0.6;
       summarySlide.addText(metric.label, {
         x: 5,
         y: yPos,
@@ -131,7 +138,12 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
         h: 0.4,
         fontSize: 14,
         bold: true,
-        color: metric.value >= 80 ? "10B981" : metric.value >= 60 ? "F59E0B" : "EF4444",
+        color:
+          metric.value >= 80
+            ? "10B981"
+            : metric.value >= 60
+              ? "F59E0B"
+              : "EF4444",
         align: "right",
       });
     });
@@ -152,7 +164,7 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
       recommendations.slice(0, 3).forEach((rec, i) => {
         summarySlide.addText(`${i + 1}. ${rec}`, {
           x: 0.7,
-          y: 4.6 + (i * 0.5),
+          y: 4.6 + i * 0.5,
           w: 11.5,
           h: 0.4,
           fontSize: 14,
@@ -165,7 +177,7 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
 
   // Slides 3-7: Charts
   const validCharts = Array.isArray(data.charts) ? data.charts.slice(0, 5) : [];
-  
+
   validCharts.forEach((chart, index) => {
     const chartSlide = pptx.addSlide();
     chartSlide.background = { color: "FFFFFF" };
@@ -187,8 +199,12 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
           const chartData = [
             {
               name: chart.yAxis as string,
-              labels: chart.data.map((item: any) => String(item[chart.xAxis as string]).substring(0, 20)),
-              values: chart.data.map((item: any) => Number(item[chart.yAxis as string]) || 0),
+              labels: chart.data.map((item: any) =>
+                String(item[chart.xAxis as string]).substring(0, 20)
+              ),
+              values: chart.data.map(
+                (item: any) => Number(item[chart.yAxis as string]) || 0
+              ),
             },
           ];
 
@@ -207,8 +223,12 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
           const chartData = [
             {
               name: chart.yAxis as string,
-              labels: chart.data.map((item: any) => String(item[chart.xAxis as string]).substring(0, 20)),
-              values: chart.data.map((item: any) => Number(item[chart.yAxis as string]) || 0),
+              labels: chart.data.map((item: any) =>
+                String(item[chart.xAxis as string]).substring(0, 20)
+              ),
+              values: chart.data.map(
+                (item: any) => Number(item[chart.yAxis as string]) || 0
+              ),
             },
           ];
 
@@ -237,19 +257,31 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
             showTitle: false,
             showLegend: true,
             legendPos: "r",
-            chartColors: ["3B82F6", "10B981", "F59E0B", "EF4444", "8B5CF6", "EC4899", "06B6D4", "84CC16"],
+            chartColors: [
+              "3B82F6",
+              "10B981",
+              "F59E0B",
+              "EF4444",
+              "8B5CF6",
+              "EC4899",
+              "06B6D4",
+              "84CC16",
+            ],
           });
         } else {
           // Fallback for unsupported chart types
-          chartSlide.addText("Chart preview not available in PowerPoint export", {
-            x: 3,
-            y: 3.5,
-            w: 7,
-            h: 1,
-            fontSize: 16,
-            color: "94A3B8",
-            align: "center",
-          });
+          chartSlide.addText(
+            "Chart preview not available in PowerPoint export",
+            {
+              x: 3,
+              y: 3.5,
+              w: 7,
+              h: 1,
+              fontSize: 16,
+              color: "94A3B8",
+              align: "center",
+            }
+          );
         }
       }
     } catch (error) {
@@ -292,9 +324,10 @@ export async function generatePowerPoint(data: PowerPointData): Promise<Blob> {
   });
 
   // Generate and return as Blob
-  const uint8Array = await pptx.write({ outputType: "arraybuffer" }) as ArrayBuffer;
+  const uint8Array = (await pptx.write({
+    outputType: "arraybuffer",
+  })) as ArrayBuffer;
   return new Blob([uint8Array], {
     type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   });
 }
-

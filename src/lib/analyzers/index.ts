@@ -1,6 +1,6 @@
 /**
  * Data Analysis Library
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: Building enhanced column profiling and dataset classification
@@ -29,4 +29,3 @@ export {
   type HealthScoreBreakdown,
   type HealthIssues,
 } from "./health-score";
-

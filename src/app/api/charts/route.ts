@@ -1,6 +1,6 @@
 /**
  * Chart Generation API
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: API endpoint for auto-generating charts
@@ -85,4 +85,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

@@ -38,7 +38,9 @@ export async function GET(request: NextRequest) {
 
       const aStr = String(aVal || "");
       const bStr = String(bVal || "");
-      return sortOrder === "asc" ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
+      return sortOrder === "asc"
+        ? aStr.localeCompare(bStr)
+        : bStr.localeCompare(aStr);
     });
 
     // Limit
@@ -54,6 +56,9 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("List analyses error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: message },
+      { status: 500 }
+    );
   }
 }

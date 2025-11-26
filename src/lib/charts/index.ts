@@ -1,6 +1,6 @@
 /**
  * Chart Library
- * 
+ *
  * Current Work:
  * - Worker: Auto
  * - Task: Chart recommendation and generation
@@ -14,4 +14,3 @@ export {
   type ChartType,
   type ChartRecommendation,
 } from "./recommender";
-

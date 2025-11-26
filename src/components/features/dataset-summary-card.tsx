@@ -10,19 +10,19 @@ interface DatasetSummaryCardProps {
 
 function SummarySkeleton() {
   return (
-    <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl p-6 text-white animate-pulse">
+    <div className="animate-pulse rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-700 p-6 text-white">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-3">
-          <div className="h-6 w-3/4 bg-white/20 rounded" />
-          <div className="h-4 w-full bg-white/10 rounded" />
-          <div className="h-4 w-2/3 bg-white/10 rounded" />
+          <div className="h-6 w-3/4 rounded bg-white/20" />
+          <div className="h-4 w-full rounded bg-white/10" />
+          <div className="h-4 w-2/3 rounded bg-white/10" />
         </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white/10 rounded-xl p-3">
-            <div className="h-3 w-16 bg-white/20 rounded mb-2" />
-            <div className="h-5 w-12 bg-white/30 rounded" />
+          <div key={i} className="rounded-xl bg-white/10 p-3">
+            <div className="mb-2 h-3 w-16 rounded bg-white/20" />
+            <div className="h-5 w-12 rounded bg-white/30" />
           </div>
         ))}
       </div>
@@ -31,13 +31,16 @@ function SummarySkeleton() {
 }
 
 const metricIcons: Record<string, React.ReactNode> = {
-  "Total Rows": <Layers className="w-4 h-4" />,
-  "Columns": <Hash className="w-4 h-4" />,
-  "Numeric Fields": <FileText className="w-4 h-4" />,
-  "Data Quality": <CheckCircle className="w-4 h-4" />,
+  "Total Rows": <Layers className="h-4 w-4" />,
+  Columns: <Hash className="h-4 w-4" />,
+  "Numeric Fields": <FileText className="h-4 w-4" />,
+  "Data Quality": <CheckCircle className="h-4 w-4" />,
 };
 
-export function DatasetSummaryCard({ summary, isLoading }: DatasetSummaryCardProps) {
+export function DatasetSummaryCard({
+  summary,
+  isLoading,
+}: DatasetSummaryCardProps) {
   if (isLoading) {
     return <SummarySkeleton />;
   }
@@ -47,32 +50,32 @@ export function DatasetSummaryCard({ summary, isLoading }: DatasetSummaryCardPro
   }
 
   return (
-    <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-indigo-500/20">
+    <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-700 p-6 text-white shadow-lg shadow-indigo-500/20">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">
               AI Summary
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
+          <h2 className="mb-2 text-xl font-bold leading-tight sm:text-2xl">
             {summary.headline}
           </h2>
-          <p className="text-indigo-100 text-sm sm:text-base leading-relaxed">
+          <p className="text-sm leading-relaxed text-indigo-100 sm:text-base">
             {summary.description}
           </p>
         </div>
       </div>
 
       {summary.keyMetrics && summary.keyMetrics.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {summary.keyMetrics.map((metric, index) => (
             <div
               key={index}
-              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 hover:bg-white/15 transition-colors"
+              className="rounded-xl bg-white/10 p-3 backdrop-blur-sm transition-colors hover:bg-white/15"
             >
-              <div className="flex items-center gap-1.5 text-indigo-200 text-xs mb-1">
-                {metricIcons[metric.label] || <FileText className="w-4 h-4" />}
+              <div className="mb-1 flex items-center gap-1.5 text-xs text-indigo-200">
+                {metricIcons[metric.label] || <FileText className="h-4 w-4" />}
                 <span>{metric.label}</span>
               </div>
               <p className="text-lg font-bold">{metric.value}</p>
