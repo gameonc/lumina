@@ -295,16 +295,19 @@ const UploadModal = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 p-8">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors"
+          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center p-3 bg-violet-100 rounded-xl mb-4">
+            <FileSpreadsheet className="w-8 h-8 text-violet-600" />
+          </div>
           <h2 className="text-2xl font-bold text-slate-900">Upload your spreadsheet</h2>
           <p className="text-slate-500 mt-2 text-sm">
             Drop your Excel or CSV file and we&apos;ll transform it into insights
@@ -315,29 +318,29 @@ const UploadModal = ({
           {...getRootProps()}
           className={`flex cursor-pointer flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl transition-all ${
             isDragActive
-              ? "border-emerald-500 bg-emerald-50"
-              : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+              ? "border-violet-500 bg-violet-50"
+              : "border-slate-200 bg-slate-50/50 hover:border-violet-400 hover:bg-violet-50/50"
           }`}
         >
           <input {...getInputProps()} />
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
-            <Upload className="h-7 w-7 text-slate-600" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100">
+            <Upload className="h-7 w-7 text-violet-600" />
           </div>
-          <p className="mt-4 font-medium text-slate-900">
+          <p className="mt-4 font-semibold text-slate-900">
             {isDragActive ? "Drop your file here" : "Drop your Excel or CSV here"}
           </p>
           <p className="mt-1 text-sm text-slate-500">Or click to browse</p>
-          <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
-            <span className="rounded bg-slate-100 px-2 py-1">.xlsx</span>
-            <span className="rounded bg-slate-100 px-2 py-1">.xls</span>
-            <span className="rounded bg-slate-100 px-2 py-1">.csv</span>
-            <span className="text-slate-400">up to 20MB</span>
+          <div className="mt-4 flex items-center gap-2 text-xs">
+            <span className="rounded-md bg-violet-100 text-violet-700 px-2.5 py-1 font-medium">.xlsx</span>
+            <span className="rounded-md bg-violet-100 text-violet-700 px-2.5 py-1 font-medium">.xls</span>
+            <span className="rounded-md bg-violet-100 text-violet-700 px-2.5 py-1 font-medium">.csv</span>
+            <span className="text-slate-400 ml-1">up to 20MB</span>
           </div>
         </div>
 
         {error && (
-          <div className="mt-4 flex items-center gap-3 p-3 bg-red-50 border border-red-100 rounded-lg">
-            <AlertCircle className="h-5 w-5 text-red-500" />
+          <div className="mt-4 flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl">
+            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
