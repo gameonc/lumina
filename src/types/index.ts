@@ -165,6 +165,7 @@ export interface ChartConfig {
   yAxis?: string | string[];
   colors?: string[];
   options?: Record<string, unknown>;
+  explanation?: string;
 }
 
 /**

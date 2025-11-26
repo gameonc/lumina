@@ -24,6 +24,7 @@ import {
   BarChart3,
   PieChartIcon,
   ScatterChartIcon,
+  Sparkles,
 } from "lucide-react";
 
 interface ChartGridProps {
@@ -273,6 +274,14 @@ export function ChartGrid({ charts, isLoading = false }: ChartGridProps) {
               </CardHeader>
               <CardContent className="p-4 pt-4 sm:p-6">
                 <ChartRenderer chart={chart} />
+                {chart.explanation && (
+                  <div className="mt-4 flex items-start gap-2 rounded-lg bg-slate-50 p-3">
+                    <Sparkles className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-500" />
+                    <p className="text-sm leading-relaxed text-slate-600">
+                      {chart.explanation}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );

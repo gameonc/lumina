@@ -8,8 +8,10 @@ import {
 import { generateCharts } from "@/lib/charts";
 import {
   generateDatasetInsights,
+  generateChartExplanation,
   type AIInsights,
 } from "@/lib/ai/insights-generator";
+import type { ChartConfig } from "@/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -144,13 +146,37 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate chart configs with error handling
-    let charts: ReturnType<typeof generateCharts> = [];
+    let charts: ChartConfig[] = [];
     try {
       charts = generateCharts(columnStats, rows);
     } catch (chartError) {
       console.error("Chart generation error:", chartError);
       // Non-critical error - continue with empty charts
       console.warn("Chart generation failed, continuing without charts");
+    }
+
+    // Generate AI explanations for each chart (in parallel, non-blocking)
+    if (charts.length > 0) {
+      try {
+        const explanationPromises = charts.map((chart) =>
+          generateChartExplanation(
+            chart.type,
+            chart.title,
+            chart.data,
+            chart.xAxis || "",
+            typeof chart.yAxis === "string" ? chart.yAxis : chart.yAxis?.[0] || ""
+          ).catch(() => null)
+        );
+
+        const explanations = await Promise.all(explanationPromises);
+        charts = charts.map((chart, index) => ({
+          ...chart,
+          explanation: explanations[index] || undefined,
+        }));
+      } catch (explanationError) {
+        console.error("Chart explanation generation error:", explanationError);
+        // Non-critical - continue with charts without explanations
+      }
     }
 
     // Calculate health score with error handling

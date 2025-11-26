@@ -47,11 +47,13 @@ jobs:
         run: npm ci
 
       - name: Build application
-        run: npm run build
+        run: npm run build 2>&1 | tee build.log || (cat build.log && exit 1)
         env:
           SKIP_ENV_VALIDATION: true
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder' }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-placeholder' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key' }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-placeholder-key-for-ci' }}
           NEXT_PUBLIC_APP_URL: https://placeholder.com
+          NODE_ENV: production
 
