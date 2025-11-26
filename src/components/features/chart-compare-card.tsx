@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, ArrowRightLeft } from "lucide-react";
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
 import type { ChartConfig } from "@/types";
 
@@ -16,28 +16,31 @@ export function ChartCompareCard({
   charts: _charts,
   rows: _rows,
 }: ChartCompareCardProps) {
-  // Note: charts and rows will be used in future implementation
   void _charts;
   void _rows;
-  // Get numeric columns for dropdown
+  
   const numericColumns = columnStats.filter(
     (col) => col.inferredType === "numeric"
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Compare Metrics</CardTitle>
+    <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden">
+      <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+            <ArrowRightLeft className="h-4 w-4 text-violet-600" />
+          </div>
+          <CardTitle className="text-slate-800 text-base">Compare Metrics</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Dropdowns */}
-        <div className="grid grid-cols-2 gap-4">
+      <CardContent className="p-6 space-y-6">
+        <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
               Metric A
             </label>
             <select
-              className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg bg-white dark:bg-neutral-800 dark:border-neutral-600 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-700 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all hover:border-slate-300 cursor-pointer"
               defaultValue=""
             >
               <option value="">Select metric...</option>
@@ -49,11 +52,11 @@ export function ChartCompareCard({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
               Metric B
             </label>
             <select
-              className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg bg-white dark:bg-neutral-800 dark:border-neutral-600 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-700 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all hover:border-slate-300 cursor-pointer"
               defaultValue=""
             >
               <option value="">Select metric...</option>
@@ -66,20 +69,18 @@ export function ChartCompareCard({
           </div>
         </div>
 
-        {/* Placeholder Chart Area */}
-        <div className="h-64 flex items-center justify-center rounded-lg border-2 border-dashed border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50">
-          <div className="text-center space-y-2">
-            <BarChart3 className="h-12 w-12 text-neutral-400 mx-auto" />
-            <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-              Select two metrics to compare
-            </p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-500">
-              Full comparison feature coming soon
-            </p>
+        <div className="h-64 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50">
+          <div className="p-4 bg-white rounded-full shadow-sm mb-4">
+            <BarChart3 className="h-8 w-8 text-slate-300" />
           </div>
+          <p className="text-sm font-medium text-slate-600">
+            Select two metrics to compare
+          </p>
+          <p className="text-xs text-slate-400 mt-1">
+            Full comparison feature coming soon
+          </p>
         </div>
       </CardContent>
     </Card>
   );
 }
-

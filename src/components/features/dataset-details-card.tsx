@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
-import { FileText, Calendar, Database, Columns3, Activity, Download, RefreshCw } from "lucide-react";
+import { FileText, Calendar, Database, Columns3, Activity, Download, RefreshCw, Info } from "lucide-react";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
 
 interface DatasetDetailsCardProps {
@@ -14,10 +14,10 @@ interface DatasetDetailsCardProps {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 80) return "text-emerald-600 dark:text-emerald-400";
-  if (score >= 60) return "text-yellow-600 dark:text-yellow-400";
-  if (score >= 40) return "text-orange-600 dark:text-orange-400";
-  return "text-red-600 dark:text-red-400";
+  if (score >= 80) return "text-emerald-600 bg-emerald-50 border-emerald-100";
+  if (score >= 60) return "text-amber-600 bg-amber-50 border-amber-100";
+  if (score >= 40) return "text-orange-600 bg-orange-50 border-orange-100";
+  return "text-red-600 bg-red-50 border-red-100";
 }
 
 export function DatasetDetailsCard({
@@ -33,100 +33,102 @@ export function DatasetDetailsCard({
       month: "short",
       day: "numeric",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     }).format(date);
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Dataset Details</CardTitle>
+    <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden">
+      <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+            <Info className="h-4 w-4 text-violet-600" />
+          </div>
+          <CardTitle className="text-slate-800 text-base">Dataset Details</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* File Name */}
-        <div className="flex items-start gap-3">
-          <FileText className="h-5 w-5 text-neutral-400 mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">File Name</p>
-            <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
-              {datasetName}
-            </p>
+      <CardContent className="p-6 space-y-6">
+        <div className="space-y-4">
+          <div className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+            <div className="p-2 bg-white border border-slate-100 rounded-lg shadow-sm group-hover:border-slate-200 group-hover:shadow">
+              <FileText className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-slate-400 mb-0.5">File Name</p>
+              <p className="text-sm font-semibold text-slate-700 truncate" title={datasetName}>
+                {datasetName}
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Upload Date */}
-        <div className="flex items-start gap-3">
-          <Calendar className="h-5 w-5 text-neutral-400 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Upload Date</p>
-            <p className="text-sm font-medium text-neutral-900 dark:text-white">
-              {uploadDate ? formatDate(uploadDate) : "Just now"}
-            </p>
-          </div>
-        </div>
-
-        {/* Rows / Columns */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-start gap-3">
-            <Database className="h-5 w-5 text-neutral-400 mt-0.5" />
+          <div className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+            <div className="p-2 bg-white border border-slate-100 rounded-lg shadow-sm group-hover:border-slate-200 group-hover:shadow">
+              <Calendar className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+            </div>
             <div>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Rows</p>
-              <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                {rowCount.toLocaleString()}
+              <p className="text-xs font-medium text-slate-400 mb-0.5">Upload Date</p>
+              <p className="text-sm font-semibold text-slate-700">
+                {uploadDate ? formatDate(uploadDate) : "Just now"}
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3">
-            <Columns3 className="h-5 w-5 text-neutral-400 mt-0.5" />
-            <div>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Columns</p>
-              <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                {columnCount}
-              </p>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="group flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+              <div className="p-2 bg-white border border-slate-100 rounded-lg shadow-sm group-hover:border-slate-200 group-hover:shadow">
+                <Database className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-400 mb-0.5">Rows</p>
+                <p className="text-sm font-semibold text-slate-700">{rowCount.toLocaleString()}</p>
+              </div>
+            </div>
+            <div className="group flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+              <div className="p-2 bg-white border border-slate-100 rounded-lg shadow-sm group-hover:border-slate-200 group-hover:shadow">
+                <Columns3 className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-400 mb-0.5">Columns</p>
+                <p className="text-sm font-semibold text-slate-700">{columnCount}</p>
+              </div>
             </div>
           </div>
+
+          {healthScore && (
+            <div className="p-4 rounded-xl border bg-white shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-slate-400" />
+                  <span className="text-xs font-medium text-slate-500">Health Score</span>
+                </div>
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${getScoreColor(healthScore.score)}`}>
+                  {healthScore.score}/100
+                </span>
+              </div>
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    healthScore.score >= 80 ? "bg-emerald-500" : 
+                    healthScore.score >= 60 ? "bg-amber-500" : 
+                    healthScore.score >= 40 ? "bg-orange-500" : "bg-red-500"
+                  }`}
+                  style={{ width: `${healthScore.score}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Dataset Type */}
-        {datasetType && (
-          <div className="flex items-start gap-3">
-            <Activity className="h-5 w-5 text-neutral-400 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Dataset Type</p>
-              <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium dark:bg-blue-900/30 dark:text-blue-300">
-                {datasetType.charAt(0).toUpperCase() + datasetType.slice(1)}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Health Score */}
-        {healthScore && (
-          <div className="flex items-start gap-3">
-            <Activity className="h-5 w-5 text-neutral-400 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Health Score</p>
-              <p className={`text-lg font-bold ${getScoreColor(healthScore.score)}`}>
-                {healthScore.score}/100
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700 space-y-2">
-          <button className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:text-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors">
+        <div className="pt-4 border-t border-slate-100 space-y-3">
+          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 rounded-xl transition-all shadow-sm">
             <Download className="h-4 w-4" />
-            Download original file
+            Download Original
           </button>
-          <button className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:text-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors">
+          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-xl transition-all">
             <RefreshCw className="h-4 w-4" />
-            Re-run analysis
+            Re-run Analysis
           </button>
         </div>
       </CardContent>
     </Card>
   );
 }
-
