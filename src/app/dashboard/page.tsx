@@ -222,14 +222,14 @@ export default function DashboardPage() {
         datasetType: results.datasetType,
         rowCount: results.rowCount ?? parsedData.rowCount,
         columnCount: results.columnCount ?? parsedData.columnCount,
+        columnStats: results.columnStats,
       };
 
-      setAnalysisResults({
-        ...analysisData,
-        datasetId,
-      });
-
+      // Save to sessionStorage for immediate access
       sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));
+
+      // Go DIRECTLY to the interactive dashboard - no extra clicks!
+      router.push(`/dashboard/${datasetId}`);
     } catch (err) {
       console.error("Analysis error:", err);
       setAnalysisError(err instanceof Error ? err.message : "Failed to analyze data.");
