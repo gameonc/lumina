@@ -20,6 +20,9 @@ import {
 import {
   Loader2,
   AlertCircle,
+  Sparkles,
+  BarChart3,
+  TrendingUp,
 } from "lucide-react";
 import type { ChartConfig, Insight } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
@@ -35,7 +38,7 @@ interface AnalysisData {
   datasetType: string | null;
   rowCount: number;
   columnCount: number;
-  columnStats?: EnhancedColumnStats[]; // Optional for backward compatibility
+  columnStats?: EnhancedColumnStats[];
 }
 
 export default function DashboardPage() {
@@ -53,7 +56,6 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Try sessionStorage first (faster)
         const storedData = sessionStorage.getItem(`analysis-${datasetId}`);
         if (storedData) {
           const parsed = JSON.parse(storedData);
@@ -65,12 +67,10 @@ export default function DashboardPage() {
           return;
         }
 
-        // Try Google Sheets (for persistence across sessions)
         const response = await fetch(`/api/storage/load?id=${datasetId}`);
         if (response.ok) {
           const { data } = await response.json();
           if (data) {
-            // Reconstruct analysis data from stored record
             const parsed = {
               datasetName: data.datasetName,
               headers: data.fullData?.headers || [],
@@ -83,7 +83,6 @@ export default function DashboardPage() {
               columnCount: data.columnCount,
               columnStats: data.columnStats || [],
             };
-            // Cache in sessionStorage for faster access
             sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(parsed));
             setAnalysisData(parsed);
             setCharts(parsed.charts);
@@ -108,7 +107,6 @@ export default function DashboardPage() {
     setCharts((prevCharts) => {
       const updatedCharts = [...prevCharts, newChart];
       
-      // Update sessionStorage with new chart
       if (analysisData) {
         const updatedData = { ...analysisData, charts: updatedCharts };
         sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(updatedData));
@@ -197,12 +195,10 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary-500" />
-          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-            Loading analysis...
-          </p>
+          <Loader2 className="mx-auto h-10 w-10 animate-spin text-violet-600" />
+          <p className="mt-4 text-slate-600 font-medium">Loading your analysis...</p>
         </div>
       </div>
     );
@@ -210,19 +206,21 @@ export default function DashboardPage() {
 
   if (error || !analysisData) {
     return (
-      <div className="mx-auto max-w-2xl p-6">
-        <Card>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full">
           <CardContent className="flex flex-col items-center py-12">
-            <AlertCircle className="h-12 w-12 text-neutral-400" />
-            <h2 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white">
+            <div className="p-3 bg-red-100 rounded-full mb-4">
+              <AlertCircle className="h-8 w-8 text-red-600" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">
               {error || "No Data Available"}
             </h2>
-            <p className="mt-2 text-center text-neutral-600 dark:text-neutral-400">
+            <p className="text-center text-slate-600 mb-6">
               Upload a dataset to see analysis results here.
             </p>
             <button
-              onClick={() => router.push("/")}
-              className="btn-primary mt-6"
+              onClick={() => router.push("/dashboard")}
+              className="px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:from-violet-500 hover:to-indigo-500 transition-all shadow-lg shadow-violet-500/25"
             >
               Go to Upload
             </button>
@@ -240,11 +238,11 @@ export default function DashboardPage() {
     datasetType,
     rowCount,
     columnCount,
-    columnStats = [], // Default to empty array if not available
+    columnStats = [],
   } = analysisData;
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30">
       {/* Status Banner */}
       <StatusBanner
         datasetName={datasetName}
@@ -264,7 +262,9 @@ export default function DashboardPage() {
           {/* Left Column (65%) */}
           <div className="space-y-6">
             {/* AI Summary Card */}
-            <AISummaryCard healthScore={healthScore} />
+            <div className="bg-white rounded-2xl border border-slate-200/50 shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+              <AISummaryCard healthScore={healthScore} />
+            </div>
 
             {/* Key Metrics Strip */}
             {columnStats && columnStats.length > 0 && (
@@ -274,25 +274,36 @@ export default function DashboardPage() {
             {/* Charts Section */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                  Auto-Generated Charts
-                </h2>
-                <select className="text-sm px-3 py-1.5 border border-neutral-300 rounded-lg bg-white dark:bg-neutral-800 dark:border-neutral-600 dark:text-white">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg shadow-lg shadow-violet-500/20">
+                    <BarChart3 className="h-5 w-5 text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900">
+                    Auto-Generated Charts
+                  </h2>
+                </div>
+                <select className="text-sm px-4 py-2 border border-slate-200 rounded-xl bg-white hover:border-violet-300 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-colors cursor-pointer shadow-sm">
                   <option>Dataset view: All</option>
                 </select>
               </div>
               {charts.length > 0 ? (
                 <ChartGrid charts={charts.slice(0, 5)} />
               ) : (
-                <Card>
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <p className="text-neutral-500">No charts generated for this dataset.</p>
+                <Card className="border-2 border-dashed border-slate-200 hover:border-violet-300 transition-colors">
+                  <CardContent className="flex flex-col items-center justify-center py-16">
+                    <div className="p-4 bg-slate-100 rounded-2xl mb-4">
+                      <TrendingUp className="h-10 w-10 text-slate-400" />
+                    </div>
+                    <p className="text-slate-500 font-medium mb-2">No charts generated for this dataset.</p>
+                    <p className="text-sm text-slate-400 text-center max-w-sm">
+                      Try asking the AI chat to create custom charts based on your data patterns.
+                    </p>
                   </CardContent>
                 </Card>
               )}
             </div>
 
-            {/* Chart Compare Panel (Optional) */}
+            {/* Chart Compare Panel */}
             {columnStats && columnStats.length > 0 && (
               <ChartCompareCard
                 columnStats={columnStats}
@@ -305,11 +316,16 @@ export default function DashboardPage() {
           {/* Right Column (35%) */}
           <div className="space-y-6">
             {/* Chat Interface */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Ask your data</CardTitle>
+            <Card className="border-slate-200/50 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-violet-50 to-indigo-50 border-b border-violet-100">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg">
+                    <Sparkles className="h-4 w-4 text-white" />
+                  </div>
+                  <CardTitle className="text-slate-900">Ask your data</CardTitle>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <ChatInterface
                   headers={headers}
                   rows={rows}

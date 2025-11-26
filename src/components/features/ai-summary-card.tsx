@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
-import { CheckCircle2, AlertTriangle, Lightbulb } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Lightbulb, Sparkles } from "lucide-react";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
 
 interface AISummaryCardProps {
@@ -11,14 +11,24 @@ interface AISummaryCardProps {
 export function AISummaryCard({ healthScore }: AISummaryCardProps) {
   if (!healthScore || !healthScore.recommendations || healthScore.recommendations.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>AI Summary</CardTitle>
+      <Card className="border-slate-200/50 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-violet-50 to-indigo-50 border-b border-violet-100">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <CardTitle className="text-slate-900">AI Summary</CardTitle>
+          </div>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-neutral-500 text-center py-4">
-            No recommendations available. Your data looks good!
-          </p>
+        <CardContent className="pt-6">
+          <div className="text-center py-8">
+            <div className="inline-flex p-3 bg-emerald-100 rounded-full mb-4">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+            </div>
+            <p className="text-slate-600 font-medium">
+              No recommendations available. Your data looks good!
+            </p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -32,7 +42,6 @@ export function AISummaryCard({ healthScore }: AISummaryCardProps) {
   healthScore.recommendations.forEach((rec) => {
     const lowerRec = rec.toLowerCase();
     
-    // Check for positive keywords
     if (
       lowerRec.includes("excellent") ||
       lowerRec.includes("good") ||
@@ -43,7 +52,6 @@ export function AISummaryCard({ healthScore }: AISummaryCardProps) {
     ) {
       good.push(rec);
     }
-    // Check for warning keywords
     else if (
       lowerRec.includes("missing") ||
       lowerRec.includes("outlier") ||
@@ -58,32 +66,36 @@ export function AISummaryCard({ healthScore }: AISummaryCardProps) {
     ) {
       attention.push(rec);
     }
-    // Everything else goes to opportunities
     else {
       opportunities.push(rec);
     }
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>AI Summary</CardTitle>
+    <div>
+      <CardHeader className="bg-gradient-to-r from-violet-50 to-indigo-50 border-b border-violet-100">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg shadow-lg shadow-violet-500/20">
+            <Sparkles className="h-4 w-4 text-white" />
+          </div>
+          <CardTitle className="text-slate-900">AI Summary</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="pt-6 space-y-6">
         {/* What looks good */}
         {good.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <div className="p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200/50">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-500/25">
+                <CheckCircle2 className="h-5 w-5 text-white" />
               </div>
-              <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">What looks good</h3>
+              <h3 className="font-bold text-emerald-900 text-lg">What looks good</h3>
             </div>
-            <ul className="space-y-2 ml-10">
+            <ul className="space-y-2.5 ml-12">
               {good.map((item, i) => (
-                <li key={i} className="text-sm text-emerald-700 dark:text-emerald-300 flex items-start gap-2">
-                  <span className="text-emerald-500 mt-1">•</span>
-                  <span>{item}</span>
+                <li key={i} className="text-sm text-emerald-800 flex items-start gap-2.5">
+                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <span className="leading-relaxed">{item}</span>
                 </li>
               ))}
             </ul>
@@ -92,18 +104,18 @@ export function AISummaryCard({ healthScore }: AISummaryCardProps) {
 
         {/* What needs attention */}
         {attention.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
-                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200/50">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/25">
+                <AlertTriangle className="h-5 w-5 text-white" />
               </div>
-              <h3 className="font-semibold text-amber-900 dark:text-amber-100">What needs attention</h3>
+              <h3 className="font-bold text-amber-900 text-lg">What needs attention</h3>
             </div>
-            <ul className="space-y-2 ml-10">
+            <ul className="space-y-2.5 ml-12">
               {attention.map((item, i) => (
-                <li key={i} className="text-sm text-amber-700 dark:text-amber-300 flex items-start gap-2">
-                  <span className="text-amber-500 mt-1">•</span>
-                  <span>{item}</span>
+                <li key={i} className="text-sm text-amber-800 flex items-start gap-2.5">
+                  <span className="text-amber-500 font-bold mt-0.5">⚠</span>
+                  <span className="leading-relaxed">{item}</span>
                 </li>
               ))}
             </ul>
@@ -112,18 +124,18 @@ export function AISummaryCard({ healthScore }: AISummaryCardProps) {
 
         {/* Opportunities */}
         {opportunities.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <Lightbulb className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200/50">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 shadow-lg shadow-blue-500/25">
+                <Lightbulb className="h-5 w-5 text-white" />
               </div>
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100">Opportunities</h3>
+              <h3 className="font-bold text-blue-900 text-lg">Opportunities</h3>
             </div>
-            <ul className="space-y-2 ml-10">
+            <ul className="space-y-2.5 ml-12">
               {opportunities.map((item, i) => (
-                <li key={i} className="text-sm text-blue-700 dark:text-blue-300 flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span>{item}</span>
+                <li key={i} className="text-sm text-blue-800 flex items-start gap-2.5">
+                  <span className="text-blue-500 font-bold mt-0.5">💡</span>
+                  <span className="leading-relaxed">{item}</span>
                 </li>
               ))}
             </ul>
@@ -131,13 +143,12 @@ export function AISummaryCard({ healthScore }: AISummaryCardProps) {
         )}
 
         {/* Footer note */}
-        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700">
-          <p className="text-xs text-neutral-500 text-center">
+        <div className="pt-4 border-t border-slate-200">
+          <p className="text-xs text-slate-500 text-center">
             Generated from your data analysis
           </p>
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 }
-

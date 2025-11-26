@@ -22,6 +22,14 @@ function getScoreLabel(score: number): string {
   return "Critical";
 }
 
+function getScoreColor(score: number): string {
+  if (score >= 90) return "text-emerald-600";
+  if (score >= 80) return "text-green-600";
+  if (score >= 60) return "text-amber-600";
+  if (score >= 40) return "text-orange-600";
+  return "text-red-600";
+}
+
 export function StatusBanner({
   datasetName,
   rowCount,
@@ -34,32 +42,39 @@ export function StatusBanner({
 }: StatusBannerProps) {
   const score = healthScore?.score || 0;
   const label = getScoreLabel(score);
+  const scoreColor = getScoreColor(score);
 
   return (
-    <div className="w-full bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-200 dark:from-emerald-950/20 dark:to-teal-950/20 dark:border-emerald-800">
-      <div className="max-w-7xl mx-auto px-6 py-4">
+    <div className="w-full bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-b border-emerald-200/50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 py-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Left: Status Message */}
-          <div className="flex items-center gap-3 flex-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white">
-              <CheckCircle2 className="h-5 w-5" />
+          <div className="flex items-center gap-4 flex-1">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-500/30 ring-2 ring-white/50">
+              <CheckCircle2 className="h-6 w-6 text-white" />
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-emerald-900 mb-1">
                 Analysis complete for <span className="font-bold">{datasetName}</span>
               </p>
-              <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                {rowCount.toLocaleString()} rows · {columnCount} columns · Health: {score}/100 ({label})
-              </p>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-emerald-700">
+                <span className="font-medium">{rowCount.toLocaleString()} rows</span>
+                <span className="text-emerald-400">·</span>
+                <span className="font-medium">{columnCount} columns</span>
+                <span className="text-emerald-400">·</span>
+                <span className="font-medium">
+                  Health: <span className={`font-bold ${scoreColor}`}>{score}/100</span> ({label})
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Right: Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
             <button
               onClick={onDownloadPPTX}
               disabled={isDownloadingPPTX || isDownloadingPDF}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed text-sm"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 disabled:opacity-70 disabled:cursor-not-allowed text-sm"
             >
               {isDownloadingPPTX ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -72,7 +87,7 @@ export function StatusBanner({
             <button
               onClick={onDownloadPDF}
               disabled={isDownloadingPPTX || isDownloadingPDF}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg font-semibold hover:bg-slate-800 transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed text-sm dark:bg-slate-800 dark:hover:bg-slate-700"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-semibold hover:from-slate-600 hover:to-slate-800 transition-all shadow-lg shadow-slate-500/30 hover:shadow-slate-500/40 disabled:opacity-70 disabled:cursor-not-allowed text-sm"
             >
               {isDownloadingPDF ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -88,4 +103,3 @@ export function StatusBanner({
     </div>
   );
 }
-
