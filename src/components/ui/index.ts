@@ -93,3 +93,6 @@ export type {
   AlertTitleProps,
   AlertDescriptionProps,
 } from "./alert";
+
+// InitialsAvatar
+export { InitialsAvatar } from "./initials-avatar";

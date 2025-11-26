@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFileUpload } from "@/hooks/use-file-upload";
+import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import {
   FileSpreadsheet,
   LayoutDashboard,
@@ -81,14 +82,13 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose, onUpgrade 
           </div>
 
           <div className="mt-8 pt-8 border-t border-white/10">
-            <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-2">Trusted By</p>
-            <div className="flex gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Sarah&backgroundColor=b6e3f4" alt="User" className="w-8 h-8 rounded-full" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Mike&backgroundColor=c0aede" alt="User" className="w-8 h-8 rounded-full" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Emma&backgroundColor=ffd5dc" alt="User" className="w-8 h-8 rounded-full" />
+            <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mb-3">Trusted By 1,000+ Teams</p>
+            <div className="flex -space-x-2">
+              <InitialsAvatar name="Sarah Chen" size="sm" />
+              <InitialsAvatar name="Mike Johnson" size="sm" />
+              <InitialsAvatar name="Emma Davis" size="sm" />
+              <InitialsAvatar name="Alex Kim" size="sm" />
+              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 ring-2 ring-slate-900">+99</div>
             </div>
           </div>
         </div>
@@ -527,10 +527,9 @@ export default function LandingPage() {
       <header className="pt-20 pb-16 px-6 text-center max-w-5xl mx-auto space-y-8">
         <div className="flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="flex -space-x-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 123}`} alt="User" className="w-full h-full" />
+            {["Jordan Lee", "Taylor Swift", "Chris Martin", "Alex Kim", "Sam Chen"].map((name, i) => (
+              <div key={i} className="ring-2 ring-white rounded-full">
+                <InitialsAvatar name={name} size="md" />
               </div>
             ))}
           </div>
@@ -593,8 +592,7 @@ export default function LandingPage() {
                 {/* Profile Section */}
                 <div className="mt-auto">
                   <div className="bg-slate-50 rounded-lg p-3 flex items-center gap-3 border border-slate-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" className="w-8 h-8 rounded-full bg-white border border-slate-200" alt="User" />
+                    <InitialsAvatar name="Alex Morgan" size="sm" />
                     <div>
                       <div className="text-xs font-bold text-slate-700">Alex Morgan</div>
                       <div className="text-[10px] text-slate-400 font-medium">Pro Plan</div>

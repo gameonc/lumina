@@ -1,9 +1,19 @@
 import OpenAI from "openai";
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy-initialize OpenAI client to avoid build-time errors
+let openai: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not configured");
+    }
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
 
 export interface AnalysisPrompt {
   type: "summary" | "correlation" | "trend" | "anomaly" | "custom";
@@ -69,7 +79,7 @@ ${JSON.stringify(dataSample, null, 2)}
 Analysis Type: ${type}
 Task: ${analysisPrompts[type]}`;
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       { role: "system", content: systemPrompt },
@@ -96,7 +106,7 @@ export async function explainVisualization(
   data: Record<string, unknown>[],
   title: string
 ): Promise<string> {
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       {
@@ -129,7 +139,7 @@ export async function generateQuery(
   columns: string[],
   tableName: string = "data"
 ): Promise<string> {
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       {
@@ -172,7 +182,7 @@ export async function generateReportSection(
       "Write a conclusion for this data analysis report. Summarize the main points and suggest next steps.",
   };
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       {
@@ -235,7 +245,7 @@ ${JSON.stringify(sampleRows.slice(0, 10), null, 2)}
 
 Classify this dataset type based on the column names and data patterns.`;
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       { role: "system", content: systemPrompt },
@@ -254,4 +264,4 @@ Classify this dataset type based on the column names and data patterns.`;
   return JSON.parse(content) as DatasetClassification;
 }
 
-export default openai;
+export { getOpenAI };

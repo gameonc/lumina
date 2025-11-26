@@ -13,9 +13,20 @@ import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
 import type { ChartConfig } from "@/types";
 import { generateChartData, type ChartRecommendation } from "@/lib/charts/recommender";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy-initialize OpenAI client to avoid build-time errors
+let openai: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not configured");
+    }
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
 
 export type ChatMessageRole = "user" | "assistant" | "system";
 
@@ -93,7 +104,7 @@ Return JSON format:
   "analysisType": "summary|correlation|trend|anomaly|none"
 }`;
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       { role: "system", content: systemPrompt },
@@ -144,7 +155,7 @@ Return JSON format:
   "explanation": "Brief explanation of the chart"
 }`;
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       { role: "system", content: systemPrompt },
@@ -210,7 +221,7 @@ async function generateAnalysisResponse(
   const systemPrompt = `You are a data analyst. Answer the user's question about their dataset with clear, actionable insights.
 Keep responses concise (2-3 paragraphs max).`;
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       { role: "system", content: systemPrompt },
@@ -276,7 +287,7 @@ Be concise and helpful.`,
     content: userMessage,
   });
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages,
     temperature: 0.7,
