@@ -3,6 +3,7 @@ import { analyzeData, type AnalysisPrompt } from "@/lib/ai";
 import { z } from "zod";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const analysisRequestSchema = z.object({

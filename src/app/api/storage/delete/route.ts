@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getGoogleSheetsStorage } from "@/lib/storage/google-sheets";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 export async function DELETE(request: NextRequest) {
