@@ -2,28 +2,21 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui";
-import {
-  ChartGrid,
-  ChatInterface,
-  StatusBanner,
-  AISummaryCard,
-  KeyMetricsStrip,
-  DatasetDetailsCard,
-  ChartCompareCard,
-} from "@/components/features";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import { ChartGrid, ChatInterface } from "@/components/features";
 import {
   Loader2,
   AlertCircle,
   Sparkles,
   BarChart3,
+  FileSpreadsheet,
+  Download,
+  FileText,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowLeft,
 } from "lucide-react";
-import type { ChartConfig, Insight } from "@/types";
+import type { ChartConfig } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
 
@@ -33,7 +26,7 @@ interface AnalysisData {
   rows: Record<string, unknown>[];
   healthScore: HealthScoreResult | null;
   charts: ChartConfig[];
-  insights: Insight[];
+  insights: string[];
   datasetType: string | null;
   rowCount: number;
   columnCount: number;
@@ -50,7 +43,6 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [charts, setCharts] = useState<ChartConfig[]>([]);
   const [isDownloadingPPTX, setIsDownloadingPPTX] = useState(false);
-  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -59,67 +51,37 @@ export default function DashboardPage() {
         if (storedData) {
           const parsed = JSON.parse(storedData);
           parsed.charts = Array.isArray(parsed.charts) ? parsed.charts : [];
-          parsed.insights = Array.isArray(parsed.insights) ? parsed.insights : [];
           setAnalysisData(parsed);
           setCharts(parsed.charts);
           setIsLoading(false);
           return;
         }
-
-        const response = await fetch(`/api/storage/load?id=${datasetId}`);
-        if (response.ok) {
-          const { data } = await response.json();
-          if (data) {
-            const parsed = {
-              datasetName: data.datasetName,
-              headers: data.fullData?.headers || [],
-              rows: data.fullData?.rows || [],
-              healthScore: data.fullData?.healthScore || null,
-              charts: data.charts || [],
-              insights: data.fullData?.insights || [],
-              datasetType: data.datasetType,
-              rowCount: data.rowCount,
-              columnCount: data.columnCount,
-              columnStats: data.columnStats || [],
-            };
-            sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(parsed));
-            setAnalysisData(parsed);
-            setCharts(parsed.charts);
-            setIsLoading(false);
-            return;
-          }
-        }
-
-        setError("No analysis data found. Please upload a dataset first.");
+        setError("No analysis data found.");
         setIsLoading(false);
       } catch (err) {
-        console.error("Failed to load analysis data:", err);
-        setError("Failed to load analysis data.");
+        console.error("Failed to load:", err);
+        setError("Failed to load analysis.");
         setIsLoading(false);
       }
     };
-
     loadData();
   }, [datasetId]);
 
   const handleNewChart = useCallback((newChart: ChartConfig) => {
-    setCharts((prevCharts) => {
-      const updatedCharts = [...prevCharts, newChart];
-      
+    setCharts((prev) => {
+      const updated = [...prev, newChart];
       if (analysisData) {
-        const updatedData = { ...analysisData, charts: updatedCharts };
+        const updatedData = { ...analysisData, charts: updated };
         sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(updatedData));
         setAnalysisData(updatedData);
       }
-      
-      return updatedCharts;
+      return updated;
     });
   }, [analysisData, datasetId]);
 
   const handleDownloadPPTX = async () => {
     if (!analysisData) return;
     setIsDownloadingPPTX(true);
-
     try {
       const response = await fetch("/api/reports/pptx", {
         method: "POST",
@@ -127,16 +89,14 @@ export default function DashboardPage() {
         body: JSON.stringify({
           datasetName: analysisData.datasetName,
           healthScore: analysisData.healthScore,
-          charts: charts,
+          charts,
           insights: analysisData.insights || [],
           datasetType: analysisData.datasetType || "general",
           rowCount: analysisData.rowCount,
           columnCount: analysisData.columnCount,
         }),
       });
-
-      if (!response.ok) throw new Error("Generation failed");
-
+      if (!response.ok) throw new Error("Failed");
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -146,49 +106,10 @@ export default function DashboardPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to download PowerPoint. Please try again.");
+    } catch {
+      alert("Failed to download. Try again.");
     } finally {
       setIsDownloadingPPTX(false);
-    }
-  };
-
-  const handleDownloadPDF = async () => {
-    if (!analysisData) return;
-    setIsDownloadingPDF(true);
-
-    try {
-      const response = await fetch("/api/reports/export", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          datasetName: analysisData.datasetName,
-          healthScore: analysisData.healthScore,
-          charts: charts,
-          insights: analysisData.insights || [],
-          datasetType: analysisData.datasetType || "general",
-          rowCount: analysisData.rowCount,
-          columnCount: analysisData.columnCount,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Generation failed");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${analysisData.datasetName.replace(/\s+/g, "_")}_Report.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to download PDF. Please try again.");
-    } finally {
-      setIsDownloadingPDF(false);
     }
   };
 
@@ -197,7 +118,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="mx-auto h-10 w-10 animate-spin text-violet-600" />
-          <p className="mt-4 text-slate-600 font-medium">Loading your analysis...</p>
+          <p className="mt-4 text-slate-600">Loading analysis...</p>
         </div>
       </div>
     );
@@ -208,20 +129,13 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex items-center justify-center p-6">
         <Card className="max-w-md w-full">
           <CardContent className="flex flex-col items-center py-12">
-            <div className="p-3 bg-red-100 rounded-full mb-4">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">
-              {error || "No Data Available"}
-            </h2>
-            <p className="text-center text-slate-600 mb-6">
-              Upload a dataset to see analysis results here.
-            </p>
+            <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">{error}</h2>
             <button
-              onClick={() => router.push("/dashboard")}
-              className="px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:from-violet-500 hover:to-indigo-500 transition-all shadow-lg shadow-violet-500/25"
+              onClick={() => router.push("/")}
+              className="mt-4 px-6 py-3 bg-violet-600 text-white rounded-xl font-medium hover:bg-violet-500"
             >
-              Go to Upload
+              Upload New File
             </button>
           </CardContent>
         </Card>
@@ -229,93 +143,122 @@ export default function DashboardPage() {
     );
   }
 
-  const {
-    datasetName,
-    headers,
-    rows,
-    healthScore,
-    datasetType,
-    rowCount,
-    columnCount,
-    columnStats = [],
-  } = analysisData;
+  const { datasetName, headers, rows, healthScore, rowCount, columnCount } = analysisData;
+  const score = healthScore?.score ?? 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30">
-      {/* Status Banner */}
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
-        <StatusBanner
-          datasetName={datasetName}
-          rowCount={rowCount}
-          columnCount={columnCount}
-          healthScore={healthScore}
-          onDownloadPPTX={handleDownloadPPTX}
-          onDownloadPDF={handleDownloadPDF}
-          isDownloadingPPTX={isDownloadingPPTX}
-          isDownloadingPDF={isDownloadingPDF}
-        />
+      {/* Top Bar */}
+      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push("/")}
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-slate-600" />
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-violet-100 rounded-lg">
+                <FileSpreadsheet className="w-5 h-5 text-violet-600" />
+              </div>
+              <div>
+                <h1 className="font-semibold text-slate-900 truncate max-w-[200px] sm:max-w-none">
+                  {datasetName}
+                </h1>
+                <p className="text-xs text-slate-500">{rowCount} rows · {columnCount} columns</p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={handleDownloadPPTX}
+            disabled={isDownloadingPPTX}
+            className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-500 disabled:opacity-50 transition-all"
+          >
+            {isDownloadingPPTX ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            <span className="hidden sm:inline">Download PowerPoint</span>
+            <span className="sm:hidden">Export</span>
+          </button>
+        </div>
       </div>
 
-      {/* Main Content - INCREASED WIDTH to 1600px */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Grid Layout - Enforce 2 columns on large screens */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 items-start">
-          
-          {/* Left Column (Main Analysis) */}
-          <div className="space-y-8 min-w-0"> {/* min-w-0 prevents chart overflow */}
-            
-            {/* AI Summary - Full width of left column */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-1 shadow-sm">
-               <AISummaryCard healthScore={healthScore} />
-            </div>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
 
-            {/* Key Metrics Strip */}
-            {columnStats && columnStats.length > 0 && (
-              <KeyMetricsStrip columnStats={columnStats} rows={rows} />
-            )}
-
-            {/* Charts Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between px-1">
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-violet-600" />
-                  Visual Analysis
-                </h2>
+          {/* Left Column */}
+          <div className="space-y-6">
+            {/* Health Score Summary */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-900">Data Quality</h2>
+                <div className={`text-2xl font-bold ${score >= 80 ? 'text-emerald-600' : score >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
+                  {score}/100
+                </div>
               </div>
-              
-              {/* Charts Grid */}
-              {charts.length > 0 ? (
-                <ChartGrid charts={charts} />
-              ) : (
-                <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
-                  <p className="text-slate-500">No charts generated automatically.</p>
+
+              {/* Progress bar */}
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
+                <div
+                  className={`h-full rounded-full transition-all ${score >= 80 ? 'bg-emerald-500' : score >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
+                  style={{ width: `${score}%` }}
+                />
+              </div>
+
+              {/* Recommendations */}
+              {healthScore?.recommendations && healthScore.recommendations.length > 0 && (
+                <div className="space-y-2">
+                  {healthScore.recommendations.slice(0, 3).map((rec, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm">
+                      {rec.toLowerCase().includes('good') || rec.toLowerCase().includes('complete') ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                      ) : (
+                        <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                      )}
+                      <span className="text-slate-600">{rec}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Chart Compare Panel */}
-            {columnStats && columnStats.length > 0 && (
-              <ChartCompareCard
-                columnStats={columnStats}
-                charts={charts}
-                rows={rows}
-              />
-            )}
+            {/* Charts Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-violet-600" />
+                <h2 className="text-lg font-semibold text-slate-900">Charts</h2>
+                {charts.length > 0 && (
+                  <span className="text-sm text-slate-500">({charts.length})</span>
+                )}
+              </div>
+
+              {charts.length > 0 ? (
+                <ChartGrid charts={charts} />
+              ) : (
+                <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-8 text-center">
+                  <BarChart3 className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500 mb-1">No charts yet</p>
+                  <p className="text-sm text-slate-400">Use the AI chat to generate charts from your data</p>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Right Column (Sidebar) - Sticky on Desktop */}
-          <div className="space-y-6 xl:sticky xl:top-24 h-fit">
-            
-            {/* Chat Interface */}
-            <Card className="border-slate-200 shadow-lg shadow-violet-500/5 overflow-hidden flex flex-col h-[600px]">
-              <CardHeader className="bg-white border-b border-slate-100 pb-4">
-                <CardTitle className="flex items-center gap-2 text-slate-800">
-                  <Sparkles className="w-5 h-5 text-violet-600" />
-                  Data Analyst AI
+          {/* Right Column - Chat */}
+          <div className="lg:sticky lg:top-24 h-fit">
+            <Card className="shadow-lg border-slate-200 overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Sparkles className="w-5 h-5" />
+                  Ask AI About Your Data
                 </CardTitle>
               </CardHeader>
-              <CardContent className="flex-1 p-0 bg-slate-50/50">
+              <CardContent className="p-0 h-[500px]">
                 <ChatInterface
                   headers={headers}
                   rows={rows}
@@ -323,15 +266,6 @@ export default function DashboardPage() {
                 />
               </CardContent>
             </Card>
-
-            {/* Dataset Details */}
-            <DatasetDetailsCard
-              datasetName={datasetName}
-              rowCount={rowCount}
-              columnCount={columnCount}
-              datasetType={datasetType}
-              healthScore={healthScore}
-            />
           </div>
         </div>
       </div>
