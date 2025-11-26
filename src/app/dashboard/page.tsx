@@ -135,6 +135,7 @@ export default function UploadPage() {
         rowCount: results.rowCount ?? parsedData.rowCount,
         columnCount: results.columnCount ?? parsedData.columnCount,
         columnStats: results.columnStats,
+        aiInsights: results.aiInsights,
       };
 
       sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));

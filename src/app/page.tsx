@@ -405,7 +405,8 @@ export default function LandingPage() {
         datasetType: results.datasetType,
         rowCount: results.rowCount ?? data.rowCount,
         columnCount: results.columnCount ?? data.columnCount,
-        columnStats: results.columnStats, // Include column stats for KeyMetricsStrip
+        columnStats: results.columnStats,
+        aiInsights: results.aiInsights,
         analysisTime: ((Date.now() - startTime) / 1000).toFixed(1),
       };
 

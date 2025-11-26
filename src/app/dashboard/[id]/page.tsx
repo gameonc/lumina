@@ -3,7 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, ToastContainer, toast } from "@/components/ui";
-import { ChartGrid, ChatInterface } from "@/components/features";
+import {
+  ChartGrid,
+  ChatInterface,
+  KeyInsightsCard,
+  DatasetSummaryCard,
+  AnomalyBadges,
+} from "@/components/features";
 import {
   Loader2,
   AlertCircle,
@@ -20,6 +26,7 @@ import {
 import type { ChartConfig } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
+import type { AIInsights } from "@/lib/ai/insights-generator";
 
 interface AnalysisData {
   datasetName: string;
@@ -32,6 +39,7 @@ interface AnalysisData {
   rowCount: number;
   columnCount: number;
   columnStats?: EnhancedColumnStats[];
+  aiInsights?: AIInsights | null;
 }
 
 function LoadingSkeleton() {
@@ -217,7 +225,7 @@ export default function DashboardPage() {
     );
   }
 
-  const { datasetName, headers, rows, healthScore, rowCount, columnCount } = analysisData;
+  const { datasetName, headers, rows, healthScore, rowCount, columnCount, aiInsights } = analysisData;
   const score = healthScore?.score ?? 0;
 
   return (
@@ -305,6 +313,16 @@ export default function DashboardPage() {
 
           {/* Left Column */}
           <div className="space-y-6">
+            {/* Dataset Summary - AI Generated */}
+            {aiInsights?.summary && (
+              <DatasetSummaryCard summary={aiInsights.summary} />
+            )}
+
+            {/* Key Insights - 3 AI Generated Insights */}
+            {aiInsights?.keyInsights && aiInsights.keyInsights.length > 0 && (
+              <KeyInsightsCard insights={aiInsights.keyInsights} />
+            )}
+
             {/* Health Score Summary */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
@@ -338,6 +356,11 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
+
+            {/* Anomaly Badges */}
+            {aiInsights?.anomalies && aiInsights.anomalies.length > 0 && (
+              <AnomalyBadges anomalies={aiInsights.anomalies} />
+            )}
 
             {/* Charts Section */}
             <div className="space-y-4">

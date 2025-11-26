@@ -18,3 +18,12 @@ export {
   type ChatResponseType,
   type ChatMessageRole,
 } from "./chat-handler";
+
+export {
+  generateDatasetInsights,
+  generateChartExplanation,
+  type KeyInsight,
+  type DatasetSummary,
+  type Anomaly,
+  type AIInsights,
+} from "./insights-generator";

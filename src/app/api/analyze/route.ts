@@ -6,6 +6,7 @@ import {
   calculateHealthScore,
 } from "@/lib/analyzers";
 import { generateCharts } from "@/lib/charts";
+import { generateDatasetInsights, type AIInsights } from "@/lib/ai/insights-generator";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -151,13 +152,23 @@ export async function POST(request: NextRequest) {
     } catch (healthError) {
       console.error("Health score calculation error:", healthError);
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: "Failed to calculate data health score",
           message: "An error occurred while analyzing data quality. Please try again."
         },
         { status: 500 }
       );
+    }
+
+    // Generate AI insights (non-blocking, with fallback)
+    let aiInsights: AIInsights | null = null;
+    try {
+      aiInsights = await generateDatasetInsights(headers, rows, columnStats, datasetType);
+    } catch (insightsError) {
+      console.error("AI insights generation error:", insightsError);
+      // Non-critical error - continue without AI insights
+      console.warn("AI insights generation failed, continuing without insights");
     }
 
     const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
@@ -172,6 +183,7 @@ export async function POST(request: NextRequest) {
         rowCount: rows.length,
         columnCount: headers.length,
         processingTime: `${processingTime}s`,
+        aiInsights,
       },
     });
   } catch (error) {
