@@ -95,7 +95,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen bg-neutral-50 font-sans antialiased dark:bg-neutral-950">
+      <body className="min-h-screen bg-white font-sans antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

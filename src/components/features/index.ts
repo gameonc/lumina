@@ -11,3 +11,4 @@ export { AISummaryCard } from "./ai-summary-card";
 export { KeyMetricsStrip } from "./key-metrics-strip";
 export { DatasetDetailsCard } from "./dataset-details-card";
 export { ChartCompareCard } from "./chart-compare-card";
+export { ErrorBoundary } from "./error-boundary";

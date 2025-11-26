@@ -15,7 +15,20 @@ import {
   X,
   Star,
   Lightbulb,
+  BarChart3,
+  Brain,
+  Zap,
+  TrendingUp,
 } from "lucide-react";
+
+const ANALYZING_MESSAGES = [
+  { icon: Brain, text: "Reading your spreadsheet..." },
+  { icon: BarChart3, text: "Detecting column types..." },
+  { icon: TrendingUp, text: "Finding patterns in your data..." },
+  { icon: Sparkles, text: "Generating smart charts..." },
+  { icon: Zap, text: "Calculating data quality score..." },
+  { icon: CheckCircle, text: "Almost there..." },
+];
 
 export default function UploadPage() {
   const router = useRouter();
@@ -25,6 +38,7 @@ export default function UploadPage() {
   const [credits, setCredits] = useState(5);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analyzeStep, setAnalyzeStep] = useState(0);
 
   const {
     getRootProps,
@@ -56,6 +70,20 @@ export default function UploadPage() {
       router.push("/");
     }
   }, [router]);
+
+  // Cycle through analyzing messages
+  useEffect(() => {
+    if (!isAnalyzing) {
+      setAnalyzeStep(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setAnalyzeStep((prev) => (prev + 1) % ANALYZING_MESSAGES.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isAnalyzing]);
 
   const handleAnalyze = async () => {
     if (!parsedData || !file) {
@@ -114,7 +142,6 @@ export default function UploadPage() {
     } catch (err) {
       console.error("Analysis error:", err);
       setAnalysisError(err instanceof Error ? err.message : "Failed to analyze data.");
-    } finally {
       setIsAnalyzing(false);
     }
   };
@@ -134,8 +161,53 @@ export default function UploadPage() {
     );
   }
 
+  const CurrentIcon = ANALYZING_MESSAGES[analyzeStep].icon;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex flex-col">
+      {/* Analyzing Overlay */}
+      {isAnalyzing && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-sm">
+          <div className="text-center max-w-md px-6">
+            {/* Animated Icon */}
+            <div className="relative mx-auto mb-8">
+              <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-2xl animate-pulse" />
+              <div className="relative w-24 h-24 mx-auto bg-gradient-to-br from-violet-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-violet-500/30 animate-bounce">
+                <CurrentIcon className="w-12 h-12 text-white" />
+              </div>
+            </div>
+
+            {/* Message */}
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              Analyzing Your Data
+            </h2>
+            <p className="text-lg text-violet-600 font-medium mb-4 h-7 transition-all">
+              {ANALYZING_MESSAGES[analyzeStep].text}
+            </p>
+
+            {/* Progress dots */}
+            <div className="flex justify-center gap-2 mb-6">
+              {ANALYZING_MESSAGES.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    i === analyzeStep
+                      ? "bg-violet-600 w-6"
+                      : i < analyzeStep
+                      ? "bg-violet-400"
+                      : "bg-slate-200"
+                  }`}
+                />
+              ))}
+            </div>
+
+            <p className="text-sm text-slate-500">
+              This usually takes 3-8 seconds
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Clean Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -315,17 +387,8 @@ export default function UploadPage() {
                   disabled={isAnalyzing || credits <= 0}
                   className="flex-[2] py-3.5 px-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-violet-500 hover:to-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-5 w-5" />
-                      Analyze with AI
-                    </>
-                  )}
+                  <Sparkles className="h-5 w-5" />
+                  Analyze with AI
                 </button>
               </div>
             </div>

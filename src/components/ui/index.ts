@@ -96,3 +96,6 @@ export type {
 
 // InitialsAvatar
 export { InitialsAvatar } from "./initials-avatar";
+
+// Toast
+export { toast, ToastContainer } from "./toast";
