@@ -22,7 +22,6 @@ import {
   AlertCircle,
   Sparkles,
   BarChart3,
-  TrendingUp,
 } from "lucide-react";
 import type { ChartConfig, Insight } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
@@ -242,28 +241,33 @@ export default function DashboardPage() {
   } = analysisData;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30">
+    <div className="min-h-screen bg-slate-50/50">
       {/* Status Banner */}
-      <StatusBanner
-        datasetName={datasetName}
-        rowCount={rowCount}
-        columnCount={columnCount}
-        healthScore={healthScore}
-        onDownloadPPTX={handleDownloadPPTX}
-        onDownloadPDF={handleDownloadPDF}
-        isDownloadingPPTX={isDownloadingPPTX}
-        isDownloadingPDF={isDownloadingPDF}
-      />
+      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
+        <StatusBanner
+          datasetName={datasetName}
+          rowCount={rowCount}
+          columnCount={columnCount}
+          healthScore={healthScore}
+          onDownloadPPTX={handleDownloadPPTX}
+          onDownloadPDF={handleDownloadPDF}
+          isDownloadingPPTX={isDownloadingPPTX}
+          isDownloadingPDF={isDownloadingPDF}
+        />
+      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* 2-Column Layout */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[65%_35%]">
-          {/* Left Column (65%) */}
-          <div className="space-y-6">
-            {/* AI Summary Card */}
-            <div className="bg-white rounded-2xl border border-slate-200/50 shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
-              <AISummaryCard healthScore={healthScore} />
+      {/* Main Content - INCREASED WIDTH to 1600px */}
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Grid Layout - Enforce 2 columns on large screens */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 items-start">
+          
+          {/* Left Column (Main Analysis) */}
+          <div className="space-y-8 min-w-0"> {/* min-w-0 prevents chart overflow */}
+            
+            {/* AI Summary - Full width of left column */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-1 shadow-sm">
+               <AISummaryCard healthScore={healthScore} />
             </div>
 
             {/* Key Metrics Strip */}
@@ -272,34 +276,21 @@ export default function DashboardPage() {
             )}
 
             {/* Charts Section */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg shadow-lg shadow-violet-500/20">
-                    <BarChart3 className="h-5 w-5 text-white" />
-                  </div>
-                  <h2 className="text-xl font-bold text-slate-900">
-                    Auto-Generated Charts
-                  </h2>
-                </div>
-                <select className="text-sm px-4 py-2 border border-slate-200 rounded-xl bg-white hover:border-violet-300 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-colors cursor-pointer shadow-sm">
-                  <option>Dataset view: All</option>
-                </select>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-violet-600" />
+                  Visual Analysis
+                </h2>
               </div>
+              
+              {/* Charts Grid */}
               {charts.length > 0 ? (
-                <ChartGrid charts={charts.slice(0, 5)} />
+                <ChartGrid charts={charts} />
               ) : (
-                <Card className="border-2 border-dashed border-slate-200 hover:border-violet-300 transition-colors">
-                  <CardContent className="flex flex-col items-center justify-center py-16">
-                    <div className="p-4 bg-slate-100 rounded-2xl mb-4">
-                      <TrendingUp className="h-10 w-10 text-slate-400" />
-                    </div>
-                    <p className="text-slate-500 font-medium mb-2">No charts generated for this dataset.</p>
-                    <p className="text-sm text-slate-400 text-center max-w-sm">
-                      Try asking the AI chat to create custom charts based on your data patterns.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
+                  <p className="text-slate-500">No charts generated automatically.</p>
+                </div>
               )}
             </div>
 
@@ -313,19 +304,18 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Right Column (35%) */}
-          <div className="space-y-6">
+          {/* Right Column (Sidebar) - Sticky on Desktop */}
+          <div className="space-y-6 xl:sticky xl:top-24 h-fit">
+            
             {/* Chat Interface */}
-            <Card className="border-slate-200/50 shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader className="bg-gradient-to-r from-violet-50 to-indigo-50 border-b border-violet-100">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg">
-                    <Sparkles className="h-4 w-4 text-white" />
-                  </div>
-                  <CardTitle className="text-slate-900">Ask your data</CardTitle>
-                </div>
+            <Card className="border-slate-200 shadow-lg shadow-violet-500/5 overflow-hidden flex flex-col h-[600px]">
+              <CardHeader className="bg-white border-b border-slate-100 pb-4">
+                <CardTitle className="flex items-center gap-2 text-slate-800">
+                  <Sparkles className="w-5 h-5 text-violet-600" />
+                  Data Analyst AI
+                </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
+              <CardContent className="flex-1 p-0 bg-slate-50/50">
                 <ChatInterface
                   headers={headers}
                   rows={rows}
@@ -334,7 +324,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Dataset Details Card */}
+            {/* Dataset Details */}
             <DatasetDetailsCard
               datasetName={datasetName}
               rowCount={rowCount}
