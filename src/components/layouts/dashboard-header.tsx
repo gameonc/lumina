@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, User, Menu } from "lucide-react";
+import { FileText, User } from "lucide-react";
 
 export function DashboardHeader() {
   return (

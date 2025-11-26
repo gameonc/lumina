@@ -193,7 +193,7 @@ Create a chart specification for this question.`,
   return {
     type: "both",
     message: chartSpec.explanation,
-    chart,
+    chart: chart ?? undefined,
     suggestions,
   };
 }

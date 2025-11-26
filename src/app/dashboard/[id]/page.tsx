@@ -51,18 +51,45 @@ export default function DashboardPage() {
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
   useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
       try {
+        // Try sessionStorage first (faster)
         const storedData = sessionStorage.getItem(`analysis-${datasetId}`);
         if (storedData) {
           const parsed = JSON.parse(storedData);
-          // Ensure charts and insights are arrays
           parsed.charts = Array.isArray(parsed.charts) ? parsed.charts : [];
           parsed.insights = Array.isArray(parsed.insights) ? parsed.insights : [];
           setAnalysisData(parsed);
           setCharts(parsed.charts);
           setIsLoading(false);
           return;
+        }
+
+        // Try Google Sheets (for persistence across sessions)
+        const response = await fetch(`/api/storage/load?id=${datasetId}`);
+        if (response.ok) {
+          const { data } = await response.json();
+          if (data) {
+            // Reconstruct analysis data from stored record
+            const parsed = {
+              datasetName: data.datasetName,
+              headers: data.fullData?.headers || [],
+              rows: data.fullData?.rows || [],
+              healthScore: data.fullData?.healthScore || null,
+              charts: data.charts || [],
+              insights: data.fullData?.insights || [],
+              datasetType: data.datasetType,
+              rowCount: data.rowCount,
+              columnCount: data.columnCount,
+              columnStats: data.columnStats || [],
+            };
+            // Cache in sessionStorage for faster access
+            sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(parsed));
+            setAnalysisData(parsed);
+            setCharts(parsed.charts);
+            setIsLoading(false);
+            return;
+          }
         }
 
         setError("No analysis data found. Please upload a dataset first.");

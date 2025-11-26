@@ -406,7 +406,22 @@ export default function LandingPage() {
         analysisTime: ((Date.now() - startTime) / 1000).toFixed(1),
       };
 
+      // Save to sessionStorage for immediate access
       sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(analysisData));
+
+      // Save to Google Sheets for persistence (non-blocking)
+      fetch("/api/storage/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          analysisId: datasetId,
+          analysisData: analysisData,
+        }),
+      }).catch((err) => {
+        console.warn("Failed to save to Google Sheets:", err);
+        // Non-critical - continue anyway since we have sessionStorage
+      });
+
       router.push(`/dashboard/${datasetId}`);
     } catch (err) {
       console.error("Analysis error:", err);

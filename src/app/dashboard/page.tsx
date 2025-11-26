@@ -24,8 +24,6 @@ import {
   BarChart3,
   Download,
   RefreshCw,
-  PieChart,
-  LineChart,
 } from "lucide-react";
 import {
   BarChart,
@@ -137,7 +135,9 @@ export default function DashboardPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [showPricing, setShowPricing] = useState(false);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "settings">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "datasets" | "settings">("dashboard");
+  const [savedDatasets, setSavedDatasets] = useState<any[]>([]);
+  const [loadingDatasets, setLoadingDatasets] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isExporting, setIsExporting] = useState<"pptx" | "pdf" | null>(null);
 
@@ -255,6 +255,40 @@ export default function DashboardPage() {
     router.push("/");
   };
 
+  const loadSavedDatasets = async () => {
+    setLoadingDatasets(true);
+    try {
+      const response = await fetch("/api/storage/list?sortBy=createdAt&sortOrder=desc");
+      if (response.ok) {
+        const { data } = await response.json();
+        setSavedDatasets(data || []);
+      }
+    } catch (error) {
+      console.error("Failed to load datasets:", error);
+    } finally {
+      setLoadingDatasets(false);
+    }
+  };
+
+  const handleDeleteDataset = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this analysis?")) return;
+    try {
+      const response = await fetch(`/api/storage/delete?id=${id}`, { method: "DELETE" });
+      if (response.ok) {
+        setSavedDatasets((prev) => prev.filter((d) => d.id !== id));
+        sessionStorage.removeItem(`analysis-${id}`);
+      }
+    } catch (error) {
+      console.error("Failed to delete dataset:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "datasets") {
+      loadSavedDatasets();
+    }
+  }, [activeTab]);
+
   const handleExport = async (type: "pptx" | "pdf") => {
     if (!analysisResults) return;
     setIsExporting(type);
@@ -325,6 +359,13 @@ export default function DashboardPage() {
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab("datasets")}
+                className={`flex items-center gap-2 transition-colors ${activeTab === "datasets" ? "text-slate-900" : "hover:text-slate-900"}`}
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                My Datasets
               </button>
               <button
                 onClick={() => setActiveTab("settings")}
@@ -752,6 +793,90 @@ export default function DashboardPage() {
             </div>
           </>
         )
+        ) : activeTab === "datasets" ? (
+          /* My Datasets Tab */
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900">My Datasets</h1>
+                <p className="mt-2 text-slate-500">View and manage your saved analyses</p>
+              </div>
+              <button
+                onClick={loadSavedDatasets}
+                disabled={loadingDatasets}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 font-medium transition-colors"
+              >
+                <RefreshCw className={`w-4 h-4 ${loadingDatasets ? "animate-spin" : ""}`} />
+                Refresh
+              </button>
+            </div>
+
+            {loadingDatasets ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+              </div>
+            ) : savedDatasets.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+                <FileSpreadsheet className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">No datasets yet</h3>
+                <p className="text-slate-500 mb-6">Upload your first spreadsheet to get started</p>
+                <button
+                  onClick={() => setActiveTab("dashboard")}
+                  className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                >
+                  Upload Dataset
+                </button>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {savedDatasets.map((dataset) => (
+                  <div
+                    key={dataset.id}
+                    className="bg-white rounded-xl border border-slate-200 p-6 hover:border-slate-300 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100">
+                          <FileSpreadsheet className="w-6 h-6 text-indigo-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-900">{dataset.datasetName}</h3>
+                          <p className="text-sm text-slate-500">
+                            {dataset.rowCount?.toLocaleString()} rows • {dataset.columnCount} columns •{" "}
+                            {new Date(dataset.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {dataset.healthScore !== null && (
+                          <div className="text-center">
+                            <p className={`text-lg font-bold ${dataset.healthScore >= 80 ? "text-emerald-600" : dataset.healthScore >= 50 ? "text-amber-600" : "text-red-600"}`}>
+                              {Math.round(dataset.healthScore)}%
+                            </p>
+                            <p className="text-xs text-slate-500">Health</p>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => router.push(`/dashboard/${dataset.id}`)}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDataset(dataset.id)}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
           /* Settings Tab */
           <div className="max-w-2xl mx-auto">

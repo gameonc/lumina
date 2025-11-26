@@ -13,9 +13,12 @@ interface ChartCompareCardProps {
 
 export function ChartCompareCard({
   columnStats,
-  charts,
-  rows,
+  charts: _charts,
+  rows: _rows,
 }: ChartCompareCardProps) {
+  // Note: charts and rows will be used in future implementation
+  void _charts;
+  void _rows;
   // Get numeric columns for dropdown
   const numericColumns = columnStats.filter(
     (col) => col.inferredType === "numeric"

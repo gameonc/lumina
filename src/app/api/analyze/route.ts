@@ -126,7 +126,8 @@ export async function POST(request: NextRequest) {
     // Classify dataset type with error handling
     let datasetType = "general";
     try {
-      datasetType = await classifyDataset(headers, rows.slice(0, 5));
+      const classification = await classifyDataset(headers, rows.slice(0, 5));
+      datasetType = classification.type;
     } catch (classifyError) {
       console.error("Dataset classification error:", classifyError);
       // Non-critical error - continue with default type
