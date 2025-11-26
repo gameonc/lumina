@@ -111,8 +111,8 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose, onUpgrade 
             </div>
 
             {/* Pro Plan */}
-            <div className="border-2 border-blue-600 bg-blue-50/30 rounded-xl p-6 relative">
-              <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-sm">
+            <div className="border-2 border-emerald-600 bg-emerald-50/30 rounded-xl p-6 relative">
+              <div className="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-sm">
                 MOST POPULAR
               </div>
               <div className="flex justify-between items-center mb-4">
@@ -126,13 +126,13 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose, onUpgrade 
                 </div>
               </div>
               <ul className="space-y-2 mb-6 text-sm text-slate-600">
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 500 Credits per month</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Advanced Visualizations</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Remove Watermark</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> 500 Credits per month</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Advanced Visualizations</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Remove Watermark</li>
               </ul>
               <button
                 onClick={onUpgrade}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-200"
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-200"
               >
                 <CreditCard className="w-4 h-4" />
                 Upgrade Now
@@ -305,8 +305,8 @@ const UploadModal = ({
         </button>
 
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center p-3 bg-violet-100 rounded-xl mb-4">
-            <FileSpreadsheet className="w-8 h-8 text-violet-600" />
+          <div className="inline-flex items-center justify-center p-3 bg-indigo-100 rounded-xl mb-4">
+            <FileSpreadsheet className="w-8 h-8 text-indigo-600" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Upload your spreadsheet</h2>
           <p className="text-slate-500 mt-2 text-sm">
@@ -318,22 +318,22 @@ const UploadModal = ({
           {...getRootProps()}
           className={`flex cursor-pointer flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl transition-all ${
             isDragActive
-              ? "border-violet-500 bg-violet-50"
-              : "border-slate-200 bg-slate-50/50 hover:border-violet-400 hover:bg-violet-50/50"
+              ? "border-indigo-500 bg-indigo-50"
+              : "border-slate-200 bg-slate-50/50 hover:border-indigo-400 hover:bg-indigo-50/50"
           }`}
         >
           <input {...getInputProps()} />
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100">
-            <Upload className="h-7 w-7 text-violet-600" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100">
+            <Upload className="h-7 w-7 text-indigo-600" />
           </div>
           <p className="mt-4 font-semibold text-slate-900">
             {isDragActive ? "Drop your file here" : "Drop your Excel or CSV here"}
           </p>
           <p className="mt-1 text-sm text-slate-500">Or click to browse</p>
           <div className="mt-4 flex items-center gap-2 text-xs">
-            <span className="rounded-md bg-violet-100 text-violet-700 px-2.5 py-1 font-medium">.xlsx</span>
-            <span className="rounded-md bg-violet-100 text-violet-700 px-2.5 py-1 font-medium">.xls</span>
-            <span className="rounded-md bg-violet-100 text-violet-700 px-2.5 py-1 font-medium">.csv</span>
+            <span className="rounded-md bg-indigo-100 text-indigo-700 px-2.5 py-1 font-medium">.xlsx</span>
+            <span className="rounded-md bg-indigo-100 text-indigo-700 px-2.5 py-1 font-medium">.xls</span>
+            <span className="rounded-md bg-indigo-100 text-indigo-700 px-2.5 py-1 font-medium">.csv</span>
             <span className="text-slate-400 ml-1">up to 20MB</span>
           </div>
         </div>
@@ -714,7 +714,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-3xl md:text-5xl font-bold text-slate-900">
-              From raw data to <span className="text-blue-600">ROI</span> in 4 steps.
+              From raw data to <span className="text-emerald-600">ROI</span> in 4 steps.
             </h2>
             <p className="text-lg text-slate-500 max-w-2xl mx-auto">
               Lumina acts like a senior data analyst sitting right next to you.
@@ -723,13 +723,13 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-4 gap-8 relative">
             {/* Connecting Line (Desktop) */}
-            <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-blue-100 via-blue-200 to-blue-100 -z-10"></div>
+            <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-100 via-emerald-200 to-emerald-100 -z-10"></div>
 
             {/* Step 1: Upload */}
             <div className="relative group">
               <div className="bg-white p-2 w-max mx-auto mb-6 relative z-10">
-                <div className="w-20 h-20 bg-blue-50 rounded-2xl border border-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                  <div className="bg-blue-600 text-white p-2.5 rounded-lg shadow-lg shadow-blue-200">
+                <div className="w-20 h-20 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                  <div className="bg-emerald-600 text-white p-2.5 rounded-lg shadow-lg shadow-emerald-200">
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>

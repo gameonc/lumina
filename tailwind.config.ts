@@ -10,7 +10,35 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary - Blue
+        // Brand - Main app color (Indigo)
+        brand: {
+          50: "#eef2ff",
+          100: "#e0e7ff",
+          200: "#c7d2fe",
+          300: "#a5b4fc",
+          400: "#818cf8",
+          500: "#6366f1",
+          600: "#4f46e5",
+          700: "#4338ca",
+          800: "#3730a3",
+          900: "#312e81",
+          950: "#1e1b4b",
+        },
+        // Accent - Marketing green
+        accent: {
+          50: "#f0fdf4",
+          100: "#dcfce7",
+          200: "#bbf7d0",
+          300: "#86efac",
+          400: "#4ade80",
+          500: "#22c55e",
+          600: "#16a34a",
+          700: "#15803d",
+          800: "#166534",
+          900: "#14532d",
+          950: "#052e16",
+        },
+        // Primary - Blue (keep for backwards compatibility)
         primary: {
           50: "#eff6ff",
           100: "#dbeafe",
@@ -87,6 +115,15 @@ const config: Config = {
       },
       fontSize: {
         "2xs": ["0.625rem", { lineHeight: "0.75rem" }],
+        // Display
+        "display-2xl": ["4.5rem", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "display-xl": ["3.75rem", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+        // Headings
+        "heading-2xl": ["3rem", { lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "700" }],
+        "heading-xl": ["2.25rem", { lineHeight: "1.25", fontWeight: "700" }],
+        "heading-lg": ["1.875rem", { lineHeight: "1.3", fontWeight: "600" }],
+        "heading-md": ["1.5rem", { lineHeight: "1.4", fontWeight: "600" }],
+        "heading-sm": ["1.25rem", { lineHeight: "1.5", fontWeight: "600" }],
       },
       fontFamily: {
         sans: [
@@ -117,8 +154,12 @@ const config: Config = {
       },
       boxShadow: {
         "soft": "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
-        "glow": "0 0 20px rgba(59, 130, 246, 0.3)",
+        "soft-lg": "0 10px 40px -10px rgba(0, 0, 0, 0.1), 0 20px 25px -5px rgba(0, 0, 0, 0.05)",
+        "glow-brand": "0 0 20px rgba(99, 102, 241, 0.3)",
+        "glow-accent": "0 0 20px rgba(34, 197, 94, 0.3)",
         "glow-secondary": "0 0 20px rgba(139, 92, 246, 0.3)",
+        "premium": "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 20px 40px -10px rgba(0, 0, 0, 0.08)",
+        "premium-lg": "0 20px 50px -12px rgba(0, 0, 0, 0.12), 0 8px 16px -8px rgba(0, 0, 0, 0.08)",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",

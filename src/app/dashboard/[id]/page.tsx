@@ -36,7 +36,7 @@ interface AnalysisData {
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       {/* Header Skeleton */}
       <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -90,11 +90,11 @@ function LoadingSkeleton() {
           {/* Chat Skeleton */}
           <div className="hidden lg:block">
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-              <div className="h-14 bg-gradient-to-r from-violet-600 to-indigo-600" />
+              <div className="h-14 bg-gradient-to-r from-indigo-600 to-indigo-700" />
               <div className="h-[500px] p-4 space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : ""}`}>
-                    <div className={`h-16 rounded-2xl animate-pulse ${i % 2 === 0 ? "w-2/3 bg-violet-100" : "w-3/4 bg-slate-100"}`} />
+                    <div className={`h-16 rounded-2xl animate-pulse ${i % 2 === 0 ? "w-2/3 bg-indigo-100" : "w-3/4 bg-slate-100"}`} />
                   </div>
                 ))}
               </div>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
 
   if (error || !analysisData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center p-6">
         <Card className="max-w-md w-full">
           <CardContent className="flex flex-col items-center py-12">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
@@ -207,7 +207,7 @@ export default function DashboardPage() {
             </p>
             <button
               onClick={() => router.push("/dashboard")}
-              className="px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:from-violet-500 hover:to-indigo-500 transition-all shadow-lg shadow-violet-500/25"
+              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-medium hover:from-indigo-500 hover:to-indigo-600 transition-all shadow-lg shadow-indigo-500/25"
             >
               Upload New File
             </button>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
   const score = healthScore?.score ?? 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       <ToastContainer />
 
       {/* Mobile Chat Modal */}
@@ -229,7 +229,7 @@ export default function DashboardPage() {
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsChatOpen(false)} />
           <div className="absolute inset-4 top-12 bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 fade-in duration-200">
-            <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-4 py-3 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5" />
                 <span className="font-semibold">Ask AI About Your Data</span>
@@ -260,8 +260,8 @@ export default function DashboardPage() {
               <ArrowLeft className="w-5 h-5 text-slate-600" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-violet-100 rounded-lg">
-                <FileSpreadsheet className="w-5 h-5 text-violet-600" />
+              <div className="p-2 bg-indigo-100 rounded-lg">
+                <FileSpreadsheet className="w-5 h-5 text-indigo-600" />
               </div>
               <div>
                 <h1 className="font-semibold text-slate-900 truncate max-w-[200px] sm:max-w-none">
@@ -276,7 +276,7 @@ export default function DashboardPage() {
             {/* Mobile Chat Button */}
             <button
               onClick={() => setIsChatOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 bg-violet-100 text-violet-700 rounded-lg font-medium"
+              className="lg:hidden flex items-center gap-2 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-medium"
             >
               <MessageSquare className="w-4 h-4" />
               <span className="hidden sm:inline">AI Chat</span>
@@ -285,7 +285,7 @@ export default function DashboardPage() {
             <button
               onClick={handleDownloadPPTX}
               disabled={isDownloadingPPTX}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg font-medium hover:from-violet-500 hover:to-indigo-500 disabled:opacity-50 transition-all shadow-lg shadow-violet-500/20"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-lg font-medium hover:from-indigo-500 hover:to-indigo-600 disabled:opacity-50 transition-all shadow-lg shadow-indigo-500/20"
             >
               {isDownloadingPPTX ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -342,7 +342,7 @@ export default function DashboardPage() {
             {/* Charts Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-violet-600" />
+                <BarChart3 className="w-5 h-5 text-indigo-600" />
                 <h2 className="text-lg font-semibold text-slate-900">Charts</h2>
                 {charts.length > 0 && (
                   <span className="text-sm text-slate-500">({charts.length})</span>
@@ -353,8 +353,8 @@ export default function DashboardPage() {
                 <ChartGrid charts={charts} />
               ) : (
                 <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center">
-                  <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <BarChart3 className="w-8 h-8 text-violet-600" />
+                  <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <BarChart3 className="w-8 h-8 text-indigo-600" />
                   </div>
                   <h3 className="font-semibold text-slate-900 mb-2">No charts yet</h3>
                   <p className="text-slate-500 mb-4 max-w-sm mx-auto">
@@ -362,7 +362,7 @@ export default function DashboardPage() {
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {["Show me a bar chart", "Create a pie chart", "Visualize trends"].map((q) => (
-                      <span key={q} className="text-xs bg-violet-100 text-violet-700 px-3 py-1.5 rounded-full font-medium">
+                      <span key={q} className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full font-medium">
                         "{q}"
                       </span>
                     ))}
@@ -375,7 +375,7 @@ export default function DashboardPage() {
           {/* Right Column - Chat (Desktop Only) */}
           <div className="hidden lg:block lg:sticky lg:top-24 h-fit">
             <Card className="shadow-lg border-slate-200 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4">
+              <CardHeader className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-4">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Sparkles className="w-5 h-5" />
                   Ask AI About Your Data
@@ -396,7 +396,7 @@ export default function DashboardPage() {
       {/* Mobile Floating Chat Button */}
       <button
         onClick={() => setIsChatOpen(true)}
-        className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full shadow-lg shadow-violet-500/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-40"
+        className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-full shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-40"
       >
         <MessageSquare className="w-6 h-6" />
       </button>

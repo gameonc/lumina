@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "danger";
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "brand" | "accent";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
   fullWidth?: boolean;
@@ -24,22 +24,26 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg";
+      "inline-flex items-center justify-center font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 rounded-xl hover:scale-[1.02] active:scale-[0.98]";
 
     const variants = {
       primary:
-        "bg-blue-500 text-white hover:bg-blue-600 focus-visible:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700",
+        "bg-blue-500 text-white hover:bg-blue-600 focus-visible:ring-blue-500/20 shadow-sm shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20 dark:bg-blue-600 dark:hover:bg-blue-700",
+      brand:
+        "bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-700 hover:to-brand-600 focus-visible:ring-brand-500/20 shadow-sm shadow-brand-500/10 hover:shadow-lg hover:shadow-brand-500/20",
+      accent:
+        "bg-gradient-to-r from-accent-600 to-accent-500 text-white hover:from-accent-700 hover:to-accent-600 focus-visible:ring-accent-500/20 shadow-sm shadow-accent-500/10 hover:shadow-lg hover:shadow-accent-500/20",
       secondary:
-        "bg-violet-500 text-white hover:bg-violet-600 focus-visible:ring-violet-500 dark:bg-violet-600 dark:hover:bg-violet-700",
+        "bg-neutral-900 text-white hover:bg-neutral-800 focus-visible:ring-neutral-500/20 shadow-sm hover:shadow-lg dark:bg-neutral-800 dark:hover:bg-neutral-700",
       ghost:
-        "bg-transparent text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-400 dark:text-slate-300 dark:hover:bg-slate-800",
+        "bg-transparent text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-400/20 dark:text-slate-300 dark:hover:bg-slate-800",
       danger:
-        "bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-500 dark:bg-red-600 dark:hover:bg-red-700",
+        "bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-500/20 shadow-sm shadow-red-500/10 hover:shadow-lg hover:shadow-red-500/20 dark:bg-red-600 dark:hover:bg-red-700",
     };
 
     const sizes = {
-      sm: "h-8 px-3 text-sm",
-      md: "h-10 px-4 text-sm",
+      sm: "h-9 px-3 text-sm",
+      md: "h-11 px-5 text-sm",
       lg: "h-12 px-6 text-base",
     };
 

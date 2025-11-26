@@ -155,8 +155,8 @@ export default function UploadPage() {
 
   if (isAuthenticated === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-violet-50">
-        <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
       </div>
     );
   }
@@ -164,15 +164,15 @@ export default function UploadPage() {
   const CurrentIcon = ANALYZING_MESSAGES[analyzeStep].icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex flex-col">
       {/* Analyzing Overlay */}
       {isAnalyzing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-sm">
           <div className="text-center max-w-md px-6">
             {/* Animated Icon */}
             <div className="relative mx-auto mb-8">
-              <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-2xl animate-pulse" />
-              <div className="relative w-24 h-24 mx-auto bg-gradient-to-br from-violet-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-violet-500/30 animate-bounce">
+              <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl animate-pulse" />
+              <div className="relative w-24 h-24 mx-auto bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/30 animate-bounce">
                 <CurrentIcon className="w-12 h-12 text-white" />
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function UploadPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
               Analyzing Your Data
             </h2>
-            <p className="text-lg text-violet-600 font-medium mb-4 h-7 transition-all">
+            <p className="text-lg text-indigo-600 font-medium mb-4 h-7 transition-all">
               {ANALYZING_MESSAGES[analyzeStep].text}
             </p>
 
@@ -192,9 +192,9 @@ export default function UploadPage() {
                   key={i}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
                     i === analyzeStep
-                      ? "bg-violet-600 w-6"
+                      ? "bg-indigo-600 w-6"
                       : i < analyzeStep
-                      ? "bg-violet-400"
+                      ? "bg-indigo-400"
                       : "bg-slate-200"
                   }`}
                 />
@@ -215,7 +215,7 @@ export default function UploadPage() {
             className="flex items-center gap-2.5 font-bold text-xl cursor-pointer"
             onClick={() => router.push("/")}
           >
-            <div className="bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-2 rounded-xl shadow-lg shadow-violet-500/20">
+            <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-2 rounded-xl shadow-lg shadow-indigo-500/20">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -247,7 +247,7 @@ export default function UploadPage() {
         <div className="w-full max-w-2xl">
           {/* Title */}
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 rounded-full text-violet-700 text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500/10 to-indigo-600/10 rounded-full text-indigo-700 text-sm font-medium mb-4">
               <Sparkles className="w-4 h-4" />
               AI-Powered Analysis
             </div>
@@ -265,8 +265,8 @@ export default function UploadPage() {
               {...getRootProps()}
               className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 sm:p-16 text-center transition-all ${
                 isDragActive
-                  ? "border-violet-500 bg-violet-50 scale-[1.02]"
-                  : "border-slate-300 bg-white hover:border-violet-400 hover:bg-violet-50/30 hover:shadow-lg"
+                  ? "border-indigo-500 bg-indigo-50 scale-[1.02]"
+                  : "border-slate-300 bg-white hover:border-indigo-400 hover:bg-indigo-50/30 hover:shadow-lg"
               }`}
             >
               <input {...getInputProps()} />
@@ -274,7 +274,7 @@ export default function UploadPage() {
                 <div
                   className={`flex h-20 w-20 items-center justify-center rounded-2xl transition-all ${
                     isDragActive
-                      ? "bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/30 scale-110"
+                      ? "bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/30 scale-110"
                       : "bg-gradient-to-br from-slate-100 to-slate-200"
                   }`}
                 >
@@ -293,7 +293,7 @@ export default function UploadPage() {
                 {[".xlsx", ".xls", ".csv"].map((ext) => (
                   <span
                     key={ext}
-                    className="rounded-lg bg-violet-100 text-violet-700 px-3 py-1.5 font-medium"
+                    className="rounded-lg bg-indigo-100 text-indigo-700 px-3 py-1.5 font-medium"
                   >
                     {ext}
                   </span>
@@ -353,7 +353,7 @@ export default function UploadPage() {
                   {parsedData.headers.slice(0, 6).map((header) => (
                     <span
                       key={header}
-                      className="rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-sm font-medium"
+                      className="rounded-full bg-indigo-100 text-indigo-700 px-3 py-1 text-sm font-medium"
                     >
                       {header}
                     </span>
@@ -385,7 +385,7 @@ export default function UploadPage() {
                 <button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing || credits <= 0}
-                  className="flex-[2] py-3.5 px-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-violet-500 hover:to-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex-[2] py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-semibold hover:from-indigo-500 hover:to-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <Sparkles className="h-5 w-5" />
                   Analyze with AI

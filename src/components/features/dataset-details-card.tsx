@@ -24,7 +24,7 @@ export function DatasetDetailsCard({
   datasetName,
   rowCount,
   columnCount,
-  datasetType,
+  datasetType: _datasetType,
   healthScore,
   uploadDate,
 }: DatasetDetailsCardProps) {

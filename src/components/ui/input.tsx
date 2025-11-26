@@ -32,8 +32,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const helperId = `${inputId}-helper`;
 
     const sizes = {
-      sm: "h-8 text-sm px-3",
-      md: "h-10 text-sm px-4",
+      sm: "h-9 text-sm px-3",
+      md: "h-11 text-sm px-4",
       lg: "h-12 text-base px-4",
     };
 
@@ -48,7 +48,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+            className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
           >
             {label}
           </label>
@@ -70,8 +70,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             type={type}
             className={cn(
-              "w-full rounded-lg border bg-white transition-colors",
-              "focus:outline-none focus:ring-2 focus:ring-offset-0",
+              "w-full rounded-xl border bg-white transition-all duration-200",
+              "focus:outline-none focus:ring-1 focus:ring-offset-0",
               "disabled:cursor-not-allowed disabled:opacity-50",
               "dark:bg-slate-900",
               sizes[inputSize],
@@ -79,7 +79,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               rightIcon && "pr-10",
               error
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500"
-                : "border-slate-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500",
+                : "border-slate-200 focus:border-brand-500 focus:ring-brand-500/20 dark:border-slate-700 dark:focus:border-brand-400",
               "placeholder:text-slate-400 dark:placeholder:text-slate-500",
               "text-slate-900 dark:text-slate-100",
               className
@@ -103,7 +103,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && (
-          <p id={errorId} className="mt-1.5 text-sm text-red-500" role="alert">
+          <p id={errorId} className="mt-1.5 text-sm text-red-600" role="alert">
             {error}
           </p>
         )}
