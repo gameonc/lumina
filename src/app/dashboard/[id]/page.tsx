@@ -111,8 +111,15 @@ export default function DatasetPage() {
     const loadData = async () => {
       try {
         const storedData = sessionStorage.getItem(`analysis-${datasetId}`);
+        console.log("[Dashboard] Loading data for:", datasetId);
+        console.log("[Dashboard] Raw stored data exists:", !!storedData);
+
         if (storedData) {
           const parsed = JSON.parse(storedData);
+          console.log("[Dashboard] Parsed data keys:", Object.keys(parsed));
+          console.log("[Dashboard] Charts in storage:", parsed.charts?.length || 0);
+          console.log("[Dashboard] Charts array:", parsed.charts);
+
           parsed.charts = Array.isArray(parsed.charts) ? parsed.charts : [];
           setAnalysisData(parsed);
           setCharts(parsed.charts);

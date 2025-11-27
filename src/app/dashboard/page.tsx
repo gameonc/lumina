@@ -117,6 +117,10 @@ export default function UploadPage() {
       const result = await response.json();
       const { data: results } = result;
 
+      console.log("[Upload] API response received");
+      console.log("[Upload] Charts from API:", results?.charts?.length || 0);
+      console.log("[Upload] Full API results:", results);
+
       if (!results) {
         throw new Error("No data in response");
       }
@@ -129,7 +133,7 @@ export default function UploadPage() {
         headers: parsedData.headers,
         rows: parsedData.rows,
         healthScore: results.healthScore,
-        charts: results.charts,
+        charts: results.charts || [],
         insights: [],
         datasetType: results.datasetType,
         rowCount: results.rowCount ?? parsedData.rowCount,
@@ -137,6 +141,9 @@ export default function UploadPage() {
         columnStats: results.columnStats,
         aiInsights: results.aiInsights,
       };
+
+      console.log("[Upload] Storing to sessionStorage:", datasetId);
+      console.log("[Upload] Charts being stored:", analysisData.charts?.length || 0);
 
       sessionStorage.setItem(
         `analysis-${datasetId}`,
