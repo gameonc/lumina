@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Lumina MCP Configuration",
+  "description": "Available Model Context Protocol servers for AI-assisted development",
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-27",
+  "servers": {
+    "cursor-ide-browser": {
+      "description": "Browser automation for testing and interaction",
+      "status": "active",
+      "capabilities": [
+        "browser_navigate - Navigate to URLs",
+        "browser_snapshot - Get accessibility snapshot of page",
+        "browser_click - Click elements on page",
+        "browser_type - Type text into inputs",
+        "browser_hover - Hover over elements",
+        "browser_select_option - Select dropdown options",
+        "browser_press_key - Press keyboard keys",
+        "browser_wait_for - Wait for text/elements",
+        "browser_navigate_back - Go back in history",
+        "browser_resize - Resize browser window",
+        "browser_console_messages - Get console logs",
+        "browser_network_requests - Get network activity",
+        "browser_take_screenshot - Capture screenshots"
+      ],
+      "useCases": [
+        "End-to-end testing",
+        "Visual regression testing",
+        "Form automation",
+        "Screenshot capture for documentation"
+      ]
+    },
+    "n8n": {
+      "description": "n8n workflow automation and node management",
+      "status": "active",
+      "capabilities": [
+        "list_nodes - List available n8n nodes",
+        "get_node_info - Get node documentation",
+        "search_nodes - Search for nodes by keyword",
+        "list_ai_tools - List AI-optimized nodes",
+        "get_node_documentation - Get readable docs with examples",
+        "validate_node_operation - Validate node config",
+        "list_node_templates - Find workflow templates",
+        "get_template - Get complete workflow JSON",
+        "search_templates - Search templates by keyword",
+        "validate_workflow - Full workflow validation",
+        "n8n_create_workflow - Create new workflow",
+        "n8n_get_workflow - Get workflow by ID",
+        "n8n_update_full_workflow - Update entire workflow",
+        "n8n_update_partial_workflow - Incremental updates",
+        "n8n_delete_workflow - Delete workflow",
+        "n8n_list_workflows - List all workflows",
+        "n8n_trigger_webhook_workflow - Trigger via webhook",
+        "n8n_list_executions - List execution history",
+        "n8n_health_check - Check n8n instance status"
+      ],
+      "useCases": [
+        "Backend automation workflows",
+        "Data ingestion pipelines",
+        "Webhook processing",
+        "Scheduled tasks",
+        "API orchestration"
+      ],
+      "notes": "User prefers n8n for all backend work"
+    },
+    "filesystem": {
+      "description": "Local filesystem operations",
+      "status": "active",
+      "capabilities": [
+        "read_text_file - Read file contents",
+        "read_media_file - Read images/audio as base64",
+        "read_multiple_files - Batch read files",
+        "write_file - Create or overwrite files",
+        "edit_file - Line-based file edits",
+        "create_directory - Create directories",
+        "list_directory - List directory contents",
+        "list_directory_with_sizes - List with file sizes",
+        "directory_tree - Get recursive tree view",
+        "move_file - Move or rename files",
+        "search_files - Search by glob pattern",
+        "get_file_info - Get file metadata",
+        "list_allowed_directories - Show accessible paths"
+      ],
+      "useCases": [
+        "File management",
+        "Configuration editing",
+        "Log inspection",
+        "Asset organization"
+      ]
+    },
+    "github": {
+      "description": "GitHub API integration for repository management",
+      "status": "active",
+      "capabilities": [
+        "create_or_update_file - Create/update repo files",
+        "search_repositories - Search GitHub repos",
+        "create_repository - Create new repos",
+        "get_file_contents - Read repo files",
+        "push_files - Push multiple files in one commit",
+        "create_issue - Create issues",
+        "list_issues - List repo issues",
+        "update_issue - Update issues",
+        "add_issue_comment - Comment on issues",
+        "create_pull_request - Create PRs",
+        "list_pull_requests - List PRs",
+        "get_pull_request - Get PR details",
+        "merge_pull_request - Merge PRs",
+        "get_pull_request_files - Get PR changed files",
+        "create_pull_request_review - Review PRs",
+        "create_branch - Create branches",
+        "list_commits - List commit history",
+        "fork_repository - Fork repos",
+        "search_code - Search code across GitHub",
+        "search_issues - Search issues/PRs",
+        "search_users - Search GitHub users"
+      ],
+      "useCases": [
+        "Repository management",
+        "Issue tracking",
+        "Pull request workflows",
+        "Code search",
+        "Automated commits"
+      ],
+      "repository": "gameonc/lumina"
+    },
+    "supabase": {
+      "description": "Supabase database and documentation access",
+      "status": "active",
+      "capabilities": [
+        "search_docs - Search Supabase documentation",
+        "list_tables - List database tables",
+        "list_extensions - List PostgreSQL extensions",
+        "list_migrations - List applied migrations",
+        "apply_migration - Apply new migrations",
+        "execute_sql - Run raw SQL queries",
+        "get_logs - Get service logs",
+        "get_advisors - Get security/performance advisories"
+      ],
+      "useCases": [
+        "Database management",
+        "Schema migrations",
+        "Documentation lookup",
+        "Performance monitoring",
+        "Security auditing"
+      ],
+      "notes": "Ready for auth integration when needed"
+    }
+  },
+  "quickReference": {
+    "testing": "Use cursor-ide-browser for E2E testing",
+    "backend": "Use n8n for workflow automation (user preference)",
+    "database": "Use supabase for database operations",
+    "versionControl": "Use github for repo management",
+    "files": "Use filesystem for local file operations"
+  },
+  "projectContext": {
+    "name": "Lumina",
+    "description": "AI-powered spreadsheet analysis tool",
+    "techStack": [
+      "Next.js 14",
+      "TypeScript",
+      "Tailwind CSS",
+      "Recharts",
+      "Google Gemini API",
+      "pptxgenjs"
+    ],
+    "deployment": "Vercel",
+    "repository": "https://github.com/gameonc/lumina"
+  }
+}
+
