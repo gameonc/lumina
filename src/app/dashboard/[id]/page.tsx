@@ -95,7 +95,13 @@ function LoadingSkeleton() {
   );
 }
 
-function KeyInsightsSection({ insights }: { insights?: string[] }) {
+interface KeyInsight {
+  title: string;
+  description: string;
+  type: "money" | "problem" | "trend";
+}
+
+function KeyInsightsSection({ insights }: { insights?: KeyInsight[] }) {
   if (!insights || insights.length === 0) return null;
 
   return (
@@ -105,8 +111,14 @@ function KeyInsightsSection({ insights }: { insights?: string[] }) {
         <ul className="space-y-3">
           {insights.slice(0, 3).map((insight, idx) => (
             <li key={idx} className="flex items-start gap-3">
-              <div className="mt-0.5 h-1.5 w-1.5 rounded-full bg-indigo-600 flex-shrink-0" />
-              <p className="text-sm text-slate-700 leading-relaxed">{insight}</p>
+              <div className={`mt-0.5 h-1.5 w-1.5 rounded-full flex-shrink-0 ${
+                insight.type === "money" ? "bg-emerald-500" :
+                insight.type === "problem" ? "bg-red-500" : "bg-indigo-600"
+              }`} />
+              <div>
+                <p className="text-sm font-medium text-slate-900">{insight.title}</p>
+                <p className="text-sm text-slate-500 line-clamp-1">{insight.description}</p>
+              </div>
             </li>
           ))}
         </ul>

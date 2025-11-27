@@ -1,7 +1,7 @@
 "use client";
 
 import { Database, Columns, AlertCircle, CheckCircle2, DollarSign, TrendingUp, Target } from "lucide-react";
-import type { BusinessMetrics, Metric } from "@/lib/analyzers/business-metrics";
+import type { BusinessMetrics, BusinessMetric } from "@/lib/analyzers/business-metrics";
 import type { LucideIcon } from "lucide-react";
 
 interface MetricsRowProps {
@@ -73,7 +73,7 @@ export function MetricsRow({
   if (businessMetrics && businessMetrics.metrics.length > 0) {
     const topMetrics = businessMetrics.metrics.slice(0, 3);
 
-    metricsToDisplay = topMetrics.map((metric: Metric) => {
+    metricsToDisplay = topMetrics.map((metric: BusinessMetric) => {
       // Determine icon based on metric label/type
       let icon = Target;
       const lowerLabel = metric.label.toLowerCase();
