@@ -6,11 +6,9 @@ import { ToastContainer, toast } from "@/components/ui";
 import { ChatInterface } from "@/components/features";
 import {
   MetricsRow,
-  AIInsightsCard,
   ChartsGrid,
   SidebarPrompts,
   AskAIBar,
-  FinanceHealthScore,
 } from "@/components/dashboard";
 import {
   Loader2,
@@ -18,7 +16,6 @@ import {
   ArrowLeft,
   FileSpreadsheet,
   Download,
-  FileDown,
   Sparkles,
   X,
   MessageSquare,
@@ -46,7 +43,7 @@ interface AnalysisData {
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#F9FAFB]">
       {/* Header Skeleton */}
       <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -61,19 +58,9 @@ function LoadingSkeleton() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-6 py-8">
         <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-12 space-y-8 lg:col-span-8">
-            {/* Charts Skeleton - TOP */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="h-96 animate-pulse rounded-xl bg-slate-200"
-                />
-              ))}
-            </div>
-
+          <div className="col-span-12 lg:col-span-8 space-y-10">
             {/* Metrics Skeleton */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[1, 2, 3, 4].map((i) => (
@@ -84,14 +71,142 @@ function LoadingSkeleton() {
               ))}
             </div>
 
-            {/* AI Insights Skeleton */}
-            <div className="h-64 animate-pulse rounded-xl bg-slate-200" />
+            {/* Insights Skeleton */}
+            <div className="h-32 animate-pulse rounded-xl bg-slate-200" />
+
+            {/* Charts Skeleton */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="h-96 animate-pulse rounded-xl bg-slate-200"
+                />
+              ))}
+            </div>
           </div>
 
           {/* Sidebar Skeleton */}
           <div className="hidden lg:col-span-4 lg:block">
             <div className="h-96 animate-pulse rounded-xl bg-slate-200" />
           </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function KeyInsightsSection({ insights }: { insights?: string[] }) {
+  if (!insights || insights.length === 0) return null;
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-lg font-semibold text-slate-900">Key Insights</h2>
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <ul className="space-y-3">
+          {insights.slice(0, 3).map((insight, idx) => (
+            <li key={idx} className="flex items-start gap-3">
+              <div className="mt-0.5 h-1.5 w-1.5 rounded-full bg-indigo-600 flex-shrink-0" />
+              <p className="text-sm text-slate-700 leading-relaxed">{insight}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function ActionsBar({
+  onDownload,
+  isDownloading,
+}: {
+  onDownload: () => void;
+  isDownloading: boolean;
+}) {
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="mb-4 text-sm font-medium text-slate-900">Export Options</h3>
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={onDownload}
+          disabled={isDownloading}
+          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+        >
+          {isDownloading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+          Export PowerPoint
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function UnifiedSidebar({
+  prompts,
+  onPromptClick,
+  onQuickAction,
+  isLoading,
+  headers,
+  rows,
+  onNewChart,
+}: {
+  prompts: string[];
+  onPromptClick: (prompt: string) => void;
+  onQuickAction: (action: "generate-charts" | "detect-anomalies" | "analyze-trends") => void;
+  isLoading: boolean;
+  headers: string[];
+  rows: Record<string, unknown>[];
+  onNewChart: (chart: ChartConfig) => void;
+}) {
+  const [activeTab, setActiveTab] = useState<"prompts" | "chat">("prompts");
+
+  return (
+    <div className="sticky top-24 space-y-6">
+      {/* Tab Switcher */}
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="flex border-b border-slate-200">
+          <button
+            onClick={() => setActiveTab("prompts")}
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              activeTab === "prompts"
+                ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600"
+                : "text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            Quick Actions
+          </button>
+          <button
+            onClick={() => setActiveTab("chat")}
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              activeTab === "chat"
+                ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600"
+                : "text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            AI Chat
+          </button>
+        </div>
+
+        <div className="p-6">
+          {activeTab === "prompts" ? (
+            <SidebarPrompts
+              prompts={prompts}
+              insights={undefined}
+              onPromptClick={onPromptClick}
+              onQuickAction={onQuickAction}
+              isLoading={isLoading}
+            />
+          ) : (
+            <div className="h-[600px] -m-6">
+              <ChatInterface
+                headers={headers}
+                rows={rows}
+                onNewChart={onNewChart}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -206,7 +321,6 @@ export default function DatasetPage() {
   };
 
   const handleAskAI = (question: string) => {
-    // This will be handled by opening the chat interface
     setIsChatOpen(true);
     setTimeout(() => {
       const textarea = document.querySelector(
@@ -276,7 +390,7 @@ export default function DatasetPage() {
 
   if (error || !analysisData) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <div className="flex min-h-screen items-center justify-center bg-[#F9FAFB] p-6">
         <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
             <AlertCircle className="h-8 w-8 text-red-500" />
@@ -328,7 +442,7 @@ export default function DatasetPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-[#F9FAFB] pb-24">
       <ToastContainer />
 
       {/* Mobile Chat Modal */}
@@ -362,7 +476,7 @@ export default function DatasetPage() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Header - MINIMAL */}
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
@@ -414,33 +528,18 @@ export default function DatasetPage() {
               ) : (
                 <Download className="h-4 w-4" />
               )}
-              <span className="hidden sm:inline">Download PowerPoint</span>
+              <span className="hidden sm:inline">Download</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content - NEW LAYOUT */}
       <main className="mx-auto max-w-7xl px-6 py-8">
         <div className="grid grid-cols-12 gap-8">
-          {/* Left Content - 8 columns */}
-          <div className="col-span-12 space-y-8 lg:col-span-8">
-            {/* Row 1: CHARTS FIRST - The Hero Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900">
-                  Visualizations
-                </h2>
-                {charts.length > 0 && (
-                  <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
-                    {charts.length} {charts.length === 1 ? "chart" : "charts"}
-                  </span>
-                )}
-              </div>
-              <ChartsGrid charts={charts} />
-            </div>
-
-            {/* Row 2: Metrics */}
+          {/* Main Content - 8 columns */}
+          <div className="col-span-12 lg:col-span-8 space-y-10">
+            {/* 1. METRICS ROW */}
             <MetricsRow
               businessMetrics={businessMetrics}
               totalRows={rowCount}
@@ -449,52 +548,36 @@ export default function DatasetPage() {
               dataQualityScore={score}
             />
 
-            {/* Row 3: Finance Health Score (compact, when available) */}
-            {aiInsights?.financeHealth && (
-              <FinanceHealthScore healthReport={aiInsights.financeHealth} />
-            )}
+            {/* 2. KEY INSIGHTS - SHORT ONLY */}
+            <KeyInsightsSection insights={aiInsights?.keyInsights} />
 
-            {/* Row 4: AI Insights (collapsed by default) */}
-            {aiInsights?.keyInsights && aiInsights.keyInsights.length > 0 && (
-              <AIInsightsCard insights={aiInsights.keyInsights} />
-            )}
+            {/* 3. CHARTS GRID - ALWAYS VISIBLE */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">Visualizations</h2>
+                <span className="text-sm text-slate-500">{charts.length} charts</span>
+              </div>
+              <ChartsGrid charts={charts} />
+            </section>
 
-            {/* Row 5: Actions Bar */}
-            <div className="flex flex-wrap gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <button
-                onClick={handleDownloadPPTX}
-                disabled={isDownloadingPPTX}
-                className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
-              >
-                {isDownloadingPPTX ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <FileDown className="h-4 w-4" />
-                )}
-                Export PDF
-              </button>
-              <button
-                onClick={handleDownloadPPTX}
-                disabled={isDownloadingPPTX}
-                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
-              >
-                <Download className="h-4 w-4" />
-                Export PowerPoint
-              </button>
-            </div>
+            {/* 4. ACTIONS BAR */}
+            <ActionsBar
+              onDownload={handleDownloadPPTX}
+              isDownloading={isDownloadingPPTX}
+            />
           </div>
 
-          {/* Right Sidebar - 4 columns */}
+          {/* SIDEBAR - 4 columns - UNIFIED PANEL */}
           <aside className="hidden lg:col-span-4 lg:block">
-            <div className="sticky top-24">
-              <SidebarPrompts
-                prompts={smartPrompts}
-                insights={aiInsights?.keyInsights}
-                onPromptClick={handlePromptClick}
-                onQuickAction={handleQuickAction}
-                isLoading={isQuickActionLoading}
-              />
-            </div>
+            <UnifiedSidebar
+              prompts={smartPrompts}
+              onPromptClick={handlePromptClick}
+              onQuickAction={handleQuickAction}
+              isLoading={isQuickActionLoading}
+              headers={headers}
+              rows={rows}
+              onNewChart={handleNewChart}
+            />
           </aside>
         </div>
       </main>

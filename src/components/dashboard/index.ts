@@ -7,3 +7,5 @@ export { ChartsGrid } from "./ChartsGrid";
 export { SidebarPrompts } from "./SidebarPrompts";
 export { AskAIBar } from "./AskAIBar";
 export { FinanceHealthScore } from "./FinanceHealthScore";
+export { KeyInsightsSection } from "./KeyInsightsSection";
+export { UnifiedSidebar } from "./UnifiedSidebar";

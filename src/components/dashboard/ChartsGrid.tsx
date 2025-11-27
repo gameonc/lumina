@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   LineChart,
   Line,
@@ -22,9 +23,9 @@ import {
   BarChart3,
   PieChartIcon,
   Activity,
+  X,
 } from "lucide-react";
 import type { ChartConfig } from "@/types";
-import { ChartCard, ChartCardSkeleton } from "./ChartCard";
 
 interface ChartsGridProps {
   charts: ChartConfig[];
@@ -213,71 +214,115 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
   }
 }
 
+function ChartDetailModal({
+  chart,
+  onClose,
+}: {
+  chart: ChartConfig;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-lg p-1 hover:bg-slate-100"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <h3 className="mb-4 text-lg font-semibold">{chart.title}</h3>
+        <div className="mb-4 h-64">
+          <ChartRenderer chart={chart} />
+        </div>
+        <p className="text-slate-600">
+          {chart.explanation || "No additional details available."}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ChartCardPremium({ chart }: { chart: ChartConfig }) {
+  const [showModal, setShowModal] = useState(false);
+  const ChartIcon = getChartIcon(chart.type);
+
+  return (
+    <>
+      <div className="flex h-[320px] flex-col rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <ChartIcon className="h-4 w-4 text-slate-500" />
+            <h3 className="line-clamp-1 text-sm font-medium text-slate-900">
+              {chart.title}
+            </h3>
+          </div>
+        </div>
+
+        {/* Chart Area */}
+        <div className="flex-1 p-4">
+          <ChartRenderer chart={chart} />
+        </div>
+
+        {/* Footer - 1 sentence + More details */}
+        <div className="border-t border-slate-100 px-4 py-3">
+          <p className="line-clamp-1 text-xs text-slate-500">
+            {chart.explanation?.slice(0, 80) || "Visualization of your data"}
+            ...
+          </p>
+          <button
+            onClick={() => setShowModal(true)}
+            className="mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-700"
+          >
+            More details →
+          </button>
+        </div>
+      </div>
+
+      {/* Modal for full explanation */}
+      {showModal && (
+        <ChartDetailModal chart={chart} onClose={() => setShowModal(false)} />
+      )}
+    </>
+  );
+}
+
 export function ChartsGrid({ charts, isLoading = false }: ChartsGridProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <ChartCardSkeleton key={i} />
+          <div
+            key={i}
+            className="h-[320px] animate-pulse rounded-xl border border-slate-200 bg-slate-100"
+          />
         ))}
       </div>
     );
   }
 
-  // Always show placeholders if no charts - NEVER show empty state
   if (!charts || charts.length === 0) {
     return (
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
-          >
-            <div className="mb-4 flex items-center gap-3">
-              <div className="rounded-lg bg-indigo-50 p-2">
-                <BarChart3 className="h-5 w-5 text-indigo-600 animate-pulse" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-slate-900">
-                  Chart {i}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Generating visualization...
-                </p>
-              </div>
-            </div>
-            <div className="flex h-80 items-center justify-center rounded-lg border-2 border-dashed border-slate-200 bg-slate-50">
-              <div className="text-center">
-                <div className="mx-auto mb-3 h-12 w-12 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
-                <p className="text-sm font-medium text-slate-600">
-                  Analyzing data...
-                </p>
-                <p className="mt-1 text-xs text-slate-400">
-                  Ask AI to generate charts
-                </p>
-              </div>
-            </div>
-          </div>
+            className="h-[320px] animate-pulse rounded-xl border border-slate-200 bg-slate-100"
+          />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {charts.map((chart, index) => {
-        const Icon = getChartIcon(chart.type);
-        return (
-          <ChartCard
-            key={`chart-${index}`}
-            title={chart.title}
-            icon={Icon}
-            explanation={chart.explanation}
-          >
-            <ChartRenderer chart={chart} />
-          </ChartCard>
-        );
-      })}
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {charts.map((chart, index) => (
+        <ChartCardPremium key={index} chart={chart} />
+      ))}
     </div>
   );
 }
