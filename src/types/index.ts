@@ -169,6 +169,19 @@ export interface ChartConfig {
 }
 
 /**
+ * Chart suggestion from AI analysis
+ */
+export interface ChartSuggestion {
+  title: string;
+  description: string;
+  chartType: "line" | "bar" | "pie" | "scatter" | "histogram";
+  xField: string;
+  yField?: string;
+  rationale: string;
+  priority?: number;
+}
+
+/**
  * Report section
  */
 export interface ReportSection {

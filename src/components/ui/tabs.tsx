@@ -76,8 +76,7 @@ const TabList = React.forwardRef<HTMLDivElement, TabListProps>(
 
 TabList.displayName = "TabList";
 
-export interface TabProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface TabProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string;
 }
 

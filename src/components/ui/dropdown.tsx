@@ -71,8 +71,7 @@ const Dropdown = React.forwardRef<HTMLDivElement, DropdownProps>(
 
 Dropdown.displayName = "Dropdown";
 
-export interface DropdownTriggerProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+export interface DropdownTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
 const DropdownTrigger = React.forwardRef<
   HTMLButtonElement,
@@ -97,8 +96,7 @@ const DropdownTrigger = React.forwardRef<
 
 DropdownTrigger.displayName = "DropdownTrigger";
 
-export interface DropdownMenuProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface DropdownMenuProps extends React.HTMLAttributes<HTMLDivElement> {
   align?: "left" | "right";
 }
 
@@ -181,8 +179,7 @@ const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
 
 DropdownMenu.displayName = "DropdownMenu";
 
-export interface DropdownItemProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface DropdownItemProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode;
   isActive?: boolean;
 }
@@ -228,8 +225,7 @@ const DropdownItem = React.forwardRef<HTMLButtonElement, DropdownItemProps>(
 
 DropdownItem.displayName = "DropdownItem";
 
-export interface DropdownSeparatorProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export interface DropdownSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const DropdownSeparator = React.forwardRef<
   HTMLDivElement,

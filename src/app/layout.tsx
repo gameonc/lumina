@@ -16,7 +16,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://lumina.vercel.app"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://lumina.vercel.app"
+  ),
   title: {
     default: "Lumina - AI Data Insights",
     template: "%s | Lumina",

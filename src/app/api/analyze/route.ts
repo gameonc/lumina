@@ -164,7 +164,9 @@ export async function POST(request: NextRequest) {
             chart.title,
             chart.data,
             chart.xAxis || "",
-            typeof chart.yAxis === "string" ? chart.yAxis : chart.yAxis?.[0] || ""
+            typeof chart.yAxis === "string"
+              ? chart.yAxis
+              : chart.yAxis?.[0] || ""
           ).catch(() => null)
         );
 

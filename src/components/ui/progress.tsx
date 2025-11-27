@@ -75,8 +75,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
 Progress.displayName = "Progress";
 
 // Indeterminate progress bar
-export interface ProgressIndeterminateProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface ProgressIndeterminateProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "success" | "warning" | "error";
   size?: "sm" | "md" | "lg";
 }
@@ -127,8 +126,7 @@ const ProgressIndeterminate = React.forwardRef<
 ProgressIndeterminate.displayName = "ProgressIndeterminate";
 
 // Circular progress
-export interface ProgressCircularProps
-  extends React.SVGAttributes<SVGSVGElement> {
+export interface ProgressCircularProps extends React.SVGAttributes<SVGSVGElement> {
   value?: number;
   max?: number;
   size?: number;

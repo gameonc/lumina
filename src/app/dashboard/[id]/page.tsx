@@ -14,7 +14,6 @@ import {
   ChartGrid,
   ChatInterface,
   KeyInsightsCard,
-  DatasetSummaryCard,
   AnomalyBadges,
 } from "@/components/features";
 import {
@@ -29,6 +28,13 @@ import {
   ArrowLeft,
   MessageSquare,
   X,
+  Calendar,
+  TrendingUp,
+  Database,
+  Layers,
+  Hash,
+  Activity,
+  Zap,
 } from "lucide-react";
 import type { ChartConfig } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
@@ -69,20 +75,15 @@ function LoadingSkeleton() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
           <div className="space-y-6">
-            {/* Health Score Skeleton */}
+            {/* Hero Skeleton */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
-              <div className="mb-4 flex justify-between">
-                <div className="h-6 w-32 animate-pulse rounded bg-slate-200" />
-                <div className="h-8 w-16 animate-pulse rounded bg-slate-200" />
-              </div>
-              <div className="mb-4 h-2 overflow-hidden rounded-full bg-slate-100">
-                <div className="h-full w-3/4 animate-pulse rounded-full bg-slate-200" />
-              </div>
-              <div className="space-y-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="h-4 w-4 animate-pulse rounded bg-slate-200" />
-                    <div className="h-4 flex-1 animate-pulse rounded bg-slate-100" />
+              <div className="mb-4 h-8 w-3/4 animate-pulse rounded bg-slate-200" />
+              <div className="mb-6 h-4 w-1/2 animate-pulse rounded bg-slate-100" />
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="rounded-xl bg-slate-50 p-4">
+                    <div className="mb-2 h-3 w-16 animate-pulse rounded bg-slate-200" />
+                    <div className="h-6 w-12 animate-pulse rounded bg-slate-200" />
                   </div>
                 ))}
               </div>
@@ -259,6 +260,15 @@ export default function DashboardPage() {
   } = analysisData;
   const score = healthScore?.score ?? 0;
 
+  // Smart prompts for the AI chat
+  const smartPrompts = [
+    "What are the top spending trends?",
+    "Find anomalies or unusual patterns",
+    "Show me risk flags in this data",
+    "Which days had the highest total spend?",
+    "Generate 3 charts that explain this dataset",
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       <ToastContainer />
@@ -297,10 +307,11 @@ export default function DashboardPage() {
       {/* Top Bar */}
       <div className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => router.push("/dashboard")}
               className="rounded-lg p-2 transition-colors hover:bg-slate-100"
+              aria-label="Go back to dashboard"
             >
               <ArrowLeft className="h-5 w-5 text-slate-600" />
             </button>
@@ -323,7 +334,8 @@ export default function DashboardPage() {
             {/* Mobile Chat Button */}
             <button
               onClick={() => setIsChatOpen(true)}
-              className="flex items-center gap-2 rounded-lg bg-indigo-100 px-3 py-2 font-medium text-indigo-700 lg:hidden"
+              className="flex items-center gap-2 rounded-lg bg-indigo-100 px-3 py-2 font-medium text-indigo-700 transition-colors hover:bg-indigo-200 lg:hidden"
+              aria-label="Open AI chat"
             >
               <MessageSquare className="h-4 w-4" />
               <span className="hidden sm:inline">AI Chat</span>
@@ -333,6 +345,7 @@ export default function DashboardPage() {
               onClick={handleDownloadPPTX}
               disabled={isDownloadingPPTX}
               className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 py-2 font-medium text-white shadow-lg shadow-indigo-500/20 transition-all hover:from-indigo-500 hover:to-indigo-600 disabled:opacity-50"
+              aria-label="Download PowerPoint report"
             >
               {isDownloadingPPTX ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -351,17 +364,110 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
           {/* Left Column */}
           <div className="space-y-6">
-            {/* Dataset Summary - AI Generated */}
-            {aiInsights?.summary && (
-              <DatasetSummaryCard summary={aiInsights.summary} />
-            )}
+            {/* 1. TOP HERO SECTION */}
+            <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50/50 to-indigo-50/30 p-6 shadow-sm">
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                {/* Left Side - Dataset Info */}
+                <div className="flex-1">
+                  <h2 className="mb-2 text-2xl font-semibold text-slate-900">
+                    {aiInsights?.summary?.headline || datasetName}
+                  </h2>
+                  <p className="mb-3 text-sm leading-relaxed text-slate-600">
+                    {aiInsights?.summary?.description ||
+                      `Analysis of ${rowCount.toLocaleString()} records across ${columnCount} columns.`}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>Uploaded {new Date().toLocaleDateString()}</span>
+                    </div>
+                    <span className="text-slate-300">•</span>
+                    <div className="flex items-center gap-1.5">
+                      <Database className="h-3.5 w-3.5" />
+                      <span>
+                        {(rowCount * columnCount).toLocaleString()} cells
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Key Insights - 3 AI Generated Insights */}
-            {aiInsights?.keyInsights && aiInsights.keyInsights.length > 0 && (
-              <KeyInsightsCard insights={aiInsights.keyInsights} />
-            )}
+                {/* Right Side - Quick Summary */}
+                <div className="flex flex-col items-start gap-2 sm:items-end">
+                  <div
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                      score >= 80
+                        ? "bg-emerald-100 text-emerald-700"
+                        : score >= 60
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    Quality:{" "}
+                    {score >= 80
+                      ? "Excellent"
+                      : score >= 60
+                        ? "Good"
+                        : "Needs Review"}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Activity className="h-4 w-4" />
+                    <span>{score}/100 Health Score</span>
+                  </div>
+                </div>
+              </div>
 
-            {/* Health Score Summary */}
+              {/* 2. METRICS ROW - Stats Cards */}
+              {aiInsights?.summary?.keyMetrics &&
+                aiInsights.summary.keyMetrics.length > 0 && (
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {aiInsights.summary.keyMetrics.map((metric, index) => {
+                      const icons = {
+                        "Total Rows": <Layers className="h-4 w-4" />,
+                        Columns: <Hash className="h-4 w-4" />,
+                        "Numeric Fields": <TrendingUp className="h-4 w-4" />,
+                        "Data Quality": <CheckCircle2 className="h-4 w-4" />,
+                      };
+                      const Icon = icons[
+                        metric.label as keyof typeof icons
+                      ] || <Zap className="h-4 w-4" />;
+
+                      return (
+                        <div
+                          key={index}
+                          className="rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-indigo-300 hover:shadow-sm"
+                        >
+                          <div className="mb-2 flex items-center gap-2">
+                            <div className="rounded-lg bg-indigo-100 p-1.5 text-indigo-600">
+                              {Icon}
+                            </div>
+                          </div>
+                          <div className="text-2xl font-bold text-slate-900">
+                            {metric.value}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            {metric.label}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+            </div>
+
+            {/* 3. KEY INSIGHTS & DATA ALERTS */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Key Insights */}
+              {aiInsights?.keyInsights && aiInsights.keyInsights.length > 0 && (
+                <KeyInsightsCard insights={aiInsights.keyInsights} />
+              )}
+
+              {/* Data Alerts */}
+              {aiInsights?.anomalies && aiInsights.anomalies.length > 0 && (
+                <AnomalyBadges anomalies={aiInsights.anomalies} />
+              )}
+            </div>
+
+            {/* Data Quality Summary */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -401,19 +507,14 @@ export default function DashboardPage() {
                 )}
             </div>
 
-            {/* Anomaly Badges */}
-            {aiInsights?.anomalies && aiInsights.anomalies.length > 0 && (
-              <AnomalyBadges anomalies={aiInsights.anomalies} />
-            )}
-
-            {/* Charts Section */}
+            {/* 4. CHARTS SECTION */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-indigo-600" />
                 <h2 className="text-lg font-semibold text-slate-900">Charts</h2>
                 {charts.length > 0 && (
-                  <span className="text-sm text-slate-500">
-                    ({charts.length})
+                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                    {charts.length}
                   </span>
                 )}
               </div>
@@ -425,25 +526,28 @@ export default function DashboardPage() {
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100">
                     <BarChart3 className="h-8 w-8 text-indigo-600" />
                   </div>
-                  <h3 className="mb-2 font-semibold text-slate-900">
-                    No charts yet
+                  <h3 className="mb-2 text-lg font-semibold text-slate-900">
+                    Generate charts from your data
                   </h3>
-                  <p className="mx-auto mb-4 max-w-sm text-slate-500">
-                    Use the AI chat to generate charts from your data. Try
-                    asking:
+                  <p className="mx-auto mb-6 max-w-md text-sm text-slate-500">
+                    Use the AI chat to create visualizations. Try these quick
+                    actions:
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {[
-                      "Show me a bar chart",
-                      "Create a pie chart",
-                      "Visualize trends",
+                      "Bar chart by day",
+                      "Trend over time",
+                      "Amount distribution",
                     ].map((q) => (
-                      <span
+                      <button
                         key={q}
-                        className="rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-medium text-indigo-700"
+                        onClick={() => {
+                          setIsChatOpen(true);
+                        }}
+                        className="rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
                       >
-                        "{q}"
-                      </span>
+                        {q}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -451,7 +555,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Right Column - Chat (Desktop Only) */}
+          {/* 5. RIGHT-SIDE AI PANEL (Desktop) */}
           <div className="hidden h-fit lg:sticky lg:top-24 lg:block">
             <Card className="overflow-hidden border-slate-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-indigo-600 to-indigo-700 py-4 text-white">
@@ -460,12 +564,45 @@ export default function DashboardPage() {
                   Ask AI About Your Data
                 </CardTitle>
               </CardHeader>
-              <CardContent className="h-[500px] p-0">
-                <ChatInterface
-                  headers={headers}
-                  rows={rows}
-                  onNewChart={handleNewChart}
-                />
+              <CardContent className="p-0">
+                {/* Smart Prompts */}
+                <div className="border-b border-slate-200 bg-slate-50 p-4">
+                  <p className="mb-3 text-xs font-medium text-slate-600">
+                    SMART PROMPTS
+                  </p>
+                  <div className="space-y-2">
+                    {smartPrompts.map((prompt, index) => (
+                      <button
+                        key={index}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-sm text-slate-700 transition-all hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+                        onClick={() => {
+                          // This will be handled by the chat interface
+                          const textarea = document.querySelector(
+                            'textarea[placeholder*="Ask"]'
+                          ) as HTMLTextAreaElement;
+                          if (textarea) {
+                            textarea.value = prompt;
+                            textarea.focus();
+                          }
+                        }}
+                      >
+                        <div className="flex items-start gap-2">
+                          <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-500" />
+                          <span className="leading-snug">{prompt}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Chat Interface */}
+                <div className="h-[500px]">
+                  <ChatInterface
+                    headers={headers}
+                    rows={rows}
+                    onNewChart={handleNewChart}
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -476,6 +613,7 @@ export default function DashboardPage() {
       <button
         onClick={() => setIsChatOpen(true)}
         className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/30 transition-transform hover:scale-110 active:scale-95 lg:hidden"
+        aria-label="Open AI chat"
       >
         <MessageSquare className="h-6 w-6" />
       </button>

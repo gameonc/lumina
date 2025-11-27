@@ -73,8 +73,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
 
 Modal.displayName = "Modal";
 
-export interface ModalHeaderProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export interface ModalHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const ModalHeader = React.forwardRef<HTMLDivElement, ModalHeaderProps>(
   ({ className, ...props }, ref) => {
@@ -90,8 +89,7 @@ const ModalHeader = React.forwardRef<HTMLDivElement, ModalHeaderProps>(
 
 ModalHeader.displayName = "ModalHeader";
 
-export interface ModalTitleProps
-  extends React.HTMLAttributes<HTMLHeadingElement> {}
+export interface ModalTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
 
 const ModalTitle = React.forwardRef<HTMLHeadingElement, ModalTitleProps>(
   ({ className, ...props }, ref) => {
@@ -110,8 +108,7 @@ const ModalTitle = React.forwardRef<HTMLHeadingElement, ModalTitleProps>(
 
 ModalTitle.displayName = "ModalTitle";
 
-export interface ModalDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
+export interface ModalDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
 
 const ModalDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -128,8 +125,7 @@ const ModalDescription = React.forwardRef<
 
 ModalDescription.displayName = "ModalDescription";
 
-export interface ModalCloseProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+export interface ModalCloseProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
 const ModalClose = React.forwardRef<HTMLButtonElement, ModalCloseProps>(
   ({ className, onClick, ...props }, ref) => {
@@ -178,8 +174,7 @@ const ModalClose = React.forwardRef<HTMLButtonElement, ModalCloseProps>(
 
 ModalClose.displayName = "ModalClose";
 
-export interface ModalFooterProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export interface ModalFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const ModalFooter = React.forwardRef<HTMLDivElement, ModalFooterProps>(
   ({ className, ...props }, ref) => {

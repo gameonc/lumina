@@ -43,8 +43,7 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
 Skeleton.displayName = "Skeleton";
 
 // Preset skeleton components for common use cases
-export interface SkeletonTextProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface SkeletonTextProps extends React.HTMLAttributes<HTMLDivElement> {
   lines?: number;
 }
 
@@ -66,8 +65,7 @@ const SkeletonText = React.forwardRef<HTMLDivElement, SkeletonTextProps>(
 
 SkeletonText.displayName = "SkeletonText";
 
-export interface SkeletonCardProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export interface SkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const SkeletonCard = React.forwardRef<HTMLDivElement, SkeletonCardProps>(
   ({ className, ...props }, ref) => {

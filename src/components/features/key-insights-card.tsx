@@ -16,12 +16,14 @@ interface KeyInsightsCardProps {
 
 function InsightIcon({ type }: { type: KeyInsight["type"] }) {
   switch (type) {
-    case "positive":
+    case "trend":
+    case "opportunity":
       return <TrendingUp className="h-5 w-5" />;
-    case "negative":
-      return <TrendingDown className="h-5 w-5" />;
-    case "warning":
+    case "risk":
+    case "anomaly":
       return <AlertTriangle className="h-5 w-5" />;
+    case "correlation":
+      return <TrendingDown className="h-5 w-5" />;
     default:
       return <Info className="h-5 w-5" />;
   }
@@ -29,7 +31,8 @@ function InsightIcon({ type }: { type: KeyInsight["type"] }) {
 
 function getInsightStyles(type: KeyInsight["type"]) {
   switch (type) {
-    case "positive":
+    case "trend":
+    case "opportunity":
       return {
         bg: "bg-emerald-50",
         border: "border-emerald-100",
@@ -37,7 +40,7 @@ function getInsightStyles(type: KeyInsight["type"]) {
         title: "text-emerald-900",
         metric: "text-emerald-600",
       };
-    case "negative":
+    case "risk":
       return {
         bg: "bg-red-50",
         border: "border-red-100",
@@ -45,13 +48,21 @@ function getInsightStyles(type: KeyInsight["type"]) {
         title: "text-red-900",
         metric: "text-red-600",
       };
-    case "warning":
+    case "anomaly":
       return {
         bg: "bg-amber-50",
         border: "border-amber-100",
         icon: "bg-amber-100 text-amber-600",
         title: "text-amber-900",
         metric: "text-amber-600",
+      };
+    case "correlation":
+      return {
+        bg: "bg-blue-50",
+        border: "border-blue-100",
+        icon: "bg-blue-100 text-blue-600",
+        title: "text-blue-900",
+        metric: "text-blue-600",
       };
     default:
       return {
@@ -136,11 +147,11 @@ export function KeyInsightsCard({ insights, isLoading }: KeyInsightsCardProps) {
                         {insight.metric}
                       </span>
                     )}
-                    {insight.change && (
+                    {insight.impact && (
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs ${styles.icon}`}
                       >
-                        {insight.change}
+                        {insight.impact} impact
                       </span>
                     )}
                   </div>
