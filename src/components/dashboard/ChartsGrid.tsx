@@ -217,25 +217,48 @@ export function ChartsGrid({ charts, isLoading = false }: ChartsGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {[1, 2].map((i) => (
+        {[1, 2, 3].map((i) => (
           <ChartCardSkeleton key={i} />
         ))}
       </div>
     );
   }
 
+  // Always show placeholders if no charts - NEVER show empty state
   if (!charts || charts.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-slate-200 bg-white p-12 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-indigo-100">
-          <BarChart3 className="h-8 w-8 text-indigo-600" />
-        </div>
-        <h3 className="mb-2 text-lg font-semibold text-slate-900">
-          No Charts Yet
-        </h3>
-        <p className="mx-auto max-w-md text-sm text-slate-500">
-          Use the AI assistant to generate visualizations from your data.
-        </p>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+          >
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-lg bg-indigo-50 p-2">
+                <BarChart3 className="h-5 w-5 text-indigo-600 animate-pulse" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-slate-900">
+                  Chart {i}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Generating visualization...
+                </p>
+              </div>
+            </div>
+            <div className="flex h-80 items-center justify-center rounded-lg border-2 border-dashed border-slate-200 bg-slate-50">
+              <div className="text-center">
+                <div className="mx-auto mb-3 h-12 w-12 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+                <p className="text-sm font-medium text-slate-600">
+                  Analyzing data...
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Ask AI to generate charts
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

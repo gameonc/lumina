@@ -64,6 +64,16 @@ function LoadingSkeleton() {
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-12 space-y-8 lg:col-span-8">
+            {/* Charts Skeleton - TOP */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="h-96 animate-pulse rounded-xl bg-slate-200"
+                />
+              ))}
+            </div>
+
             {/* Metrics Skeleton */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[1, 2, 3, 4].map((i) => (
@@ -76,16 +86,6 @@ function LoadingSkeleton() {
 
             {/* AI Insights Skeleton */}
             <div className="h-64 animate-pulse rounded-xl bg-slate-200" />
-
-            {/* Charts Skeleton */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="h-96 animate-pulse rounded-xl bg-slate-200"
-                />
-              ))}
-            </div>
           </div>
 
           {/* Sidebar Skeleton */}
@@ -425,26 +425,7 @@ export default function DatasetPage() {
         <div className="grid grid-cols-12 gap-8">
           {/* Left Content - 8 columns */}
           <div className="col-span-12 space-y-8 lg:col-span-8">
-            {/* Row 1: Metrics */}
-            <MetricsRow
-              businessMetrics={businessMetrics}
-              totalRows={rowCount}
-              totalColumns={columnCount}
-              nullValues={nullValues}
-              dataQualityScore={score}
-            />
-
-            {/* Row 2: Finance Health Score (when available) */}
-            {aiInsights?.financeHealth && (
-              <FinanceHealthScore healthReport={aiInsights.financeHealth} />
-            )}
-
-            {/* Row 3: AI Insights */}
-            {aiInsights?.keyInsights && aiInsights.keyInsights.length > 0 && (
-              <AIInsightsCard insights={aiInsights.keyInsights} />
-            )}
-
-            {/* Row 3: Charts Grid */}
+            {/* Row 1: CHARTS FIRST - The Hero Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -459,7 +440,26 @@ export default function DatasetPage() {
               <ChartsGrid charts={charts} />
             </div>
 
-            {/* Row 4: Actions Bar */}
+            {/* Row 2: Metrics */}
+            <MetricsRow
+              businessMetrics={businessMetrics}
+              totalRows={rowCount}
+              totalColumns={columnCount}
+              nullValues={nullValues}
+              dataQualityScore={score}
+            />
+
+            {/* Row 3: Finance Health Score (compact, when available) */}
+            {aiInsights?.financeHealth && (
+              <FinanceHealthScore healthReport={aiInsights.financeHealth} />
+            )}
+
+            {/* Row 4: AI Insights (collapsed by default) */}
+            {aiInsights?.keyInsights && aiInsights.keyInsights.length > 0 && (
+              <AIInsightsCard insights={aiInsights.keyInsights} />
+            )}
+
+            {/* Row 5: Actions Bar */}
             <div className="flex flex-wrap gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
               <button
                 onClick={handleDownloadPPTX}

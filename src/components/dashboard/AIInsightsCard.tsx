@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import {
   Sparkles,
   TrendingUp,
   AlertTriangle,
   DollarSign,
   CheckCircle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import type { KeyInsight } from "@/lib/ai/insights-generator";
 
@@ -71,25 +74,36 @@ function getSeverityConfig(severity?: string) {
   }
 }
 
+function truncateText(text: string, maxLength: number = 120): string {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength).trim() + "...";
+}
+
 export function AIInsightsCard({ insights }: AIInsightsCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (!insights || insights.length === 0) {
     return null;
   }
 
+  const insightsToShow = isExpanded ? insights : insights.slice(0, 2);
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-6 flex items-center gap-2">
-        <div className="rounded-lg bg-indigo-50 p-2">
-          <Sparkles className="h-5 w-5 text-indigo-600" />
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="rounded-lg bg-indigo-50 p-2">
+            <Sparkles className="h-5 w-5 text-indigo-600" />
+          </div>
+          <h2 className="text-lg font-semibold text-slate-900">Key Insights</h2>
         </div>
-        <h2 className="text-lg font-semibold text-slate-900">What We Found</h2>
-        <span className="ml-auto rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
-          AI Analysis
+        <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
+          {insights.length} {insights.length === 1 ? "insight" : "insights"}
         </span>
       </div>
 
-      <div className="space-y-4">
-        {insights.slice(0, 3).map((insight, index) => {
+      <div className="space-y-3">
+        {insightsToShow.map((insight, index) => {
           const config = getInsightTypeConfig(insight.type);
           const severityConfig = getSeverityConfig(insight.severity);
           const Icon = config.icon;
@@ -97,40 +111,35 @@ export function AIInsightsCard({ insights }: AIInsightsCardProps) {
           return (
             <div
               key={index}
-              className="flex items-start gap-4 rounded-lg border border-slate-100 bg-slate-50/50 p-4 transition-all hover:border-slate-200 hover:bg-white hover:shadow-sm"
+              className="flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/50 p-3 transition-all hover:border-slate-200 hover:bg-white hover:shadow-sm"
             >
-              <div className={`rounded-lg ${config.iconBg} p-2.5 shrink-0`}>
-                <Icon className={`h-5 w-5 ${config.iconColor}`} />
+              <div className={`rounded-lg ${config.iconBg} p-2 shrink-0`}>
+                <Icon className={`h-4 w-4 ${config.iconColor}`} />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="mb-1 flex flex-wrap items-center gap-2">
-                  <h3 className="font-semibold text-slate-900">
+                <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                  <h3 className="font-semibold text-slate-900 text-sm truncate">
                     {insight.title}
                   </h3>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${config.badgeColor}`}
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${config.badgeColor} flex-shrink-0`}
                   >
                     {config.badge}
                   </span>
                   {severityConfig && (
                     <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${severityConfig.badgeColor}`}
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${severityConfig.badgeColor} flex-shrink-0`}
                     >
                       {severityConfig.badge}
                     </span>
                   )}
                 </div>
                 <p className="text-sm leading-relaxed text-slate-600">
-                  {insight.description}
+                  {truncateText(insight.description)}
                 </p>
                 {insight.metric && (
-                  <p className="mt-2 text-sm font-semibold text-indigo-600">
+                  <p className="mt-1 text-sm font-semibold text-indigo-600">
                     {insight.metric}
-                  </p>
-                )}
-                {insight.recommendation && (
-                  <p className="mt-2 text-xs text-slate-500 italic">
-                    💡 {insight.recommendation}
                   </p>
                 )}
               </div>
@@ -138,6 +147,25 @@ export function AIInsightsCard({ insights }: AIInsightsCardProps) {
           );
         })}
       </div>
+
+      {insights.length > 2 && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+        >
+          {isExpanded ? (
+            <>
+              <ChevronUp className="h-4 w-4" />
+              Show Less
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-4 w-4" />
+              Show {insights.length - 2} More Insights
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 }

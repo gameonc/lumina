@@ -44,10 +44,39 @@ export interface EnhancedColumnStats extends ColumnStats {
 }
 
 /**
+ * Check if column name suggests numeric data
+ */
+function isNumericColumnName(name: string): boolean {
+  const lowerName = name.toLowerCase();
+  const numericPatterns = [
+    'amount', 'price', 'total', 'cost', 'count', 'quantity',
+    'value', 'revenue', 'profit', 'fee', 'rate', 'score',
+    'number', 'num', 'weight', 'size', 'length', 'width',
+    'height', 'age', 'salary', 'income', 'balance', 'sum'
+  ];
+  return numericPatterns.some(pattern => lowerName.includes(pattern));
+}
+
+/**
+ * Check if column name suggests category data
+ */
+function isCategoryColumnName(name: string): boolean {
+  const lowerName = name.toLowerCase();
+  const categoryPatterns = [
+    'type', 'status', 'category', 'name', 'product', 'region',
+    'country', 'city', 'state', 'department', 'group', 'class',
+    'level', 'grade', 'gender', 'role', 'tier', 'segment'
+  ];
+  return categoryPatterns.some(pattern => lowerName.includes(pattern));
+}
+
+/**
  * Enhanced type inference with category detection
+ * AGGRESSIVE: Tries harder to find numeric and category columns
  */
 export function inferColumnType(
-  values: unknown[]
+  values: unknown[],
+  columnName?: string
 ): "numeric" | "date" | "category" | "text" | "boolean" | "mixed" {
   const nonNullValues = values.filter(
     (v) => v !== null && v !== undefined && v !== ""
@@ -121,26 +150,54 @@ export function inferColumnType(
   }
 
   const total = nonNullValues.length;
-  const threshold = 0.9; // 90% majority
 
-  // Check for category (low cardinality string column)
-  // More lenient thresholds for small datasets
+  // AGGRESSIVE: Lower threshold to 50% for numeric detection
+  const numericThreshold = 0.5; // Was 0.9, now 50% is enough
+
+  // AGGRESSIVE: Check column name hints for numeric data
+  if (columnName && isNumericColumnName(columnName) && numberCount / total >= 0.3) {
+    return "numeric"; // If column name suggests numeric and 30%+ are numbers, treat as numeric
+  }
+
+  // Standard numeric detection with lower threshold
+  if (numberCount / total >= numericThreshold) return "numeric";
+
+  const dateThreshold = 0.9;
+  if (dateCount / total >= dateThreshold) return "date";
+
+  const booleanThreshold = 0.9;
+  if (booleanCount / total >= booleanThreshold) return "boolean";
+
+  // AGGRESSIVE: Category detection with relaxed thresholds
   const uniqueRatio = uniqueStrings.size / total;
-  const maxUniqueForCategory = total < 50 ? 0.8 : 0.5; // Allow more unique values for small datasets
-  const minRowsForCategory = 3; // Lowered from 10 to support small datasets
-  const hasReasonableCardinality = uniqueStrings.size <= 20; // Max 20 unique values
 
+  // More lenient category detection:
+  // - If fewer than 20 unique values, it's likely a category
+  // - If column name suggests category, be more lenient
+  const maxUniqueForCategory = 20; // Was checking ratio, now just count
+  const hasReasonableCardinality = uniqueStrings.size <= maxUniqueForCategory;
+  const minRowsForCategory = 2; // Lowered from 3
+
+  // Check if column name suggests category
+  const nameHintsCategory = columnName && isCategoryColumnName(columnName);
+
+  // AGGRESSIVE: If name hints category and has reasonable cardinality, make it a category
+  if (nameHintsCategory && hasReasonableCardinality && total >= minRowsForCategory) {
+    return "category";
+  }
+
+  // Standard category detection
+  const maxUniqueRatioForCategory = total < 50 ? 0.8 : 0.5;
   const isCategory =
-    stringCount / total >= threshold &&
-    uniqueRatio < maxUniqueForCategory &&
+    stringCount / total >= 0.9 &&
+    uniqueRatio < maxUniqueRatioForCategory &&
     total >= minRowsForCategory &&
     hasReasonableCardinality;
 
-  if (numberCount / total >= threshold) return "numeric";
-  if (dateCount / total >= threshold) return "date";
-  if (booleanCount / total >= threshold) return "boolean";
   if (isCategory) return "category";
-  if (stringCount / total >= threshold) return "text";
+
+  const textThreshold = 0.9;
+  if (stringCount / total >= textThreshold) return "text";
 
   return "mixed";
 }
@@ -220,7 +277,7 @@ export function profileColumn(
   columnName: string,
   values: unknown[]
 ): EnhancedColumnStats {
-  const inferredType = inferColumnType(values);
+  const inferredType = inferColumnType(values, columnName);
   const nonNullValues = values.filter(
     (v) => v !== null && v !== undefined && v !== ""
   );

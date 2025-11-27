@@ -17,7 +17,7 @@ interface MetricsRowProps {
 
 function formatMetricValue(value: string | number, format?: string): string {
   if (typeof value === "string") return value;
-  
+
   switch (format) {
     case "currency":
       return new Intl.NumberFormat("en-US", {
@@ -56,56 +56,56 @@ export function MetricsRow({
   dataQualityScore,
 }: MetricsRowProps) {
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
-  
+
   // Show business metrics if available, otherwise fall back to technical metrics
   if (businessMetrics && businessMetrics.metrics.length > 0) {
     const metricsToShow = businessMetrics.metrics.slice(0, 4);
     const hasTechnicalMetrics = totalRows !== undefined || totalColumns !== undefined || nullValues !== undefined || dataQualityScore !== undefined;
-    
+
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {metricsToShow.map((metric, index) => {
             const TrendIcon = getTrendIcon(metric.trend);
-            const iconColor = metric.trend === "up" 
-              ? "text-emerald-600" 
-              : metric.trend === "down" 
-              ? "text-red-600" 
+            const iconColor = metric.trend === "up"
+              ? "text-emerald-600"
+              : metric.trend === "down"
+              ? "text-red-600"
               : "text-slate-600";
-            
+
             return (
               <div
                 key={index}
-                className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+                className="min-h-[120px] flex flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-500 mb-1">
+                <div className="flex items-start justify-between flex-1">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-500 mb-1 truncate">
                       {metric.label}
                     </p>
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-2xl font-semibold text-slate-900">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <p className="text-2xl font-semibold text-slate-900 truncate">
                         {formatMetricValue(metric.value, metric.format)}
                       </p>
                       {TrendIcon && (
-                        <TrendIcon className={`h-4 w-4 ${iconColor}`} />
+                        <TrendIcon className={`h-4 w-4 ${iconColor} flex-shrink-0`} />
                       )}
                     </div>
                     {metric.description && (
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500 line-clamp-2">
                         {metric.description}
                       </p>
                     )}
                   </div>
                   {metric.icon && (
-                    <div className="text-2xl">{metric.icon}</div>
+                    <div className="text-xl ml-2 flex-shrink-0">{metric.icon}</div>
                   )}
                 </div>
               </div>
             );
           })}
         </div>
-        
+
         {/* Expandable Technical Details Section */}
         {hasTechnicalMetrics && (
           <div className="rounded-xl border border-slate-200 bg-white">
@@ -153,14 +153,14 @@ export function MetricsRow({
                     />
                   )}
                   {dataQualityScore !== undefined && (
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="min-h-[120px] rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="flex items-center gap-2">
                         <div className="rounded-lg bg-emerald-50 p-2">
                           <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-xs font-medium text-slate-500">Data Quality</p>
-                          <div className="flex items-center gap-1">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-slate-500 truncate">Data Quality</p>
+                          <div className="flex items-center gap-1 flex-wrap">
                             <p className="text-lg font-semibold text-slate-900">
                               {dataQualityScore}
                             </p>
@@ -210,14 +210,14 @@ export function MetricsRow({
         />
       )}
       {dataQualityScore !== undefined && (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+        <div className="min-h-[120px] rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
           <div className="flex items-center gap-3">
             <div className="rounded-lg bg-emerald-50 p-2.5">
               <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-slate-500">Data Quality</p>
-              <div className="flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-slate-500 truncate">Data Quality</p>
+              <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-2xl font-semibold text-slate-900">
                   {dataQualityScore}
                 </p>
