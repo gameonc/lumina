@@ -16,9 +16,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://lumina.vercel.app"),
   title: {
-    default: "AI Data Insights",
-    template: "%s | AI Data Insights",
+    default: "Lumina - AI Data Insights",
+    template: "%s | Lumina",
   },
   description:
     "Transform your spreadsheets into actionable insights with AI-powered analysis",
@@ -34,11 +35,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: "AI Data Insights",
-    title: "AI Data Insights",
+    siteName: "Lumina",
+    title: "Lumina - Excel to PowerPoint in 3 Seconds",
     description:
-      "Transform your spreadsheets into actionable insights with AI-powered analysis",
+      "Transform your spreadsheets into professional PowerPoint presentations with AI-powered insights",
     images: [
       {
         url: "/og-image.png",
@@ -50,9 +50,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Data Insights",
+    title: "Lumina - Excel to PowerPoint in 3 Seconds",
     description:
-      "Transform your spreadsheets into actionable insights with AI-powered analysis",
+      "Transform your spreadsheets into professional PowerPoint presentations with AI-powered insights",
     images: ["/og-image.png"],
   },
   robots: {
