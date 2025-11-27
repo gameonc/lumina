@@ -124,9 +124,17 @@ export function inferColumnType(
   const threshold = 0.9; // 90% majority
 
   // Check for category (low cardinality string column)
+  // More lenient thresholds for small datasets
   const uniqueRatio = uniqueStrings.size / total;
+  const maxUniqueForCategory = total < 50 ? 0.8 : 0.5; // Allow more unique values for small datasets
+  const minRowsForCategory = 3; // Lowered from 10 to support small datasets
+  const hasReasonableCardinality = uniqueStrings.size <= 20; // Max 20 unique values
+
   const isCategory =
-    stringCount / total >= threshold && uniqueRatio < 0.5 && total > 10;
+    stringCount / total >= threshold &&
+    uniqueRatio < maxUniqueForCategory &&
+    total >= minRowsForCategory &&
+    hasReasonableCardinality;
 
   if (numberCount / total >= threshold) return "numeric";
   if (dateCount / total >= threshold) return "date";
