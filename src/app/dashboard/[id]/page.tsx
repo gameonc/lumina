@@ -106,6 +106,7 @@ export default function DatasetPage() {
   const [charts, setCharts] = useState<ChartConfig[]>([]);
   const [isDownloadingPPTX, setIsDownloadingPPTX] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isQuickActionLoading, setIsQuickActionLoading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -214,6 +215,57 @@ export default function DatasetPage() {
       }
     }, 100);
   };
+
+  const handleQuickAction = useCallback(
+    async (action: "generate-charts" | "detect-anomalies" | "analyze-trends") => {
+      if (!analysisData || isQuickActionLoading) return;
+
+      const prompts = {
+        "generate-charts": "Generate 3 different charts that best visualize and explain this dataset",
+        "detect-anomalies": "Find all anomalies, outliers, and unusual patterns in this data. Create a chart if relevant.",
+        "analyze-trends": "What are the top 3 trends in this data? Create a chart showing the most important trend.",
+      };
+
+      const actionNames = {
+        "generate-charts": "Generating charts",
+        "detect-anomalies": "Detecting anomalies",
+        "analyze-trends": "Analyzing trends",
+      };
+
+      setIsQuickActionLoading(true);
+      toast(`${actionNames[action]}...`, "info");
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: prompts[action],
+            headers: analysisData.headers,
+            rows: analysisData.rows,
+            conversationHistory: [],
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          if (result.data.chart) {
+            handleNewChart(result.data.chart);
+          }
+          toast(result.data.message?.slice(0, 100) || "Action completed!", "success");
+        } else {
+          toast(result.error || "Something went wrong", "error");
+        }
+      } catch (err) {
+        console.error("Quick action error:", err);
+        toast("Failed to perform action. Please try again.", "error");
+      } finally {
+        setIsQuickActionLoading(false);
+      }
+    },
+    [analysisData, isQuickActionLoading, handleNewChart]
+  );
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -422,6 +474,8 @@ export default function DatasetPage() {
                 prompts={smartPrompts}
                 insights={aiInsights?.keyInsights}
                 onPromptClick={handlePromptClick}
+                onQuickAction={handleQuickAction}
+                isLoading={isQuickActionLoading}
               />
             </div>
           </aside>

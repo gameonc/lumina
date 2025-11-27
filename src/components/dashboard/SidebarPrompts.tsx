@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, AlertTriangle, Zap } from "lucide-react";
+import { Sparkles, AlertTriangle, Zap, Loader2 } from "lucide-react";
 import type { KeyInsight } from "@/lib/ai/insights-generator";
 
 interface SidebarPromptsProps {
@@ -8,6 +8,7 @@ interface SidebarPromptsProps {
   insights?: KeyInsight[];
   onPromptClick: (prompt: string) => void;
   onQuickAction?: (action: 'generate-charts' | 'detect-anomalies' | 'analyze-trends') => void;
+  isLoading?: boolean;
 }
 
 export function SidebarPrompts({
@@ -15,6 +16,7 @@ export function SidebarPrompts({
   insights,
   onPromptClick,
   onQuickAction,
+  isLoading = false,
 }: SidebarPromptsProps) {
   const riskFlags = insights?.filter(
     (i) => i.type === "anomaly" || i.type === "risk"
@@ -110,6 +112,9 @@ export function SidebarPrompts({
         <div className="mb-3 flex items-center gap-2">
           <Zap className="h-5 w-5 text-indigo-600" />
           <h3 className="font-semibold text-slate-900">Quick Actions</h3>
+          {isLoading && (
+            <Loader2 className="ml-auto h-4 w-4 animate-spin text-indigo-600" />
+          )}
         </div>
         <p className="mb-3 text-xs text-slate-500">
           Generate insights and visualizations instantly
@@ -117,21 +122,28 @@ export function SidebarPrompts({
         <div className="space-y-2">
           <button
             onClick={() => handleQuickAction('generate-charts')}
-            className="flex w-full items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95"
+            disabled={isLoading}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Sparkles className="h-4 w-4" />
-            <span>Generate Charts</span>
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            <span>{isLoading ? "Working..." : "Generate Charts"}</span>
           </button>
           <button
             onClick={() => handleQuickAction('detect-anomalies')}
-            className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95"
+            disabled={isLoading}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <AlertTriangle className="h-4 w-4" />
             <span>Detect Anomalies</span>
           </button>
           <button
             onClick={() => handleQuickAction('analyze-trends')}
-            className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95"
+            disabled={isLoading}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Zap className="h-4 w-4" />
             <span>Analyze Trends</span>
