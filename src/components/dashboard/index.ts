@@ -6,3 +6,4 @@ export { ChartCard, ChartCardSkeleton } from "./ChartCard";
 export { ChartsGrid } from "./ChartsGrid";
 export { SidebarPrompts } from "./SidebarPrompts";
 export { AskAIBar } from "./AskAIBar";
+export { FinanceHealthScore } from "./FinanceHealthScore";

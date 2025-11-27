@@ -1,6 +1,12 @@
 import OpenAI from "openai";
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
 import type { ChartSuggestion } from "@/types";
+import {
+  analyzeFinanceHealth,
+  formatPercentage,
+  type FinanceData,
+  type FinanceHealthReport,
+} from "@/lib/finance/benchmarks";
 
 // Lazy-initialize OpenAI client
 let openai: OpenAI | null = null;
@@ -20,10 +26,12 @@ function getOpenAI(): OpenAI {
 export interface KeyInsight {
   title: string;
   description: string;
-  type: "trend" | "anomaly" | "correlation" | "risk" | "opportunity";
-  impact: "high" | "medium" | "low";
+  type: "money" | "problem" | "trend";
+  severity?: "good" | "neutral" | "warning";
   metric?: string;
   recommendation?: string;
+  // Legacy support
+  impact?: "high" | "medium" | "low";
 }
 
 export interface DatasetSummary {
@@ -52,6 +60,7 @@ export interface AIInsights {
   keyInsights: KeyInsight[];
   anomalies: Anomaly[];
   chartSuggestions: ChartSuggestion[];
+  financeHealth?: FinanceHealthReport;  // Added for finance mode
 }
 
 /**
@@ -134,6 +143,153 @@ function calculatePearsonCorrelation(x: number[], y: number[]): number {
 }
 
 /**
+ * Extract finance data from rows for health analysis
+ */
+function extractFinanceDataFromRows(
+  headers: string[],
+  rows: Record<string, unknown>[]
+): FinanceData {
+  const lowerHeaders = headers.map((h) => h.toLowerCase());
+
+  // Find revenue/income columns
+  const revenueKeywords = ["revenue", "income", "sales", "earnings"];
+  const revenueIdx = lowerHeaders.findIndex((h) =>
+    revenueKeywords.some((k) => h.includes(k))
+  );
+
+  // Find expense/cost columns
+  const expenseKeywords = ["expense", "cost", "spend", "expenditure"];
+  const expenseIdx = lowerHeaders.findIndex((h) =>
+    expenseKeywords.some((k) => h.includes(k))
+  );
+
+  let totalRevenue = 0;
+  let totalExpenses = 0;
+
+  if (revenueIdx !== -1) {
+    totalRevenue = rows.reduce(
+      (sum, row) => sum + (Number(row[headers[revenueIdx]]) || 0),
+      0
+    );
+  }
+
+  if (expenseIdx !== -1) {
+    totalExpenses = rows.reduce(
+      (sum, row) => sum + (Number(row[headers[expenseIdx]]) || 0),
+      0
+    );
+  }
+
+  // If no explicit revenue/expense columns, try to infer from all numeric columns
+  // Look for common patterns like "amount" column with "type" column (income vs expense)
+  if (totalRevenue === 0 && totalExpenses === 0) {
+    const amountIdx = lowerHeaders.findIndex(
+      (h) => h.includes("amount") || h.includes("value") || h.includes("total")
+    );
+    const typeIdx = lowerHeaders.findIndex(
+      (h) => h.includes("type") || h.includes("category")
+    );
+
+    if (amountIdx !== -1 && typeIdx !== -1) {
+      rows.forEach((row) => {
+        const amount = Number(row[headers[amountIdx]]) || 0;
+        const type = String(row[headers[typeIdx]] || "").toLowerCase();
+
+        if (
+          type.includes("income") ||
+          type.includes("revenue") ||
+          type.includes("sale")
+        ) {
+          totalRevenue += amount;
+        } else if (
+          type.includes("expense") ||
+          type.includes("cost") ||
+          type.includes("payment")
+        ) {
+          totalExpenses += amount;
+        }
+      });
+    }
+  }
+
+  return {
+    totalRevenue: totalRevenue > 0 ? totalRevenue : undefined,
+    totalExpenses: totalExpenses > 0 ? totalExpenses : undefined,
+    periodCount: rows.length,
+  };
+}
+
+/**
+ * Generate finance-specific system prompt with benchmarks
+ */
+function getFinanceSystemPrompt(healthReport: FinanceHealthReport): string {
+  return `You are a finance-savvy business advisor analyzing someone's financial data. You have EXPERT KNOWLEDGE of industry benchmarks that ChatGPT doesn't have.
+
+CRITICAL: You know these industry standards:
+- Healthy expense ratio: Under 60% of revenue
+- Good profit margin: 15-20%
+- Strong revenue growth: 10%+ annually
+- Expense growth: Should stay under 5% unless tied to growth
+
+YOU ALREADY ANALYZED THIS DATA. Here's what you found:
+- Overall Financial Health: Grade ${healthReport.overallGrade} (${healthReport.overallScore}/100)
+- Summary: ${healthReport.gradeDescription}
+${healthReport.metrics.map((m) => `- ${m.name}: ${formatPercentage(m.value)} (${m.status}) - ${m.insight}`).join("\n")}
+${healthReport.redFlags.length > 0 ? `\nRED FLAGS:\n${healthReport.redFlags.map((f) => `- ⚠️ ${f}`).join("\n")}` : ""}
+${healthReport.positives.length > 0 ? `\nSTRENGTHS:\n${healthReport.positives.map((p) => `- ✅ ${p}`).join("\n")}` : ""}
+
+YOUR JOB: Take this analysis and explain it in plain English. Focus on:
+1. The GRADE and what it means for their business
+2. Compare their numbers to industry benchmarks (this is your edge over ChatGPT!)
+3. Any red flags that need attention
+4. Specific action items
+
+CRITICAL RULES:
+- ALWAYS mention the letter grade (A/B/C/D/F) prominently
+- ALWAYS compare to benchmarks: "Your X is Y%, healthy businesses typically stay under Z%"
+- Be specific with dollars and percentages
+- Use plain English - no jargon
+- Focus on ACTIONABLE advice
+
+Return your response as valid JSON with this exact structure:
+{
+  "summary": {
+    "headline": "Grade [X]: [One punchy sentence about their financial health]",
+    "description": "What the grade means + one key benchmark comparison",
+    "keyMetrics": [
+      {
+        "label": "Health Grade",
+        "value": "${healthReport.overallGrade}",
+        "trend": "up|down|stable"
+      },
+      {
+        "label": "Simple Label",
+        "value": "123" or 123,
+        "percentChange": 15.5
+      }
+    ],
+    "dataQuality": "excellent|good|fair|poor"
+  },
+  "keyInsights": [
+    {
+      "title": "Short headline (max 50 chars)",
+      "description": "Compare to benchmark + what it means for them",
+      "type": "money|problem|trend",
+      "severity": "good|neutral|warning",
+      "metric": "The key number",
+      "recommendation": "One specific thing they should do"
+    }
+  ],
+  "anomalies": [...],
+  "chartSuggestions": [...]
+}
+
+EXAMPLE OUTPUT:
+Bad: "Your expenses are $45,000"
+Good: "Your expenses are 68% of revenue - that's above the healthy threshold of 60%. Most profitable businesses keep this under 60%."`;
+}
+
+/**
  * Generate AI-powered insights for a dataset
  */
 export async function generateDatasetInsights(
@@ -177,24 +333,36 @@ export async function generateDatasetInsights(
     correlations: correlations.slice(0, 3),
   };
 
-  const systemPrompt = `You are a senior data analyst with expertise in statistical analysis, pattern recognition, and business intelligence. Your role is to analyze datasets like a professional analyst would - identifying trends, correlations, anomalies, and actionable insights.
+  // FINANCE MODE: Use specialized analysis with industry benchmarks
+  let financeHealthReport: FinanceHealthReport | undefined;
+  if (datasetType.toLowerCase() === "finance") {
+    const financeData = extractFinanceDataFromRows(headers, rows);
+    if (financeData.totalRevenue || financeData.totalExpenses) {
+      financeHealthReport = analyzeFinanceHealth(financeData);
+    }
+  }
 
-ANALYSIS APPROACH:
-- Look for statistical patterns: trends, seasonality, distributions
-- Identify correlations between columns (provided in the data)
-- Detect anomalies using statistical thresholds (e.g., 3 standard deviations from mean)
-- Provide actionable recommendations, not just observations
-- Quantify findings with specific numbers and percentages
-- Think about business implications of the data
+  // Select appropriate system prompt based on dataset type
+  const systemPrompt = financeHealthReport
+    ? getFinanceSystemPrompt(financeHealthReport)
+    : `You are a friendly business advisor explaining spreadsheet data to someone who is NOT a data scientist. Your job is to find the most important takeaways and explain them like you're talking to a friend over coffee.
+
+CRITICAL RULES:
+- Write like you're explaining to an 8th grader - NO jargon
+- NEVER use: correlation, coefficient, standard deviation, r=, σ, z-score, distribution, variance, median, imputation, cardinality
+- DO use: "goes up together", "unusual values", "missing info", "average", "total", "biggest", "smallest"
+- Focus on MONEY, PROBLEMS, and TRENDS - what matters to a business owner
+- Use specific dollar amounts and percentages when you see them
+- Keep explanations short and punchy (1-2 sentences max)
 
 Return your response as valid JSON with this exact structure:
 {
   "summary": {
-    "headline": "Compelling one-liner about the key finding (max 80 chars)",
-    "description": "2-3 sentences about what this data tells us and why it matters",
+    "headline": "One punchy sentence about the most important thing (max 60 chars)",
+    "description": "What does this data tell us? Explain like talking to a friend (2 short sentences)",
     "keyMetrics": [
       {
-        "label": "Metric Name",
+        "label": "Simple Label",
         "value": "123" or 123,
         "trend": "up|down|stable" (optional),
         "percentChange": 15.5 (optional)
@@ -204,12 +372,12 @@ Return your response as valid JSON with this exact structure:
   },
   "keyInsights": [
     {
-      "title": "Clear, specific insight title (max 60 chars)",
-      "description": "Detailed explanation with specific numbers and context (2-3 sentences)",
-      "type": "trend|anomaly|correlation|risk|opportunity",
-      "impact": "high|medium|low",
-      "metric": "Specific number or statistic",
-      "recommendation": "Actionable next step based on this insight"
+      "title": "Short headline like a news story (max 50 chars)",
+      "description": "Plain English explanation - what does this MEAN for the business?",
+      "type": "money|problem|trend",
+      "severity": "good|neutral|warning",
+      "metric": "The key number (like '$45,000' or '15%')",
+      "recommendation": "One simple thing they could do about it"
     }
   ],
   "anomalies": [
@@ -217,56 +385,63 @@ Return your response as valid JSON with this exact structure:
       "column": "Column name",
       "type": "outlier|missing|unusual_pattern|data_quality",
       "severity": "low|medium|high",
-      "description": "Specific description with thresholds (e.g., '15 values exceed 3σ from mean')",
-      "affectedRows": number,
-      "specificValues": ["example values"] (optional, for outliers)
+      "description": "Plain English - what's wrong and why it matters",
+      "affectedRows": number
     }
   ],
   "chartSuggestions": [
     {
-      "title": "Chart title",
-      "description": "What this chart will reveal",
+      "title": "Simple chart title",
+      "description": "What you'll see in this chart",
       "chartType": "line|bar|pie|scatter|histogram",
       "xField": "column_name",
-      "yField": "column_name" (optional for histograms/distributions),
-      "rationale": "Why this visualization is valuable for analysis",
-      "priority": 1-5 (5 being highest)
+      "yField": "column_name",
+      "rationale": "Why this chart is helpful",
+      "priority": 1-5
     }
   ]
 }
 
-GUIDELINES:
-- Provide exactly 3-4 key insights (most impactful findings)
-- Focus on actionable, business-relevant insights
-- For trends: Calculate actual direction and magnitude (e.g., "15% increase")
-- For anomalies: Reference statistical thresholds (e.g., "3 standard deviations from mean")
-- For correlations: State the correlation coefficient (e.g., "r=0.85, strong positive correlation")
-- Be specific with numbers, percentages, and ranges
-- Provide at least 2-3 chart suggestions that would aid analysis
-- Prioritize insights by business impact (high/medium/low)
-- Keep language clear, professional, and action-oriented`;
+INSIGHT TYPES:
+- "money" = Anything about revenue, costs, spending, profits, totals
+- "problem" = Missing data, unusual values, things that need attention
+- "trend" = Things going up/down, patterns, changes over time
 
-  const userMessage = `Dataset Type: ${datasetType}
-Total Rows: ${rows.length.toLocaleString()}
-Total Columns: ${headers.length}
+EXAMPLE TRANSFORMATIONS:
+BAD: "Strong positive correlation (r=0.82) between Marketing and Revenue"
+GOOD: "Marketing is paying off - when you spend more, sales go up too"
 
-Column Statistics (with statistical context):
-${JSON.stringify(dataSummary.columns, null, 2)}
+BAD: "15 outliers detected exceeding 3σ threshold"
+GOOD: "15 unusual values that look different from the rest - worth checking"
 
-Detected Correlations:
-${correlations.length > 0 ? JSON.stringify(correlations, null, 2) : "No strong correlations detected (|r| > 0.5)"}
+BAD: "Coefficient of variation indicates high volatility"
+GOOD: "Your numbers jump around a lot month-to-month"
 
-Statistical Thresholds:
-${statisticalContext.length > 0 ? JSON.stringify(statisticalContext, null, 2) : "No numeric columns for threshold analysis"}
+Provide exactly 3 insights. Make them feel like helpful advice, not a statistics report.`;
 
-Sample Data (first 10 rows):
-${JSON.stringify(dataSummary.sampleData, null, 2)}
+  const userMessage = `Here's a spreadsheet with ${rows.length.toLocaleString()} rows and ${headers.length} columns.
 
-Analyze this dataset as a professional data analyst would:
-1. Provide a compelling summary with 3-5 key metrics
-2. Identify 3-4 key insights with specific statistics and actionable recommendations
-3. Detect anomalies with specific thresholds and affected values
-4. Suggest 2-3 charts that would provide the most analytical value`;
+What's in it:
+${JSON.stringify(dataSummary.columns.map(c => ({
+  name: c.name,
+  type: c.type,
+  unique: c.uniqueValues,
+  missing: c.nullCount,
+  ...(c.type === 'number' ? { min: c.min, max: c.max, avg: c.mean } : {}),
+  ...(c.topCategories ? { common: c.topCategories.slice(0, 3) } : {})
+})), null, 2)}
+
+${correlations.length > 0 ? `\nThings that move together:\n${correlations.map(c => `- ${c.col1} and ${c.col2}`).join('\n')}` : ''}
+
+First few rows:
+${JSON.stringify(dataSummary.sampleData.slice(0, 5), null, 2)}
+
+Tell me the 3 most important things a business owner should know about this data. Focus on:
+1. Anything about MONEY (totals, biggest/smallest, where money goes)
+2. Any PROBLEMS (missing info, weird values, things that need attention)
+3. Any TRENDS (things going up or down, patterns)
+
+Keep it simple and helpful!`;
 
   try {
     const response = await getOpenAI().chat.completions.create({
@@ -295,6 +470,11 @@ Analyze this dataset as a professional data analyst would:
     // Ensure chart suggestions are present
     if (!result.chartSuggestions || result.chartSuggestions.length === 0) {
       result.chartSuggestions = generateDefaultChartSuggestions(columnStats);
+    }
+
+    // Attach finance health report if available (this is what makes Lumina different!)
+    if (financeHealthReport) {
+      result.financeHealth = financeHealthReport;
     }
 
     return result;
@@ -418,12 +598,12 @@ function generateDefaultChartSuggestions(
 }
 
 /**
- * Fallback insights when AI is unavailable
+ * Fallback insights when AI is unavailable - uses plain English!
  */
 function generateFallbackInsights(
   columnStats: EnhancedColumnStats[],
   rows: Record<string, unknown>[],
-  datasetType: string
+  _datasetType: string
 ): AIInsights {
   const rowCount = rows.length;
   const numericColumns = columnStats.filter((c) => c.type === "number");
@@ -447,120 +627,119 @@ function generateFallbackInsights(
 
   const insights: KeyInsight[] = [];
 
-  // Insight 1: Data overview
+  // Insight 1: Quick overview in plain English
+  const qualityMsg = dataQuality === "excellent" || dataQuality === "good"
+    ? "Your data looks clean and complete!"
+    : "Some info is missing - might want to check that.";
+
   insights.push({
-    title: `${rowCount.toLocaleString()} records across ${columnStats.length} dimensions`,
-    description: `Your ${datasetType} dataset contains ${numericColumns.length} numeric fields for quantitative analysis and ${textColumns.length} categorical fields. ${dataQuality === "excellent" || dataQuality === "good" ? "Data quality is strong with minimal missing values." : "Some data quality issues detected that may affect analysis."}`,
+    title: `${rowCount.toLocaleString()} rows of data`,
+    description: `You have ${numericColumns.length} number columns (good for totals and averages) and ${textColumns.length} text columns (good for grouping). ${qualityMsg}`,
     type: "trend",
-    impact: "medium",
+    severity: "neutral",
     metric: `${rowCount.toLocaleString()} rows`,
-    recommendation:
-      "Begin with exploratory data analysis to understand distributions and relationships.",
+    recommendation: "Start by looking at your totals and biggest values.",
   });
 
-  // Insight 2: Numeric analysis
+  // Insight 2: Money/Numbers insight
   if (numericColumns.length > 0) {
     const col = numericColumns[0];
-    const range = (col.max as number) - (col.min as number);
-    const cv =
-      col.standardDeviation && col.mean
-        ? ((col.standardDeviation / col.mean) * 100).toFixed(1)
-        : "N/A";
+    const total = rows.reduce((sum, row) => sum + (Number(row[col.name]) || 0), 0);
+    const avg = col.mean || total / rowCount;
+    const hasUnusualValues = col.outliers && col.outliers.count > 0;
 
     insights.push({
-      title: `${col.name}: Range of ${range.toFixed(2)} with ${cv}% variability`,
-      description: `${col.name} spans from ${col.min} to ${col.max} with a mean of ${col.mean?.toFixed(2)}. ${col.outliers ? `Detected ${col.outliers.count} outliers using ${col.outliers.method} method.` : "Distribution appears normal without significant outliers."}`,
-      type: col.outliers && col.outliers.count > 0 ? "anomaly" : "trend",
-      impact:
-        col.outliers && col.outliers.count > rowCount * 0.05
-          ? "high"
-          : "medium",
-      metric: col.mean?.toFixed(2),
-      recommendation: col.outliers
-        ? "Investigate outliers to determine if they represent errors or legitimate extreme values."
-        : "Consider time-based analysis to identify trends.",
+      title: hasUnusualValues
+        ? `${col.outliers!.count} unusual values in ${col.name}`
+        : `${col.name} ranges from ${col.min} to ${col.max}`,
+      description: hasUnusualValues
+        ? `Most ${col.name} values are around ${avg.toFixed(0)}, but ${col.outliers!.count} look really different. Might be worth double-checking those.`
+        : `The average ${col.name} is ${avg.toFixed(0)}. Your smallest is ${col.min} and largest is ${col.max}.`,
+      type: hasUnusualValues ? "problem" : "money",
+      severity: hasUnusualValues ? "warning" : "neutral",
+      metric: `Avg: ${avg.toFixed(0)}`,
+      recommendation: hasUnusualValues
+        ? "Take a look at those unusual numbers - they might be typos or really important."
+        : "Check if these numbers match what you expected.",
     });
   }
 
-  // Insight 3: Correlations or data quality
+  // Insight 3: Problems or good news
   const correlations = detectCorrelations(rows, columnStats);
   if (correlations.length > 0) {
     const corr = correlations[0];
+    const relationship = corr.correlation > 0
+      ? "go up together"
+      : "move opposite - when one goes up, the other goes down";
+
     insights.push({
-      title: `Strong ${corr.correlation > 0 ? "positive" : "negative"} correlation detected`,
-      description: `${corr.col1} and ${corr.col2} show a ${Math.abs(corr.correlation) > 0.7 ? "strong" : "moderate"} correlation (r=${corr.correlation.toFixed(2)}). This suggests ${corr.correlation > 0 ? "they tend to increase together" : "an inverse relationship"}.`,
-      type: "correlation",
-      impact: "high",
-      metric: `r=${corr.correlation.toFixed(2)}`,
-      recommendation:
-        "Explore this relationship further with scatter plots and consider it in predictive models.",
+      title: `${corr.col1} and ${corr.col2} are connected`,
+      description: `These two things ${relationship}. This is useful to know when you're planning.`,
+      type: "trend",
+      severity: "good",
+      recommendation: "Use this connection to make predictions or find patterns.",
     });
   } else if (highMissingCols.length > 0) {
     const col = highMissingCols[0];
-    const pct = ((col.nullCount / rowCount) * 100).toFixed(1);
+    const pct = ((col.nullCount / rowCount) * 100).toFixed(0);
     insights.push({
-      title: `${col.name} missing ${pct}% of values`,
-      description: `${col.nullCount.toLocaleString()} of ${rowCount.toLocaleString()} records lack ${col.name} data. This level of missingness may require imputation or could indicate data collection issues.`,
-      type: "risk",
-      impact: Number(pct) > 30 ? "high" : "medium",
-      metric: `${pct}%`,
-      recommendation:
-        "Consider imputation strategies (mean/median for numeric, mode for categorical) or exclude this column if not critical.",
+      title: `${col.name} is missing ${pct}% of info`,
+      description: `${col.nullCount.toLocaleString()} rows don't have ${col.name} filled in. This might cause problems if you need that info.`,
+      type: "problem",
+      severity: Number(pct) > 30 ? "warning" : "neutral",
+      metric: `${pct}% missing`,
+      recommendation: "Try to fill in the missing info, or just skip that column for now.",
     });
   } else {
     insights.push({
-      title: "High data completeness across all fields",
-      description: `All columns maintain >90% completeness, indicating robust data collection processes. This provides a solid foundation for reliable analysis and modeling.`,
-      type: "opportunity",
-      impact: "medium",
-      recommendation:
-        "Proceed with confidence to advanced analytics including predictive modeling.",
+      title: "Your data looks complete!",
+      description: "Almost everything is filled in, which is great. You can trust the numbers you're seeing.",
+      type: "trend",
+      severity: "good",
+      recommendation: "You're good to go - your data is in great shape.",
     });
   }
 
-  // Anomalies
+  // Anomalies in plain English
   const anomalies: Anomaly[] = [];
 
   highMissingCols.forEach((col) => {
+    const pct = ((col.nullCount / rowCount) * 100).toFixed(0);
     anomalies.push({
       column: col.name,
       type: "missing" as const,
-      severity: (col.nullCount / rowCount) * 100 > 30 ? "high" : "medium",
-      description: `${((col.nullCount / rowCount) * 100).toFixed(1)}% missing values (${col.nullCount.toLocaleString()} rows affected)`,
+      severity: Number(pct) > 30 ? "high" : "medium",
+      description: `${pct}% of ${col.name} is blank (${col.nullCount.toLocaleString()} rows)`,
       affectedRows: col.nullCount,
     });
   });
 
-  // Add outlier anomalies
+  // Outlier anomalies in plain English
   columnStats.forEach((col) => {
     if (col.outliers && col.outliers.count > 0) {
       anomalies.push({
         column: col.name,
         type: "outlier" as const,
         severity: col.outliers.count > rowCount * 0.05 ? "high" : "low",
-        description: `${col.outliers.count} outliers detected using ${col.outliers.method} method (>${((col.outliers.count / rowCount) * 100).toFixed(2)}% of data)`,
+        description: `${col.outliers.count} values look unusual - they're much bigger or smaller than the rest`,
         affectedRows: col.outliers.count,
         specificValues: col.outliers.values.slice(0, 5),
       });
     }
   });
 
-  // Generate chart suggestions
+  // Chart suggestions
   const chartSuggestions = generateDefaultChartSuggestions(columnStats);
 
   return {
     summary: {
-      headline: `${datasetType.charAt(0).toUpperCase() + datasetType.slice(1)}: ${rowCount.toLocaleString()} records ready for analysis`,
-      description: `This dataset contains ${columnStats.length} variables including ${numericColumns.length} quantitative measures. ${dataQuality === "excellent" || dataQuality === "good" ? "Data quality is strong, enabling reliable analysis." : "Some data quality considerations exist."} ${correlations.length > 0 ? `Key relationships detected between ${correlations.length} variable pairs.` : ""}`,
+      headline: `${rowCount.toLocaleString()} rows ready to explore`,
+      description: `You have ${numericColumns.length} number columns and ${textColumns.length} categories. ${dataQuality === "excellent" || dataQuality === "good" ? "Your data looks clean!" : "Some info might be missing."}`,
       keyMetrics: [
-        { label: "Total Records", value: rowCount.toLocaleString() },
-        { label: "Variables", value: columnStats.length },
-        { label: "Numeric Fields", value: numericColumns.length },
-        { label: "Data Quality", value: dataQuality },
-        {
-          label: "Completeness",
-          value: `${(avgCompleteness * 100).toFixed(1)}%`,
-        },
+        { label: "Total Rows", value: rowCount.toLocaleString() },
+        { label: "Columns", value: columnStats.length },
+        { label: "Numbers", value: numericColumns.length },
+        { label: "Categories", value: textColumns.length },
       ],
       dataQuality,
     },

@@ -40,18 +40,28 @@ export function recommendCharts(
 ): ChartRecommendation[] {
   const recommendations: ChartRecommendation[] = [];
 
+  // Debug logging: Check column type inference
+  console.log("[Chart Recommender] Column stats:", columnStats.map(col => ({
+    name: col.name,
+    type: col.type,
+    inferredType: col.inferredType
+  })));
+
   // Find date/time columns
   const dateColumns = columnStats.filter((col) => col.inferredType === "date");
+  console.log(`[Chart Recommender] Found ${dateColumns.length} date columns`);
 
   // Find numeric columns
   const numericColumns = columnStats.filter(
     (col) => col.inferredType === "numeric"
   );
+  console.log(`[Chart Recommender] Found ${numericColumns.length} numeric columns`);
 
   // Find category columns
   const categoryColumns = columnStats.filter(
     (col) => col.inferredType === "category"
   );
+  console.log(`[Chart Recommender] Found ${categoryColumns.length} category columns`);
 
   // Rule 1: Time + Numeric → Line Chart
   if (dateColumns.length > 0 && numericColumns.length > 0) {
@@ -142,8 +152,10 @@ export function recommendCharts(
     });
   });
 
-  // Sort by priority (highest first) and return top 5
-  return recommendations.sort((a, b) => b.priority - a.priority).slice(0, 5);
+  // Sort by priority (highest first) and return top 3 (less overwhelming)
+  const sorted = recommendations.sort((a, b) => b.priority - a.priority).slice(0, 3);
+  console.log(`[Chart Recommender] Generated ${sorted.length} chart recommendations`);
+  return sorted;
 }
 
 /**
@@ -397,10 +409,19 @@ export function generateCharts(
 
   try {
     const recommendations = recommendCharts(columnStats, dataForCharts);
+    console.log(`[Chart Generator] Processing ${recommendations.length} recommendations`);
+    
     const charts = recommendations
-      .map((rec) => generateChartData(rec, dataForCharts))
+      .map((rec, idx) => {
+        const chart = generateChartData(rec, dataForCharts);
+        if (!chart) {
+          console.warn(`[Chart Generator] Failed to generate chart ${idx + 1}: ${rec.title}`);
+        }
+        return chart;
+      })
       .filter((chart): chart is ChartConfig => chart !== null); // Filter out null results
 
+    console.log(`[Chart Generator] Successfully generated ${charts.length} charts from ${recommendations.length} recommendations`);
     return charts;
   } catch (error) {
     console.error("Error in generateCharts:", error);

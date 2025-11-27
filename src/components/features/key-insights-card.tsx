@@ -2,9 +2,8 @@
 
 import {
   TrendingUp,
-  TrendingDown,
+  DollarSign,
   AlertTriangle,
-  Info,
   Sparkles,
 } from "lucide-react";
 import type { KeyInsight } from "@/lib/ai/insights-generator";
@@ -16,23 +15,20 @@ interface KeyInsightsCardProps {
 
 function InsightIcon({ type }: { type: KeyInsight["type"] }) {
   switch (type) {
-    case "trend":
-    case "opportunity":
-      return <TrendingUp className="h-5 w-5" />;
-    case "risk":
-    case "anomaly":
+    case "money":
+      return <DollarSign className="h-5 w-5" />;
+    case "problem":
       return <AlertTriangle className="h-5 w-5" />;
-    case "correlation":
-      return <TrendingDown className="h-5 w-5" />;
+    case "trend":
+      return <TrendingUp className="h-5 w-5" />;
     default:
-      return <Info className="h-5 w-5" />;
+      return <Sparkles className="h-5 w-5" />;
   }
 }
 
 function getInsightStyles(type: KeyInsight["type"]) {
   switch (type) {
-    case "trend":
-    case "opportunity":
+    case "money":
       return {
         bg: "bg-emerald-50",
         border: "border-emerald-100",
@@ -40,15 +36,7 @@ function getInsightStyles(type: KeyInsight["type"]) {
         title: "text-emerald-900",
         metric: "text-emerald-600",
       };
-    case "risk":
-      return {
-        bg: "bg-red-50",
-        border: "border-red-100",
-        icon: "bg-red-100 text-red-600",
-        title: "text-red-900",
-        metric: "text-red-600",
-      };
-    case "anomaly":
+    case "problem":
       return {
         bg: "bg-amber-50",
         border: "border-amber-100",
@@ -56,7 +44,7 @@ function getInsightStyles(type: KeyInsight["type"]) {
         title: "text-amber-900",
         metric: "text-amber-600",
       };
-    case "correlation":
+    case "trend":
       return {
         bg: "bg-blue-50",
         border: "border-blue-100",

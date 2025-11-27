@@ -19,7 +19,7 @@ export function SidebarPrompts({
   isLoading = false,
 }: SidebarPromptsProps) {
   const riskFlags = insights?.filter(
-    (i) => i.type === "anomaly" || i.type === "risk"
+    (i) => i.type === "problem" && i.severity === "warning"
   );
 
   const handleQuickAction = (action: 'generate-charts' | 'detect-anomalies' | 'analyze-trends') => {

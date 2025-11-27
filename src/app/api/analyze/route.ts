@@ -4,6 +4,7 @@ import {
   profileAllColumns,
   classifyDataset,
   calculateHealthScore,
+  extractBusinessMetrics,
 } from "@/lib/analyzers";
 import { generateCharts } from "@/lib/charts";
 import {
@@ -149,6 +150,35 @@ export async function POST(request: NextRequest) {
     let charts: ChartConfig[] = [];
     try {
       charts = generateCharts(columnStats, rows);
+      console.log(`[Analyze] Generated ${charts.length} charts`);
+      
+      // Fallback: If no charts generated, create at least one basic chart
+      if (charts.length === 0) {
+        console.warn("[Analyze] No charts generated, creating fallback chart");
+        const numericColumns = columnStats.filter(
+          (col) => col.type === "number" || col.inferredType === "numeric"
+        );
+        
+        if (numericColumns.length > 0 && rows.length > 0) {
+          const firstNumeric = numericColumns[0];
+          const sampleData = rows.slice(0, Math.min(20, rows.length));
+          const fallbackChart: ChartConfig = {
+            type: "bar",
+            title: `${firstNumeric.name} Overview`,
+            data: sampleData.map((row, idx) => ({
+              index: idx + 1,
+              [firstNumeric.name]: Number(row[firstNumeric.name]) || 0,
+            })),
+            xAxis: "index",
+            yAxis: firstNumeric.name,
+            colors: ["#3b82f6"],
+          };
+          charts = [fallbackChart];
+          console.log("[Analyze] Created fallback chart");
+        } else {
+          console.warn("[Analyze] Cannot create fallback chart - no numeric columns or data");
+        }
+      }
     } catch (chartError) {
       console.error("Chart generation error:", chartError);
       // Non-critical error - continue with empty charts
@@ -215,6 +245,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Extract business metrics based on dataset type
+    let businessMetrics;
+    try {
+      businessMetrics = extractBusinessMetrics(
+        datasetType,
+        headers,
+        rows,
+        columnStats
+      );
+      console.log(`[Analyze] Extracted ${businessMetrics.metrics.length} business metrics`);
+    } catch (metricsError) {
+      console.error("Business metrics extraction error:", metricsError);
+      // Non-critical - continue without business metrics
+      businessMetrics = null;
+    }
+
     const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
 
     return NextResponse.json({
@@ -228,6 +274,7 @@ export async function POST(request: NextRequest) {
         columnCount: headers.length,
         processingTime: `${processingTime}s`,
         aiInsights,
+        businessMetrics,
       },
     });
   } catch (error) {

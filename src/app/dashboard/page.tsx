@@ -140,6 +140,7 @@ export default function UploadPage() {
         columnCount: results.columnCount ?? parsedData.columnCount,
         columnStats: results.columnStats,
         aiInsights: results.aiInsights,
+        businessMetrics: results.businessMetrics,
       };
 
       console.log("[Upload] Storing to sessionStorage:", datasetId);

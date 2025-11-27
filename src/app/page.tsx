@@ -472,6 +472,7 @@ export default function LandingPage() {
         columnCount: results.columnCount ?? data.columnCount,
         columnStats: results.columnStats,
         aiInsights: results.aiInsights,
+        businessMetrics: results.businessMetrics,
         analysisTime: ((Date.now() - startTime) / 1000).toFixed(1),
       };
 

@@ -10,6 +10,7 @@ import {
   ChartsGrid,
   SidebarPrompts,
   AskAIBar,
+  FinanceHealthScore,
 } from "@/components/dashboard";
 import {
   Loader2,
@@ -26,6 +27,7 @@ import type { ChartConfig } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
 import type { AIInsights } from "@/lib/ai/insights-generator";
+import type { BusinessMetrics } from "@/lib/analyzers/business-metrics";
 
 interface AnalysisData {
   datasetName: string;
@@ -39,6 +41,7 @@ interface AnalysisData {
   columnCount: number;
   columnStats?: EnhancedColumnStats[];
   aiInsights?: AIInsights | null;
+  businessMetrics?: BusinessMetrics | null;
 }
 
 function LoadingSkeleton() {
@@ -303,11 +306,12 @@ export default function DatasetPage() {
     rowCount,
     columnCount,
     aiInsights,
+    businessMetrics,
   } = analysisData;
 
   const score = healthScore?.score ?? 0;
 
-  // Calculate null values
+  // Calculate null values (fallback for technical metrics)
   const nullValues =
     analysisData.columnStats?.reduce(
       (sum, stat) => sum + (stat.nullCount || 0),
@@ -374,9 +378,16 @@ export default function DatasetPage() {
                 <FileSpreadsheet className="h-5 w-5 text-indigo-600" />
               </div>
               <div>
-                <h1 className="max-w-[200px] truncate font-semibold text-slate-900 sm:max-w-none">
-                  {datasetName}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="max-w-[200px] truncate font-semibold text-slate-900 sm:max-w-none">
+                    {datasetName}
+                  </h1>
+                  {analysisData.datasetType && (
+                    <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium capitalize text-indigo-700">
+                      {analysisData.datasetType}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-slate-500">
                   {rowCount.toLocaleString()} rows · {columnCount} columns
                 </p>
@@ -416,13 +427,19 @@ export default function DatasetPage() {
           <div className="col-span-12 space-y-8 lg:col-span-8">
             {/* Row 1: Metrics */}
             <MetricsRow
+              businessMetrics={businessMetrics}
               totalRows={rowCount}
               totalColumns={columnCount}
               nullValues={nullValues}
               dataQualityScore={score}
             />
 
-            {/* Row 2: AI Insights */}
+            {/* Row 2: Finance Health Score (when available) */}
+            {aiInsights?.financeHealth && (
+              <FinanceHealthScore healthReport={aiInsights.financeHealth} />
+            )}
+
+            {/* Row 3: AI Insights */}
             {aiInsights?.keyInsights && aiInsights.keyInsights.length > 0 && (
               <AIInsightsCard insights={aiInsights.keyInsights} />
             )}

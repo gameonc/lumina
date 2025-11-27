@@ -29,3 +29,9 @@ export {
   type HealthScoreBreakdown,
   type HealthIssues,
 } from "./health-score";
+
+export {
+  extractBusinessMetrics,
+  type BusinessMetric,
+  type BusinessMetrics,
+} from "./business-metrics";
