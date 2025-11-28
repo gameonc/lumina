@@ -3,28 +3,21 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ToastContainer, toast } from "@/components/ui";
-import { ChatInterface } from "@/components/features";
 import {
   ChartsGrid,
-  AskAIBar,
-  CollapsibleSection,
   DatasetHeader,
-  InsightsZone,
-  AiSidebar,
-  ExportCard,
+  AISummaryCard,
+  VisualizationActionBar,
+  SmartPromptChips,
+  FloatingAIChat,
+  ExportFooter,
 } from "@/components/dashboard";
 import {
-  Loader2,
   AlertCircle,
   ArrowLeft,
   FileSpreadsheet,
-  Download,
-  X,
-  MessageSquare,
-  PieChartIcon,
   BarChart3,
-  Activity,
-  TrendingUp,
+  RefreshCw,
 } from "lucide-react";
 import type { ChartConfig } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
@@ -49,54 +42,37 @@ interface AnalysisData {
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/80">
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header Skeleton */}
-      <div className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+      <div className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 animate-pulse rounded-xl bg-gradient-to-br from-slate-200 to-slate-100" />
-            <div>
-              <div className="mb-1.5 h-5 w-44 animate-pulse rounded-lg bg-slate-200" />
-              <div className="h-3 w-28 animate-pulse rounded-md bg-slate-100" />
-            </div>
+            <div className="h-9 w-9 animate-pulse rounded-lg bg-slate-200" />
+            <div className="h-5 w-40 animate-pulse rounded-lg bg-slate-200" />
           </div>
-          <div className="h-10 w-32 animate-pulse rounded-xl bg-gradient-to-r from-indigo-200 to-purple-200" />
         </div>
       </div>
 
-      <main className="mx-auto max-w-7xl px-6 py-6">
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 lg:col-span-8 space-y-6">
-            {/* Dataset Header Skeleton */}
-            <div className="h-28 animate-pulse rounded-2xl bg-gradient-to-br from-slate-100 to-white ring-1 ring-slate-200/60" />
+      <main className="mx-auto max-w-4xl px-6 py-10">
+        <div className="space-y-10">
+          {/* Header Skeleton */}
+          <div className="h-32 animate-pulse rounded-3xl bg-white shadow-sm" />
 
-            {/* Insights Skeleton */}
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-              <div className="h-64 animate-pulse rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 ring-1 ring-emerald-200/60" />
-              <div className="space-y-4 lg:col-span-2">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-24 animate-pulse rounded-xl bg-gradient-to-br from-slate-50 to-white ring-1 ring-slate-200/60"
-                  />
-                ))}
-              </div>
-            </div>
+          {/* AI Summary Skeleton */}
+          <div className="h-80 animate-pulse rounded-3xl bg-white shadow-sm" />
 
-            {/* Charts Skeleton */}
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="h-[340px] animate-pulse rounded-2xl bg-gradient-to-br from-slate-100 to-white ring-1 ring-slate-200/60"
-                />
-              ))}
-            </div>
+          {/* Action Bar Skeleton */}
+          <div className="flex justify-center gap-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-10 w-32 animate-pulse rounded-xl bg-slate-200" />
+            ))}
           </div>
 
-          {/* Sidebar Skeleton */}
-          <div className="hidden lg:col-span-4 lg:block">
-            <div className="h-[500px] animate-pulse rounded-2xl bg-gradient-to-br from-slate-100 to-white ring-1 ring-slate-200/60" />
+          {/* Charts Skeleton */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-80 animate-pulse rounded-2xl bg-white shadow-sm" />
+            ))}
           </div>
         </div>
       </main>
@@ -115,22 +91,14 @@ export default function DatasetPage() {
   const [charts, setCharts] = useState<ChartConfig[]>([]);
   const [isDownloadingPPTX, setIsDownloadingPPTX] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isQuickActionLoading, setIsQuickActionLoading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const storedData = sessionStorage.getItem(`analysis-${datasetId}`);
-        console.log("[Dashboard] Loading data for:", datasetId);
-        console.log("[Dashboard] Raw stored data exists:", !!storedData);
-
         if (storedData) {
           const parsed = JSON.parse(storedData);
-          console.log("[Dashboard] Parsed data keys:", Object.keys(parsed));
-          console.log("[Dashboard] Charts in storage:", parsed.charts?.length || 0);
-          console.log("[Dashboard] Charts array:", parsed.charts);
-
           parsed.charts = Array.isArray(parsed.charts) ? parsed.charts : [];
           setAnalysisData(parsed);
           setCharts(parsed.charts);
@@ -150,19 +118,16 @@ export default function DatasetPage() {
 
   const handleNewChart = useCallback(
     (newChart: ChartConfig) => {
-    setCharts((prev) => {
-      const updated = [...prev, newChart];
-      if (analysisData) {
-        const updatedData = { ...analysisData, charts: updated };
-          sessionStorage.setItem(
-            `analysis-${datasetId}`,
-            JSON.stringify(updatedData)
-          );
-        setAnalysisData(updatedData);
-      }
-      return updated;
-    });
-      toast("New chart added successfully!", "success");
+      setCharts((prev) => {
+        const updated = [...prev, newChart];
+        if (analysisData) {
+          const updatedData = { ...analysisData, charts: updated };
+          sessionStorage.setItem(`analysis-${datasetId}`, JSON.stringify(updatedData));
+          setAnalysisData(updatedData);
+        }
+        return updated;
+      });
+      toast("New chart added!", "success");
     },
     [analysisData, datasetId]
   );
@@ -194,7 +159,7 @@ export default function DatasetPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast("PowerPoint downloaded successfully!", "success");
+      toast("PowerPoint downloaded!", "success");
     } catch {
       toast("Failed to download PowerPoint", "error");
     } finally {
@@ -227,7 +192,7 @@ export default function DatasetPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast("PDF downloaded successfully!", "success");
+      toast("PDF downloaded!", "success");
     } catch {
       toast("Failed to download PDF", "error");
     } finally {
@@ -235,54 +200,29 @@ export default function DatasetPage() {
     }
   };
 
-  const handlePromptClick = (prompt: string) => {
-    const textarea = document.querySelector(
-      'textarea[placeholder*="Ask"]'
-    ) as HTMLTextAreaElement;
-    if (textarea) {
-      textarea.value = prompt;
-      textarea.focus();
+  const handleCopyInsights = () => {
+    const insightsText = analysisData?.aiInsights?.keyInsights
+      ?.map((i) => `${i.title}: ${i.description}`)
+      .join("\n\n") || "";
+    if (insightsText) {
+      navigator.clipboard.writeText(insightsText);
+      toast("Insights copied!", "success");
     }
   };
 
-  const handleAskAI = (question: string) => {
-    setIsChatOpen(true);
-    setTimeout(() => {
-      const textarea = document.querySelector(
-        'textarea[placeholder*="Ask"]'
-      ) as HTMLTextAreaElement;
-      if (textarea) {
-        textarea.value = question;
-        textarea.focus();
-      }
-    }, 100);
-  };
-
-  const handleQuickAction = useCallback(
-    async (action: "generate-charts" | "detect-anomalies" | "analyze-trends") => {
+  const handlePromptClick = useCallback(
+    async (prompt: string) => {
       if (!analysisData || isQuickActionLoading) return;
 
-      const prompts = {
-        "generate-charts": "Generate 3 different charts that best visualize and explain this dataset",
-        "detect-anomalies": "Find all anomalies, outliers, and unusual patterns in this data. Create a chart if relevant.",
-        "analyze-trends": "What are the top 3 trends in this data? Create a chart showing the most important trend.",
-      };
-
-      const actionNames = {
-        "generate-charts": "Generating charts",
-        "detect-anomalies": "Detecting anomalies",
-        "analyze-trends": "Analyzing trends",
-      };
-
       setIsQuickActionLoading(true);
-      toast(`${actionNames[action]}...`, "info");
+      toast("Processing...", "info");
 
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            message: prompts[action],
+            message: prompt,
             headers: analysisData.headers,
             rows: analysisData.rows,
             conversationHistory: [],
@@ -295,18 +235,30 @@ export default function DatasetPage() {
           if (result.data.chart) {
             handleNewChart(result.data.chart);
           }
-          toast(result.data.message?.slice(0, 100) || "Action completed!", "success");
+          toast(result.data.message?.slice(0, 80) || "Done!", "success");
         } else {
           toast(result.error || "Something went wrong", "error");
         }
       } catch (err) {
-        console.error("Quick action error:", err);
-        toast("Failed to perform action. Please try again.", "error");
+        console.error("Prompt error:", err);
+        toast("Failed. Please try again.", "error");
       } finally {
         setIsQuickActionLoading(false);
       }
     },
     [analysisData, isQuickActionLoading, handleNewChart]
+  );
+
+  const handleQuickAction = useCallback(
+    async (action: "generate-charts" | "detect-anomalies" | "analyze-trends") => {
+      const prompts = {
+        "generate-charts": "Generate 3 different charts that best visualize this dataset",
+        "detect-anomalies": "Find all anomalies and unusual patterns in this data",
+        "analyze-trends": "What are the top 3 trends in this data?",
+      };
+      await handlePromptClick(prompts[action]);
+    },
+    [handlePromptClick]
   );
 
   if (isLoading) {
@@ -315,308 +267,141 @@ export default function DatasetPage() {
 
   if (error || !analysisData) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50/80 p-6">
-        <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-8 shadow-xl ring-1 ring-slate-900/5">
-          {/* Decorative gradient blob */}
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-red-100/50 to-rose-100/50 blur-3xl" />
-          
-          <div className="relative">
-            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-rose-500 shadow-lg shadow-red-500/20">
-              <AlertCircle className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="mb-2 text-xl font-bold tracking-tight text-slate-900">
-              Analysis Not Found
-            </h2>
-            <p className="mb-6 text-slate-500">
-              {error || "We couldn't find this analysis. It may have expired."}
-            </p>
-            <button
-              onClick={() => router.push("/dashboard")}
-              className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 active:scale-[0.98]"
-            >
-              {/* Shine effect */}
-              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-              <span className="relative">Upload New File</span>
-            </button>
+      <div className="flex min-h-screen items-center justify-center bg-[#FAFAFA] p-6">
+        <div className="w-full max-w-md rounded-3xl bg-white p-10 shadow-sm">
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50">
+            <AlertCircle className="h-8 w-8 text-red-500" />
           </div>
+          <h2 className="mb-2 text-2xl font-semibold text-slate-900">
+            Analysis Not Found
+          </h2>
+          <p className="mb-8 text-slate-500">
+            {error || "We couldn't find this analysis. It may have expired."}
+          </p>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="w-full rounded-2xl bg-slate-900 px-6 py-4 font-semibold text-white transition-all hover:bg-slate-800 active:scale-[0.98]"
+          >
+            Upload New File
+          </button>
         </div>
       </div>
     );
   }
 
-  const {
-    datasetName,
-    headers,
-    rows,
-    healthScore,
-    rowCount,
-    columnCount,
-    aiInsights,
-  } = analysisData;
-
+  const { datasetName, headers, rows, healthScore, rowCount, columnCount, aiInsights } = analysisData;
   const score = healthScore?.score ?? 0;
-
-  // Calculate null values
-  const nullValues =
-    analysisData.columnStats?.reduce(
-      (sum, stat) => sum + (stat.nullCount || 0),
-      0
-    ) || 0;
-
-  // Limit charts to 12 max
-  const prioritizedCharts = charts.slice(0, 12);
-
-  // Group charts by type
-  const groupedCharts = {
-    distribution: prioritizedCharts.filter(
-      (c) => c.type === "pie" || c.type === "histogram"
-    ),
-    trends: prioritizedCharts.filter(
-      (c) => c.type === "line" || c.type === "area"
-    ),
-    comparisons: prioritizedCharts.filter((c) => c.type === "bar"),
-    relationships: prioritizedCharts.filter((c) => c.type === "scatter"),
-  };
-
-  // Smart prompts for the AI chat
-  const smartPrompts = [
-    "Break this data down for me",
-    "Find anomalies or unusual patterns",
-    "Show me risk flags in this data",
-    "Give me 5 key insights",
-    "Generate 3 charts that explain this dataset",
-    "What are the top trends?",
-    "Compare the most important metrics",
-  ];
-
-  // Format insights for copy
-  const insightsText = aiInsights?.keyInsights
-    ?.map((i) => `${i.title}: ${i.description}`)
-    .join("\n\n") || "";
+  const nullValues = analysisData.columnStats?.reduce((sum, stat) => sum + (stat.nullCount || 0), 0) || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/80 pb-24">
+    <div className="min-h-screen bg-[#FAFAFA] pb-28">
       <ToastContainer />
 
-      {/* Mobile Chat Modal - Premium Style */}
-      {isChatOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
-            onClick={() => setIsChatOpen(false)}
-          />
-          <div className="absolute inset-3 top-10 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-slate-900/5">
-            <div className="flex items-center justify-between bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 px-4 py-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20">
-                  <MessageSquare className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <span className="font-bold text-white">AI Assistant</span>
-                  <p className="text-xs text-indigo-200">Ask anything about your data</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsChatOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 transition-colors hover:bg-white/20"
-              >
-                <X className="h-4 w-4 text-white" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <ChatInterface
-                headers={headers}
-                rows={rows}
-                onNewChart={handleNewChart}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Header - Premium Style */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+      {/* MINIMAL HEADER */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/dashboard")}
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 transition-all hover:bg-slate-200 active:scale-95"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 transition-all hover:bg-slate-200 active:scale-95"
               aria-label="Go back"
             >
               <ArrowLeft className="h-4 w-4 text-slate-600" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900">
                 <FileSpreadsheet className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="max-w-[180px] truncate font-bold tracking-tight text-slate-900 sm:max-w-none">
+                <h1 className="max-w-[200px] truncate font-semibold text-slate-900 sm:max-w-none">
                   {datasetName}
                 </h1>
                 <p className="text-xs text-slate-500">
-                  Dataset Dashboard
+                  {rowCount.toLocaleString()} rows · {columnCount} columns
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            {/* Mobile Chat Button */}
-            <button
-              onClick={() => setIsChatOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700 transition-all hover:bg-indigo-200 active:scale-95 lg:hidden"
-            >
-              <MessageSquare className="h-4 w-4" />
-            </button>
-
           <button
-            onClick={handleDownloadPPTX}
-            disabled={isDownloadingPPTX}
-              className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 active:scale-[0.98] disabled:opacity-50"
+            onClick={() => router.push("/dashboard")}
+            className="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:bg-slate-200 active:scale-95"
           >
-              {/* Shine effect */}
-              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-            {isDownloadingPPTX ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-                <Download className="h-4 w-4" />
-            )}
-              <span className="hidden sm:inline">Download</span>
+            <RefreshCw className="h-4 w-4" />
+            <span className="hidden sm:inline">Analyze Again</span>
           </button>
         </div>
-      </div>
       </header>
 
-      {/* Main Content - 2-COLUMN LAYOUT */}
-      <main className="mx-auto max-w-7xl px-6 py-6">
-        <div className="grid grid-cols-12 gap-6">
-          {/* LEFT COLUMN - Main Content */}
-          <div className="col-span-12 lg:col-span-8 space-y-6">
-            {/* 1. DATASET HEADER */}
-            <DatasetHeader
-              fileName={datasetName}
-              datasetType={analysisData.datasetType}
-              rowCount={rowCount}
-              columnCount={columnCount}
-              nullValues={nullValues}
-              dataQualityScore={score}
-            />
+      {/* MAIN CONTENT - SINGLE CENTERED COLUMN */}
+      <main className="mx-auto max-w-4xl px-6 py-10">
+        <div className="space-y-10">
+          {/* 1. DATASET HEADER */}
+          <DatasetHeader
+            fileName={datasetName}
+            datasetType={analysisData.datasetType}
+            rowCount={rowCount}
+            columnCount={columnCount}
+            nullValues={nullValues}
+            dataQualityScore={score}
+          />
 
-            {/* 2. INSIGHTS ZONE */}
-            <InsightsZone
-              aiInsights={aiInsights}
-              healthScore={healthScore}
-            />
+          {/* 2. AI SUMMARY CARD - Consolidated insights */}
+          <AISummaryCard
+            healthScore={healthScore}
+            aiInsights={aiInsights}
+          />
 
-            {/* 3. VISUALIZATIONS SECTION */}
-            <section className="space-y-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-bold tracking-tight text-slate-900">Visualizations</h2>
-                  <p className="text-sm text-slate-500">Interactive charts from your data</p>
-                </div>
-                <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-                  {prioritizedCharts.length} charts
-                </span>
-              </div>
+          {/* 3. VISUALIZATIONS SECTION */}
+          <section className="space-y-6">
+            {/* Section Header */}
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-slate-900">Visualizations</h2>
+              <p className="mt-1 text-slate-500">Interactive charts from your data</p>
+            </div>
 
-              {groupedCharts.distribution.length > 0 && (
-                <CollapsibleSection
-                  title={`Distributions (${groupedCharts.distribution.length})`}
-                  defaultOpen={true}
-                  icon={<PieChartIcon className="h-4 w-4 text-indigo-600" />}
-                >
-                  <ChartsGrid charts={groupedCharts.distribution} />
-                </CollapsibleSection>
-              )}
-
-              {groupedCharts.trends.length > 0 && (
-                <CollapsibleSection
-                  title={`Trends (${groupedCharts.trends.length})`}
-                  defaultOpen={true}
-                  icon={<TrendingUp className="h-4 w-4 text-indigo-600" />}
-                >
-                  <ChartsGrid charts={groupedCharts.trends} />
-                </CollapsibleSection>
-              )}
-
-              {groupedCharts.comparisons.length > 0 && (
-                <CollapsibleSection
-                  title={`Comparisons (${groupedCharts.comparisons.length})`}
-                  defaultOpen={true}
-                  icon={<BarChart3 className="h-4 w-4 text-indigo-600" />}
-                >
-                  <ChartsGrid charts={groupedCharts.comparisons} />
-                </CollapsibleSection>
-              )}
-
-              {groupedCharts.relationships.length > 0 && (
-                <CollapsibleSection
-                  title={`Relationships (${groupedCharts.relationships.length})`}
-                  defaultOpen={true}
-                  icon={<Activity className="h-4 w-4 text-indigo-600" />}
-                >
-                  <ChartsGrid charts={groupedCharts.relationships} />
-                </CollapsibleSection>
-              )}
-
-              {prioritizedCharts.length === 0 && (
-                <div className="relative overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center">
-                  {/* Decorative blob */}
-                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-indigo-100/40 to-purple-100/40 blur-3xl" />
-                  <div className="relative">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
-                      <BarChart3 className="h-7 w-7 text-white" />
-                    </div>
-                    <h3 className="mb-2 font-bold text-slate-900">No charts yet</h3>
-                    <p className="text-sm text-slate-500">
-                      Use the AI chat to generate visualizations from your data
-                    </p>
-              </div>
-                </div>
-              )}
-            </section>
-
-            {/* 4. EXPORT CARD */}
-            <ExportCard
-              onExportPPTX={handleDownloadPPTX}
-              onExportPDF={handleDownloadPDF}
-              onCopyInsights={() => {
-                if (insightsText) {
-                  navigator.clipboard.writeText(insightsText);
-                  toast("Insights copied to clipboard!", "success");
-                }
-              }}
-              isDownloadingPPTX={isDownloadingPPTX}
-              isDownloadingPDF={isDownloadingPDF}
-            />
-          </div>
-
-          {/* RIGHT COLUMN - AI Rail */}
-          <aside className="col-span-12 lg:col-span-4">
-            <AiSidebar
-              prompts={smartPrompts}
-              onPromptClick={handlePromptClick}
-              onQuickAction={handleQuickAction}
+            {/* Quick Action Bar */}
+            <VisualizationActionBar
+              onAction={handleQuickAction}
               isLoading={isQuickActionLoading}
-                  headers={headers}
-                  rows={rows}
-                  onNewChart={handleNewChart}
-                />
-          </aside>
+            />
+
+            {/* Smart Prompt Chips - Horizontal Scroll */}
+            <SmartPromptChips onPromptClick={handlePromptClick} />
+
+            {/* Charts Grid */}
+            {charts.length > 0 ? (
+              <ChartsGrid charts={charts.slice(0, 12)} />
+            ) : (
+              <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-16 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+                  <BarChart3 className="h-8 w-8 text-slate-400" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-slate-900">No charts yet</h3>
+                <p className="text-slate-500">
+                  Click "Generate Charts" above or use the AI chat to create visualizations
+                </p>
+              </div>
+            )}
+          </section>
         </div>
       </main>
 
-      {/* Sticky Ask AI Bar */}
-      <AskAIBar onSubmit={handleAskAI} />
+      {/* FLOATING AI CHAT BUTTON */}
+      <FloatingAIChat
+        headers={headers}
+        rows={rows}
+        onNewChart={handleNewChart}
+      />
 
-      {/* Mobile Floating Chat Button - Premium */}
-      <button
-        onClick={() => setIsChatOpen(true)}
-        className="fixed bottom-24 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/40 active:scale-95 lg:hidden"
-      >
-        <MessageSquare className="h-6 w-6" />
-      </button>
+      {/* STICKY EXPORT FOOTER */}
+      <ExportFooter
+        onExportPPTX={handleDownloadPPTX}
+        onExportPDF={handleDownloadPDF}
+        onCopyInsights={handleCopyInsights}
+        onDownloadCharts={() => toast("Chart download coming soon!", "info")}
+        isExporting={isDownloadingPPTX || isDownloadingPDF}
+      />
     </div>
   );
 }
