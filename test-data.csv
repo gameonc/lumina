@@ -1,0 +1,17 @@
+Product,Category,Revenue,Units Sold,Region,Date,Profit Margin
+Laptop Pro,Electronics,125000,250,North,2024-01-15,22%
+Wireless Mouse,Electronics,15000,500,East,2024-01-20,35%
+Office Chair,Furniture,45000,150,West,2024-02-01,28%
+Standing Desk,Furniture,89000,200,North,2024-02-15,25%
+Monitor 27",Electronics,67000,300,South,2024-03-01,30%
+Keyboard Mech,Electronics,23000,400,East,2024-03-15,40%
+Webcam HD,Electronics,12000,200,West,2024-04-01,45%
+Desk Lamp,Furniture,8000,300,North,2024-04-15,50%
+USB Hub,Electronics,5500,450,South,2024-05-01,55%
+Notebook,Supplies,3200,800,East,2024-05-15,60%
+Printer,Electronics,78000,120,West,2024-06-01,18%
+Paper Pack,Supplies,2100,1200,North,2024-06-15,65%
+Headphones,Electronics,34000,280,South,2024-07-01,32%
+File Cabinet,Furniture,28000,80,East,2024-07-15,24%
+Whiteboard,Supplies,9500,150,West,2024-08-01,42%
+

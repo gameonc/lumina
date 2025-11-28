@@ -15,6 +15,7 @@ interface AIInsights {
 interface AISummaryCardProps {
   healthScore: HealthScoreResult | null;
   aiInsights: AIInsights | null | undefined;
+  onViewFullAnalysis?: () => void;
 }
 
 interface FlattenedIssue {
@@ -129,7 +130,7 @@ const getInsightColor = (type: KeyInsight['type']) => {
   }
 };
 
-export const AISummaryCard: React.FC<AISummaryCardProps> = ({ healthScore, aiInsights }) => {
+export const AISummaryCard: React.FC<AISummaryCardProps> = ({ healthScore, aiInsights, onViewFullAnalysis }) => {
   const hasData = healthScore || aiInsights;
   const qualityBadge = healthScore ? getQualityBadge(healthScore.score) : null;
   const flattenedIssues = healthScore ? flattenIssues(healthScore.issues) : [];
@@ -274,7 +275,10 @@ export const AISummaryCard: React.FC<AISummaryCardProps> = ({ healthScore, aiIns
 
       {/* View Full Analysis Link */}
       <div className="mt-8 pt-6 border-t border-gray-100">
-        <button className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group">
+        <button
+          onClick={onViewFullAnalysis}
+          className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group"
+        >
           <span>View full analysis</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>

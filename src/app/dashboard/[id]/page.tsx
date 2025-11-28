@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ToastContainer, toast } from "@/components/ui";
 import {
@@ -19,6 +19,7 @@ import {
   BarChart3,
   RefreshCw,
 } from "lucide-react";
+import * as htmlToImage from "html-to-image";
 import type { ChartConfig } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
 import type { EnhancedColumnStats } from "@/lib/analyzers/column-profiler";
@@ -92,6 +93,10 @@ export default function DatasetPage() {
   const [isDownloadingPPTX, setIsDownloadingPPTX] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [isQuickActionLoading, setIsQuickActionLoading] = useState(false);
+  const [isDownloadingCharts, setIsDownloadingCharts] = useState(false);
+
+  const chartsGridRef = useRef<HTMLDivElement>(null);
+  const visualizationsRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -208,6 +213,40 @@ export default function DatasetPage() {
       navigator.clipboard.writeText(insightsText);
       toast("Insights copied!", "success");
     }
+  };
+
+  const handleDownloadCharts = async () => {
+    if (!chartsGridRef.current || charts.length === 0) {
+      toast("No charts to download", "info");
+      return;
+    }
+
+    setIsDownloadingCharts(true);
+    toast("Preparing charts for download...", "info");
+
+    try {
+      const dataUrl = await htmlToImage.toPng(chartsGridRef.current, {
+        quality: 1,
+        backgroundColor: "#FAFAFA",
+        pixelRatio: 2,
+      });
+
+      const link = document.createElement("a");
+      link.download = `${analysisData?.datasetName.replace(/\s+/g, "_") || "charts"}_visualizations.png`;
+      link.href = dataUrl;
+      link.click();
+
+      toast("Charts downloaded!", "success");
+    } catch (err) {
+      console.error("Failed to download charts:", err);
+      toast("Failed to download charts", "error");
+    } finally {
+      setIsDownloadingCharts(false);
+    }
+  };
+
+  const handleScrollToVisualizations = () => {
+    visualizationsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handlePromptClick = useCallback(
@@ -350,10 +389,11 @@ export default function DatasetPage() {
           <AISummaryCard
             healthScore={healthScore}
             aiInsights={aiInsights}
+            onViewFullAnalysis={handleScrollToVisualizations}
           />
 
           {/* 3. VISUALIZATIONS SECTION */}
-          <section className="space-y-6">
+          <section ref={visualizationsRef} className="space-y-6 scroll-mt-20">
             {/* Section Header */}
             <div className="text-center">
               <h2 className="text-2xl font-semibold text-slate-900">Visualizations</h2>
@@ -371,7 +411,9 @@ export default function DatasetPage() {
 
             {/* Charts Grid */}
             {charts.length > 0 ? (
-              <ChartsGrid charts={charts.slice(0, 12)} />
+              <div ref={chartsGridRef}>
+                <ChartsGrid charts={charts.slice(0, 12)} />
+              </div>
             ) : (
               <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-16 text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
@@ -399,8 +441,8 @@ export default function DatasetPage() {
         onExportPPTX={handleDownloadPPTX}
         onExportPDF={handleDownloadPDF}
         onCopyInsights={handleCopyInsights}
-        onDownloadCharts={() => toast("Chart download coming soon!", "info")}
-        isExporting={isDownloadingPPTX || isDownloadingPDF}
+        onDownloadCharts={handleDownloadCharts}
+        isExporting={isDownloadingPPTX || isDownloadingPDF || isDownloadingCharts}
       />
     </div>
   );
