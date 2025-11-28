@@ -9,6 +9,10 @@ import {
   ChartsGrid,
   SidebarPrompts,
   AskAIBar,
+  SummaryCard,
+  CollapsibleSection,
+  ExportSection,
+  FileInfoPanel,
 } from "@/components/dashboard";
 import {
   Loader2,
@@ -19,6 +23,10 @@ import {
   Sparkles,
   X,
   MessageSquare,
+  PieChartIcon,
+  BarChart3,
+  Activity,
+  TrendingUp,
 } from "lucide-react";
 import type { ChartConfig } from "@/types";
 import type { HealthScoreResult } from "@/lib/analyzers/health-score";
@@ -95,65 +103,8 @@ function LoadingSkeleton() {
   );
 }
 
-interface KeyInsight {
-  title: string;
-  description: string;
-  type: "money" | "problem" | "trend";
-}
 
-function KeyInsightsSection({ insights }: { insights?: KeyInsight[] }) {
-  if (!insights || insights.length === 0) return null;
 
-  return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-semibold text-slate-900">Key Insights</h2>
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <ul className="space-y-3">
-          {insights.slice(0, 3).map((insight, idx) => (
-            <li key={idx} className="flex items-start gap-3">
-              <div className={`mt-0.5 h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                insight.type === "money" ? "bg-emerald-500" :
-                insight.type === "problem" ? "bg-red-500" : "bg-indigo-600"
-              }`} />
-              <div>
-                <p className="text-sm font-medium text-slate-900">{insight.title}</p>
-                <p className="text-sm text-slate-500 line-clamp-1">{insight.description}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-function ActionsBar({
-  onDownload,
-  isDownloading,
-}: {
-  onDownload: () => void;
-  isDownloading: boolean;
-}) {
-  return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-sm font-medium text-slate-900">Export Options</h3>
-      <div className="flex flex-wrap gap-3">
-        <button
-          onClick={onDownload}
-          disabled={isDownloading}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
-        >
-          {isDownloading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Download className="h-4 w-4" />
-          )}
-          Export PowerPoint
-        </button>
-      </div>
-    </section>
-  );
-}
 
 function UnifiedSidebar({
   prompts,
@@ -235,6 +186,7 @@ export default function DatasetPage() {
   const [error, setError] = useState<string | null>(null);
   const [charts, setCharts] = useState<ChartConfig[]>([]);
   const [isDownloadingPPTX, setIsDownloadingPPTX] = useState(false);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isQuickActionLoading, setIsQuickActionLoading] = useState(false);
 
@@ -320,6 +272,43 @@ export default function DatasetPage() {
     } finally {
       setIsDownloadingPPTX(false);
     }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!analysisData) return;
+    setIsDownloadingPDF(true);
+    try {
+      const response = await fetch("/api/reports/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          datasetName: analysisData.datasetName,
+          healthScore: analysisData.healthScore,
+          charts: charts.slice(0, 12),
+          insights: aiInsights?.keyInsights || [],
+          datasetType: analysisData.datasetType || "general",
+        }),
+      });
+      if (!response.ok) throw new Error("Failed");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${analysisData.datasetName.replace(/\s+/g, "_")}_Report.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast("PDF downloaded successfully!", "success");
+    } catch {
+      toast("Failed to download PDF", "error");
+    } finally {
+      setIsDownloadingPDF(false);
+    }
+  };
+
+  const handleDownloadCharts = async () => {
+    toast("Chart download feature coming soon!", "info");
   };
 
   const handlePromptClick = (prompt: string) => {
@@ -444,14 +433,53 @@ export default function DatasetPage() {
       0
     ) || 0;
 
+  // Limit charts to 12 max with prioritization
+  const prioritizedCharts = [...charts]
+    .sort((a, b) => {
+      // Prioritize business-relevant charts
+      if (businessMetrics) {
+        const aRelevant =
+          a.title.toLowerCase().includes("revenue") ||
+          a.title.toLowerCase().includes("profit") ||
+          a.title.toLowerCase().includes("growth");
+        const bRelevant =
+          b.title.toLowerCase().includes("revenue") ||
+          b.title.toLowerCase().includes("profit") ||
+          b.title.toLowerCase().includes("growth");
+        if (aRelevant && !bRelevant) return -1;
+        if (!aRelevant && bRelevant) return 1;
+      }
+      return 0;
+    })
+    .slice(0, 12);
+
+  // Group charts by type
+  const groupedCharts = {
+    distribution: prioritizedCharts.filter(
+      (c) => c.type === "pie" || c.type === "histogram"
+    ),
+    trends: prioritizedCharts.filter(
+      (c) => c.type === "line" || c.type === "area"
+    ),
+    comparisons: prioritizedCharts.filter((c) => c.type === "bar"),
+    relationships: prioritizedCharts.filter((c) => c.type === "scatter"),
+  };
+
   // Smart prompts for the AI chat
   const smartPrompts = [
-    "What are the top spending trends?",
+    "Break this data down for me",
     "Find anomalies or unusual patterns",
     "Show me risk flags in this data",
-    "Which days had the highest total spend?",
+    "Give me 5 key insights",
     "Generate 3 charts that explain this dataset",
+    "What are the top trends?",
+    "Compare the most important metrics",
   ];
+
+  // Format insights for copy
+  const insightsText = aiInsights?.keyInsights
+    ?.map((i) => `${i.title}: ${i.description}`)
+    .join("\n\n") || "";
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-24">
@@ -546,11 +574,22 @@ export default function DatasetPage() {
         </div>
       </header>
 
-      {/* Main Content - NEW LAYOUT */}
+      {/* Main Content - 3-PANEL LAYOUT */}
       <main className="mx-auto max-w-7xl px-6 py-8">
-        <div className="grid grid-cols-12 gap-8">
-          {/* Main Content - 8 columns */}
-          <div className="col-span-12 lg:col-span-8 space-y-10">
+        <div className="grid grid-cols-12 gap-6">
+          {/* LEFT PANEL - File Info (3 cols) */}
+          <aside className="col-span-12 lg:col-span-3">
+            <FileInfoPanel
+              datasetName={datasetName}
+              rowCount={rowCount}
+              columnCount={columnCount}
+              datasetType={analysisData.datasetType}
+              healthScore={healthScore}
+            />
+          </aside>
+
+          {/* CENTER PANEL - Charts & Summary (6 cols) */}
+          <div className="col-span-12 lg:col-span-6 space-y-6">
             {/* 1. METRICS ROW */}
             <MetricsRow
               businessMetrics={businessMetrics}
@@ -560,27 +599,90 @@ export default function DatasetPage() {
               dataQualityScore={score}
             />
 
-            {/* 2. KEY INSIGHTS - SHORT ONLY */}
-            <KeyInsightsSection insights={aiInsights?.keyInsights} />
+            {/* 2. SUMMARY SECTION */}
+            <SummaryCard insights={aiInsights} />
 
-            {/* 3. CHARTS GRID - ALWAYS VISIBLE */}
+            {/* 3. CHARTS GRID - Grouped by Category */}
             <section className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-slate-900">Visualizations</h2>
-                <span className="text-sm text-slate-500">{charts.length} charts</span>
+                <span className="text-sm text-slate-500">
+                  {prioritizedCharts.length} of {charts.length} charts
+                </span>
               </div>
-              <ChartsGrid charts={charts} />
+
+              {groupedCharts.distribution.length > 0 && (
+                <CollapsibleSection
+                  title={`Distributions (${groupedCharts.distribution.length})`}
+                  defaultOpen={true}
+                  icon={<PieChartIcon className="h-4 w-4 text-indigo-600" />}
+                >
+                  <ChartsGrid charts={groupedCharts.distribution} />
+                </CollapsibleSection>
+              )}
+
+              {groupedCharts.trends.length > 0 && (
+                <CollapsibleSection
+                  title={`Trends (${groupedCharts.trends.length})`}
+                  defaultOpen={true}
+                  icon={<TrendingUp className="h-4 w-4 text-indigo-600" />}
+                >
+                  <ChartsGrid charts={groupedCharts.trends} />
+                </CollapsibleSection>
+              )}
+
+              {groupedCharts.comparisons.length > 0 && (
+                <CollapsibleSection
+                  title={`Comparisons (${groupedCharts.comparisons.length})`}
+                  defaultOpen={true}
+                  icon={<BarChart3 className="h-4 w-4 text-indigo-600" />}
+                >
+                  <ChartsGrid charts={groupedCharts.comparisons} />
+                </CollapsibleSection>
+              )}
+
+              {groupedCharts.relationships.length > 0 && (
+                <CollapsibleSection
+                  title={`Relationships (${groupedCharts.relationships.length})`}
+                  defaultOpen={true}
+                  icon={<Activity className="h-4 w-4 text-indigo-600" />}
+                >
+                  <ChartsGrid charts={groupedCharts.relationships} />
+                </CollapsibleSection>
+              )}
+
+              {prioritizedCharts.length === 0 && (
+                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+                    <BarChart3 className="h-6 w-6 text-slate-400" />
+                  </div>
+                  <h3 className="mb-1 text-sm font-medium text-slate-700">No charts yet</h3>
+                  <p className="text-sm text-slate-500">
+                    Use the AI chat to generate visualizations from your data
+                  </p>
+                </div>
+              )}
             </section>
 
-            {/* 4. ACTIONS BAR */}
-            <ActionsBar
-              onDownload={handleDownloadPPTX}
-              isDownloading={isDownloadingPPTX}
+            {/* 4. EXPORT SECTION */}
+            <ExportSection
+              onExportPPTX={handleDownloadPPTX}
+              onExportPDF={handleDownloadPDF}
+              onCopyInsights={() => {
+                if (insightsText) {
+                  navigator.clipboard.writeText(insightsText);
+                  toast("Insights copied to clipboard!", "success");
+                }
+              }}
+              onDownloadCharts={handleDownloadCharts}
+              isDownloadingPPTX={isDownloadingPPTX}
+              isDownloadingPDF={isDownloadingPDF}
+              insights={insightsText}
             />
           </div>
 
-          {/* SIDEBAR - 4 columns - UNIFIED PANEL */}
-          <aside className="hidden lg:col-span-4 lg:block">
+          {/* RIGHT PANEL - AI Insights & Prompts (3 cols) */}
+          <aside className="col-span-12 lg:col-span-3">
             <UnifiedSidebar
               prompts={smartPrompts}
               onPromptClick={handlePromptClick}

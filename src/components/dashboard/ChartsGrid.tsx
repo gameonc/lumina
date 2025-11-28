@@ -60,7 +60,203 @@ function getChartIcon(type: string) {
   }
 }
 
-function ChartRenderer({ chart }: { chart: ChartConfig }) {
+// Process pie data: group small slices into "Other" if > MAX_SLICES
+const MAX_SLICES = 6;
+
+interface PieDataItem {
+  [key: string]: unknown;
+  value: number;
+}
+
+function processPieData(data: PieDataItem[], nameKey: string): PieDataItem[] {
+  if (data.length <= MAX_SLICES) return data;
+
+  // Sort by value descending
+  const sorted = [...data].sort((a, b) => (b.value as number) - (a.value as number));
+
+  // Keep top N-1, combine rest into "Other"
+  const topSlices = sorted.slice(0, MAX_SLICES - 1);
+  const otherSlices = sorted.slice(MAX_SLICES - 1);
+
+  const otherTotal = otherSlices.reduce((sum, item) => sum + (item.value as number), 0);
+
+  if (otherTotal > 0) {
+    topSlices.push({
+      [nameKey]: "Other",
+      value: otherTotal,
+    } as PieDataItem);
+  }
+
+  return topSlices;
+}
+
+// Custom tooltip for pie charts
+interface PieTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    payload: PieDataItem;
+  }>;
+  total: number;
+}
+
+function CustomPieTooltip({ active, payload, total }: PieTooltipProps) {
+  if (!active || !payload || !payload.length) return null;
+
+  const data = payload[0];
+  const percentage = ((data.value / total) * 100).toFixed(1);
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg">
+      <p className="mb-1 text-sm font-medium text-slate-900">{data.name}</p>
+      <p className="text-sm text-slate-600">
+        Value: <span className="font-semibold">{data.value.toLocaleString()}</span>
+      </p>
+      <p className="text-sm text-slate-600">
+        Share: <span className="font-semibold">{percentage}%</span>
+      </p>
+    </div>
+  );
+}
+
+// Compact Donut Chart for Card View
+function CompactDonutChart({
+  data,
+  nameKey,
+  colors = CHART_COLORS
+}: {
+  data: PieDataItem[];
+  nameKey: string;
+  colors?: string[];
+}) {
+  const processedData = processPieData(data, nameKey);
+  const total = processedData.reduce((sum, d) => sum + (d.value as number), 0);
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={processedData}
+          dataKey="value"
+          nameKey={nameKey}
+          cx="50%"
+          cy="45%"
+          innerRadius={35}
+          outerRadius={65}
+          paddingAngle={2}
+          label={false}
+          labelLine={false}
+        >
+          {processedData.map((_, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={colors[index % colors.length]}
+              stroke="#fff"
+              strokeWidth={2}
+            />
+          ))}
+        </Pie>
+        <Tooltip content={<CustomPieTooltip total={total} />} />
+        <Legend
+          verticalAlign="bottom"
+          height={50}
+          iconType="circle"
+          iconSize={8}
+          wrapperStyle={{
+            paddingTop: '8px',
+            fontSize: '11px',
+          }}
+          formatter={(value: string) => {
+            const str = String(value);
+            return (
+              <span className="text-slate-600">
+                {str.length > 12 ? `${str.slice(0, 12)}...` : str}
+              </span>
+            );
+          }}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
+// Expanded Donut Chart for Modal View
+function ExpandedDonutChart({
+  data,
+  nameKey,
+  colors = CHART_COLORS
+}: {
+  data: PieDataItem[];
+  nameKey: string;
+  colors?: string[];
+}) {
+  const processedData = processPieData(data, nameKey);
+  const total = processedData.reduce((sum, d) => sum + (d.value as number), 0);
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={processedData}
+          dataKey="value"
+          nameKey={nameKey}
+          cx="35%"
+          cy="50%"
+          innerRadius={60}
+          outerRadius={100}
+          paddingAngle={2}
+          label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+          labelLine={false}
+        >
+          {processedData.map((_, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={colors[index % colors.length]}
+              stroke="#fff"
+              strokeWidth={2}
+            />
+          ))}
+        </Pie>
+        <Tooltip content={<CustomPieTooltip total={total} />} />
+        <Legend
+          layout="vertical"
+          align="right"
+          verticalAlign="middle"
+          iconType="circle"
+          iconSize={10}
+          wrapperStyle={{
+            paddingLeft: '20px',
+            right: 0,
+            width: '45%',
+          }}
+          formatter={(value: string) => {
+            const item = processedData.find(d => d[nameKey] === value);
+            const itemValue = item?.value || 0;
+            const percentage = ((itemValue / total) * 100).toFixed(1);
+            return (
+              <span
+                className="text-slate-700"
+                style={{
+                  display: 'inline-block',
+                  whiteSpace: 'normal',
+                  wordWrap: 'break-word',
+                  fontSize: '12px',
+                  lineHeight: '1.4',
+                  maxWidth: '150px',
+                }}
+              >
+                {value} ({percentage}%)
+              </span>
+            );
+          }}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
+function ChartRenderer({ chart, isExpanded = false }: { chart: ChartConfig; isExpanded?: boolean }) {
   const { type, data, xAxis, yAxis, colors = CHART_COLORS } = chart;
 
   if (!data || data.length === 0) {
@@ -81,10 +277,21 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
     case "area":
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart {...commonProps}>
+          <LineChart {...commonProps} margin={{ top: 5, right: 20, left: 10, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey={xAxis} tick={{ fontSize: 12 }} stroke="#9ca3af" />
-            <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
+            <XAxis
+              dataKey={xAxis}
+              tick={{ fontSize: 11 }}
+              stroke="#9ca3af"
+              angle={-45}
+              textAnchor="end"
+              height={60}
+              tickFormatter={(value) => {
+                const str = String(value);
+                return str.length > 12 ? `${str.slice(0, 12)}...` : str;
+              }}
+            />
+            <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" />
             <Tooltip
               contentStyle={{
                 backgroundColor: "#fff",
@@ -93,7 +300,7 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
                 boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
               }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ paddingTop: '10px' }} />
             <Line
               type="monotone"
               dataKey={yAxis as string}
@@ -110,10 +317,21 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
     case "histogram":
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart {...commonProps}>
+          <BarChart {...commonProps} margin={{ top: 5, right: 20, left: 10, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey={xAxis} tick={{ fontSize: 12 }} stroke="#9ca3af" />
-            <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
+            <XAxis
+              dataKey={xAxis}
+              tick={{ fontSize: 11 }}
+              stroke="#9ca3af"
+              angle={-45}
+              textAnchor="end"
+              height={60}
+              tickFormatter={(value) => {
+                const str = String(value);
+                return str.length > 12 ? `${str.slice(0, 12)}...` : str;
+              }}
+            />
+            <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" />
             <Tooltip
               contentStyle={{
                 backgroundColor: "#fff",
@@ -122,6 +340,7 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
                 boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
               }}
             />
+            <Legend wrapperStyle={{ paddingTop: '10px' }} />
             <Bar
               dataKey={type === "histogram" ? "frequency" : (yAxis as string)}
               fill={colors[0]}
@@ -139,39 +358,22 @@ function ChartRenderer({ chart }: { chart: ChartConfig }) {
       );
 
     case "pie":
+      // Use different chart based on card vs modal view
+      if (isExpanded) {
+        return (
+          <ExpandedDonutChart
+            data={data as PieDataItem[]}
+            nameKey={xAxis || "name"}
+            colors={colors}
+          />
+        );
+      }
       return (
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey={xAxis}
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label={({ name, percent }) =>
-                `${name}: ${(percent * 100).toFixed(0)}%`
-              }
-              labelLine={false}
-            >
-              {data.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={colors[index % colors.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#fff",
-                border: "1px solid #e5e7eb",
-                borderRadius: "0.75rem",
-                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
-              }}
-            />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+        <CompactDonutChart
+          data={data as PieDataItem[]}
+          nameKey={xAxis || "name"}
+          colors={colors}
+        />
       );
 
     case "scatter":
@@ -227,7 +429,7 @@ function ChartDetailModal({
         className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+      <div className="relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 rounded-lg p-1 hover:bg-slate-100"
@@ -235,12 +437,16 @@ function ChartDetailModal({
           <X className="h-5 w-5" />
         </button>
         <h3 className="mb-4 text-lg font-semibold">{chart.title}</h3>
-        <div className="mb-4 h-64">
-          <ChartRenderer chart={chart} />
+        {/* Larger chart area for modal */}
+        <div className="mb-4 h-80">
+          <ChartRenderer chart={chart} isExpanded={true} />
         </div>
-        <p className="text-slate-600">
-          {chart.explanation || "No additional details available."}
-        </p>
+        <div className="rounded-lg bg-slate-50 p-4">
+          <h4 className="mb-2 text-sm font-medium text-slate-700">About this chart</h4>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {chart.explanation || "No additional details available."}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -265,7 +471,7 @@ function ChartCardPremium({ chart }: { chart: ChartConfig }) {
 
         {/* Chart Area */}
         <div className="flex-1 p-4">
-          <ChartRenderer chart={chart} />
+          <ChartRenderer chart={chart} isExpanded={false} />
         </div>
 
         {/* Footer - 1 sentence + More details */}

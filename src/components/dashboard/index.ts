@@ -9,3 +9,7 @@ export { AskAIBar } from "./AskAIBar";
 export { FinanceHealthScore } from "./FinanceHealthScore";
 export { KeyInsightsSection } from "./KeyInsightsSection";
 export { UnifiedSidebar } from "./UnifiedSidebar";
+export { SummaryCard } from "./SummaryCard";
+export { CollapsibleSection } from "./CollapsibleSection";
+export { ExportSection } from "./ExportSection";
+export { FileInfoPanel } from "./FileInfoPanel";
