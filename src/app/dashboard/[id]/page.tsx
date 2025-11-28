@@ -49,46 +49,54 @@ interface AnalysisData {
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/80">
       {/* Header Skeleton */}
-      <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md">
+      <div className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 animate-pulse rounded-lg bg-slate-200" />
+            <div className="h-10 w-10 animate-pulse rounded-xl bg-gradient-to-br from-slate-200 to-slate-100" />
             <div>
-              <div className="mb-1 h-5 w-40 animate-pulse rounded bg-slate-200" />
-              <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
+              <div className="mb-1.5 h-5 w-44 animate-pulse rounded-lg bg-slate-200" />
+              <div className="h-3 w-28 animate-pulse rounded-md bg-slate-100" />
             </div>
           </div>
-          <div className="h-10 w-36 animate-pulse rounded-lg bg-slate-200" />
+          <div className="h-10 w-32 animate-pulse rounded-xl bg-gradient-to-r from-indigo-200 to-purple-200" />
         </div>
       </div>
 
       <main className="mx-auto max-w-7xl px-6 py-6">
-        <div className="space-y-6">
-          {/* Dataset Header Skeleton */}
-          <div className="h-32 animate-pulse rounded-xl bg-slate-200" />
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            {/* Dataset Header Skeleton */}
+            <div className="h-28 animate-pulse rounded-2xl bg-gradient-to-br from-slate-100 to-white ring-1 ring-slate-200/60" />
 
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-8 space-y-6">
-              {/* Insights Skeleton */}
-              <div className="h-64 animate-pulse rounded-xl bg-slate-200" />
-
-              {/* Charts Skeleton */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                {[1, 2].map((i) => (
+            {/* Insights Skeleton */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+              <div className="h-64 animate-pulse rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 ring-1 ring-emerald-200/60" />
+              <div className="space-y-4 lg:col-span-2">
+                {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-96 animate-pulse rounded-xl bg-slate-200"
+                    className="h-24 animate-pulse rounded-xl bg-gradient-to-br from-slate-50 to-white ring-1 ring-slate-200/60"
                   />
                 ))}
               </div>
             </div>
 
-            {/* Sidebar Skeleton */}
-            <div className="hidden lg:col-span-4 lg:block">
-              <div className="h-96 animate-pulse rounded-xl bg-slate-200" />
+            {/* Charts Skeleton */}
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="h-[340px] animate-pulse rounded-2xl bg-gradient-to-br from-slate-100 to-white ring-1 ring-slate-200/60"
+                />
+              ))}
             </div>
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className="hidden lg:col-span-4 lg:block">
+            <div className="h-[500px] animate-pulse rounded-2xl bg-gradient-to-br from-slate-100 to-white ring-1 ring-slate-200/60" />
           </div>
         </div>
       </main>
@@ -142,18 +150,18 @@ export default function DatasetPage() {
 
   const handleNewChart = useCallback(
     (newChart: ChartConfig) => {
-      setCharts((prev) => {
-        const updated = [...prev, newChart];
-        if (analysisData) {
-          const updatedData = { ...analysisData, charts: updated };
+    setCharts((prev) => {
+      const updated = [...prev, newChart];
+      if (analysisData) {
+        const updatedData = { ...analysisData, charts: updated };
           sessionStorage.setItem(
             `analysis-${datasetId}`,
             JSON.stringify(updatedData)
           );
-          setAnalysisData(updatedData);
-        }
-        return updated;
-      });
+        setAnalysisData(updatedData);
+      }
+      return updated;
+    });
       toast("New chart added successfully!", "success");
     },
     [analysisData, datasetId]
@@ -307,23 +315,30 @@ export default function DatasetPage() {
 
   if (error || !analysisData) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F9FAFB] p-6">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            <AlertCircle className="h-8 w-8 text-red-500" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50/80 p-6">
+        <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-8 shadow-xl ring-1 ring-slate-900/5">
+          {/* Decorative gradient blob */}
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-red-100/50 to-rose-100/50 blur-3xl" />
+          
+          <div className="relative">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-rose-500 shadow-lg shadow-red-500/20">
+              <AlertCircle className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="mb-2 text-xl font-bold tracking-tight text-slate-900">
+              Analysis Not Found
+            </h2>
+            <p className="mb-6 text-slate-500">
+              {error || "We couldn't find this analysis. It may have expired."}
+            </p>
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 active:scale-[0.98]"
+            >
+              {/* Shine effect */}
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+              <span className="relative">Upload New File</span>
+            </button>
           </div>
-          <h2 className="mb-2 text-xl font-bold text-slate-900">
-            Analysis Not Found
-          </h2>
-          <p className="mb-6 text-slate-500">
-            {error || "We couldn't find this analysis. It may have expired."}
-          </p>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="w-full rounded-xl bg-indigo-600 px-6 py-3 font-medium text-white shadow-sm transition-colors hover:bg-indigo-700"
-          >
-            Upload New File
-          </button>
         </div>
       </div>
     );
@@ -380,27 +395,32 @@ export default function DatasetPage() {
     .join("\n\n") || "";
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/80 pb-24">
       <ToastContainer />
 
-      {/* Mobile Chat Modal */}
+      {/* Mobile Chat Modal - Premium Style */}
       {isChatOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
             onClick={() => setIsChatOpen(false)}
           />
-          <div className="absolute inset-4 top-12 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 py-3 text-white">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                <span className="font-semibold">Ask AI About Your Data</span>
+          <div className="absolute inset-3 top-10 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-slate-900/5">
+            <div className="flex items-center justify-between bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 px-4 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20">
+                  <MessageSquare className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <span className="font-bold text-white">AI Assistant</span>
+                  <p className="text-xs text-indigo-200">Ask anything about your data</p>
+                </div>
               </div>
               <button
                 onClick={() => setIsChatOpen(false)}
-                className="rounded-lg p-1 transition-colors hover:bg-white/20"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 transition-colors hover:bg-white/20"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4 text-white" />
               </button>
             </div>
             <div className="flex-1 overflow-hidden">
@@ -414,23 +434,23 @@ export default function DatasetPage() {
         </div>
       )}
 
-      {/* Header - MINIMAL */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md">
+      {/* Header - Premium Style */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/dashboard")}
-              className="rounded-lg p-2 transition-colors hover:bg-slate-100"
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 transition-all hover:bg-slate-200 active:scale-95"
               aria-label="Go back"
             >
-              <ArrowLeft className="h-5 w-5 text-slate-600" />
+              <ArrowLeft className="h-4 w-4 text-slate-600" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-indigo-100 p-2">
-                <FileSpreadsheet className="h-5 w-5 text-indigo-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+                <FileSpreadsheet className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="max-w-[200px] truncate font-semibold text-slate-900 sm:max-w-none">
+                <h1 className="max-w-[180px] truncate font-bold tracking-tight text-slate-900 sm:max-w-none">
                   {datasetName}
                 </h1>
                 <p className="text-xs text-slate-500">
@@ -440,29 +460,31 @@ export default function DatasetPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {/* Mobile Chat Button */}
             <button
               onClick={() => setIsChatOpen(true)}
-              className="flex items-center gap-2 rounded-lg bg-indigo-100 px-3 py-2 font-medium text-indigo-700 transition-colors hover:bg-indigo-200 lg:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700 transition-all hover:bg-indigo-200 active:scale-95 lg:hidden"
             >
               <MessageSquare className="h-4 w-4" />
             </button>
 
-            <button
-              onClick={handleDownloadPPTX}
-              disabled={isDownloadingPPTX}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {isDownloadingPPTX ? (
+          <button
+            onClick={handleDownloadPPTX}
+            disabled={isDownloadingPPTX}
+              className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 active:scale-[0.98] disabled:opacity-50"
+          >
+              {/* Shine effect */}
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            {isDownloadingPPTX ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
+            ) : (
                 <Download className="h-4 w-4" />
-              )}
+            )}
               <span className="hidden sm:inline">Download</span>
-            </button>
-          </div>
+          </button>
         </div>
+      </div>
       </header>
 
       {/* Main Content - 2-COLUMN LAYOUT */}
@@ -487,10 +509,13 @@ export default function DatasetPage() {
             />
 
             {/* 3. VISUALIZATIONS SECTION */}
-            <section className="space-y-4">
+            <section className="space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900">Visualizations</h2>
-                <span className="text-sm text-slate-500">
+                <div>
+                  <h2 className="text-lg font-bold tracking-tight text-slate-900">Visualizations</h2>
+                  <p className="text-sm text-slate-500">Interactive charts from your data</p>
+                </div>
+                <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
                   {prioritizedCharts.length} charts
                 </span>
               </div>
@@ -536,14 +561,18 @@ export default function DatasetPage() {
               )}
 
               {prioritizedCharts.length === 0 && (
-                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
-                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
-                    <BarChart3 className="h-6 w-6 text-slate-400" />
-                  </div>
-                  <h3 className="mb-1 text-sm font-medium text-slate-700">No charts yet</h3>
-                  <p className="text-sm text-slate-500">
-                    Use the AI chat to generate visualizations from your data
-                  </p>
+                <div className="relative overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center">
+                  {/* Decorative blob */}
+                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-indigo-100/40 to-purple-100/40 blur-3xl" />
+                  <div className="relative">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+                      <BarChart3 className="h-7 w-7 text-white" />
+                    </div>
+                    <h3 className="mb-2 font-bold text-slate-900">No charts yet</h3>
+                    <p className="text-sm text-slate-500">
+                      Use the AI chat to generate visualizations from your data
+                    </p>
+              </div>
                 </div>
               )}
             </section>
@@ -570,10 +599,10 @@ export default function DatasetPage() {
               onPromptClick={handlePromptClick}
               onQuickAction={handleQuickAction}
               isLoading={isQuickActionLoading}
-              headers={headers}
-              rows={rows}
-              onNewChart={handleNewChart}
-            />
+                  headers={headers}
+                  rows={rows}
+                  onNewChart={handleNewChart}
+                />
           </aside>
         </div>
       </main>
@@ -581,10 +610,10 @@ export default function DatasetPage() {
       {/* Sticky Ask AI Bar */}
       <AskAIBar onSubmit={handleAskAI} />
 
-      {/* Mobile Floating Chat Button */}
+      {/* Mobile Floating Chat Button - Premium */}
       <button
         onClick={() => setIsChatOpen(true)}
-        className="fixed bottom-24 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-transform hover:scale-110 active:scale-95 lg:hidden"
+        className="fixed bottom-24 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/40 active:scale-95 lg:hidden"
       >
         <MessageSquare className="h-6 w-6" />
       </button>

@@ -423,28 +423,48 @@ function ChartDetailModal({
   chart: ChartConfig;
   onClose: () => void;
 }) {
+  const ChartIcon = getChartIcon(chart.type);
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl">
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1 hover:bg-slate-100"
-        >
-          <X className="h-5 w-5" />
-        </button>
-        <h3 className="mb-4 text-lg font-semibold">{chart.title}</h3>
-        {/* Larger chart area for modal */}
-        <div className="mb-4 h-80">
-          <ChartRenderer chart={chart} isExpanded={true} />
+      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-slate-900/5">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+              <ChartIcon className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900">{chart.title}</h3>
+              <p className="text-xs text-slate-500">Click anywhere outside to close</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 transition-colors hover:bg-slate-200"
+          >
+            <X className="h-4 w-4 text-slate-500" />
+          </button>
         </div>
-        <div className="rounded-lg bg-slate-50 p-4">
-          <h4 className="mb-2 text-sm font-medium text-slate-700">About this chart</h4>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            {chart.explanation || "No additional details available."}
+        
+        {/* Chart area */}
+        <div className="p-6">
+          <div className="h-80 rounded-xl bg-gradient-to-br from-slate-50/50 to-white p-4">
+            <ChartRenderer chart={chart} isExpanded={true} />
+          </div>
+        </div>
+        
+        {/* Footer with explanation */}
+        <div className="border-t border-slate-100 bg-gradient-to-r from-indigo-50/50 to-purple-50/50 px-6 py-4">
+          <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+            About this chart
+          </h4>
+          <p className="text-sm leading-relaxed text-slate-700">
+            {chart.explanation || "This visualization helps you understand patterns and trends in your data."}
           </p>
         </div>
       </div>
@@ -458,38 +478,43 @@ function ChartCardPremium({ chart }: { chart: ChartConfig }) {
 
   return (
     <>
-      <div className="flex h-[320px] flex-col rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md">
+      <div className="group relative flex h-[340px] flex-col overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm transition-all hover:shadow-lg hover:shadow-slate-200/50">
+        {/* Decorative gradient blob */}
+        <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-indigo-100/50 to-purple-100/50 blur-2xl transition-opacity group-hover:opacity-80" />
+        
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <ChartIcon className="h-4 w-4 text-slate-500" />
-            <h3 className="line-clamp-1 text-sm font-medium text-slate-900">
-              {chart.title}
-            </h3>
+        <div className="relative flex items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-white px-4 py-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm">
+            <ChartIcon className="h-4 w-4 text-white" />
           </div>
+          <h3 className="line-clamp-1 flex-1 font-semibold text-slate-900">
+            {chart.title}
+          </h3>
         </div>
 
         {/* Chart Area */}
-        <div className="flex-1 p-4">
+        <div className="relative flex-1 p-4">
           <ChartRenderer chart={chart} isExpanded={false} />
         </div>
 
-        {/* Footer - 1 sentence + More details */}
-        <div className="border-t border-slate-100 px-4 py-3">
+        {/* Footer */}
+        <div className="relative border-t border-slate-100 bg-gradient-to-r from-slate-50/50 to-white px-4 py-3">
           <p className="line-clamp-1 text-xs text-slate-500">
-            {chart.explanation?.slice(0, 80) || "Visualization of your data"}
-            ...
+            {chart.explanation?.slice(0, 70) || "Visualization of your data"}...
           </p>
           <button
             onClick={() => setShowModal(true)}
-            className="mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-700"
+            className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 transition-colors hover:text-indigo-700"
           >
-            More details →
+            View details
+            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </button>
         </div>
       </div>
 
-      {/* Modal for full explanation */}
+      {/* Modal */}
       {showModal && (
         <ChartDetailModal chart={chart} onClose={() => setShowModal(false)} />
       )}
@@ -500,11 +525,11 @@ function ChartCardPremium({ chart }: { chart: ChartConfig }) {
 export function ChartsGrid({ charts, isLoading = false }: ChartsGridProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {[1, 2, 3].map((i) => (
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="h-[320px] animate-pulse rounded-xl border border-slate-200 bg-slate-100"
+            className="h-[340px] animate-pulse rounded-2xl border border-slate-200/60 bg-gradient-to-br from-slate-100 to-slate-50"
           />
         ))}
       </div>
@@ -513,20 +538,25 @@ export function ChartsGrid({ charts, isLoading = false }: ChartsGridProps) {
 
   if (!charts || charts.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
-          <BarChart3 className="h-6 w-6 text-slate-400" />
+      <div className="relative overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center">
+        {/* Decorative gradient blob */}
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-indigo-100/30 to-purple-100/30 blur-3xl" />
+        
+        <div className="relative">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+            <BarChart3 className="h-7 w-7 text-white" />
+          </div>
+          <h3 className="mb-2 font-bold text-slate-900">No charts yet</h3>
+          <p className="text-sm text-slate-500">
+            Use the AI chat to generate visualizations from your data
+          </p>
         </div>
-        <h3 className="mb-1 text-sm font-medium text-slate-700">No charts yet</h3>
-        <p className="text-sm text-slate-500">
-          Use the AI chat to generate visualizations from your data
-        </p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
       {charts.map((chart, index) => (
         <ChartCardPremium key={index} chart={chart} />
       ))}
