@@ -1,6 +1,6 @@
 "use client";
 
-import { Database, Columns, AlertCircle, CheckCircle2, DollarSign, TrendingUp, Target } from "lucide-react";
+import { Database, Columns, AlertCircle, CheckCircle2, DollarSign, TrendingUp, TrendingDown, Target, Minus } from "lucide-react";
 import type { BusinessMetrics, BusinessMetric } from "@/lib/analyzers/business-metrics";
 import type { LucideIcon } from "lucide-react";
 
@@ -11,6 +11,7 @@ interface MetricsRowProps {
   totalColumns?: number;
   nullValues?: number;
   dataQualityScore?: number;
+  isLoading?: boolean;
 }
 
 interface MetricDisplay {
@@ -18,6 +19,8 @@ interface MetricDisplay {
   label: string;
   value: string;
   badge?: string;
+  badgeColor?: "green" | "red" | "yellow" | "blue";
+  trend?: "up" | "down" | "stable";
 }
 
 function formatMetricValue(value: string | number, format?: string): string {
@@ -40,24 +43,68 @@ function formatMetricValue(value: string | number, format?: string): string {
   }
 }
 
-function getTrendBadge(trend?: "up" | "down" | "stable"): string | undefined {
+function getTrendBadge(trend?: "up" | "down" | "stable"): { text: string; color: "green" | "red" | "yellow" } | undefined {
   switch (trend) {
     case "up":
-      return "Trending Up";
+      return { text: "Trending Up", color: "green" };
     case "down":
-      return "Trending Down";
+      return { text: "Trending Down", color: "red" };
     case "stable":
-      return "Stable";
+      return { text: "Stable", color: "yellow" };
     default:
       return undefined;
   }
 }
 
-function getDataQualityBadge(score: number): string {
-  if (score >= 90) return "Excellent";
-  if (score >= 75) return "Good";
-  if (score >= 60) return "Fair";
-  return "Needs Review";
+function getDataQualityBadge(score: number): { text: string; color: "green" | "yellow" | "red" } {
+  if (score >= 90) return { text: "Excellent", color: "green" };
+  if (score >= 75) return { text: "Good", color: "green" };
+  if (score >= 60) return { text: "Fair", color: "yellow" };
+  return { text: "Needs Review", color: "red" };
+}
+
+function getBadgeClasses(color: "green" | "red" | "yellow" | "blue"): string {
+  switch (color) {
+    case "green":
+      return "bg-emerald-100 text-emerald-700";
+    case "red":
+      return "bg-red-100 text-red-700";
+    case "yellow":
+      return "bg-amber-100 text-amber-700";
+    case "blue":
+      return "bg-blue-100 text-blue-700";
+  }
+}
+
+function getTrendIcon(trend?: "up" | "down" | "stable") {
+  switch (trend) {
+    case "up":
+      return TrendingUp;
+    case "down":
+      return TrendingDown;
+    case "stable":
+      return Minus;
+    default:
+      return null;
+  }
+}
+
+// Loading skeleton for metrics
+function MetricsSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="relative min-h-[120px] animate-pulse rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+        >
+          <div className="mb-2 h-8 w-8 rounded-lg bg-slate-200" />
+          <div className="mb-2 h-8 w-24 rounded bg-slate-200" />
+          <div className="h-4 w-20 rounded bg-slate-100" />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function MetricsRow({
@@ -66,7 +113,12 @@ export function MetricsRow({
   totalColumns,
   nullValues,
   dataQualityScore,
+  isLoading = false,
 }: MetricsRowProps) {
+  if (isLoading) {
+    return <MetricsSkeleton />;
+  }
+
   let metricsToDisplay: MetricDisplay[] = [];
 
   // Show business metrics if available
@@ -75,7 +127,7 @@ export function MetricsRow({
 
     metricsToDisplay = topMetrics.map((metric: BusinessMetric) => {
       // Determine icon based on metric label/type
-      let icon = Target;
+      let icon: LucideIcon = Target;
       const lowerLabel = metric.label.toLowerCase();
 
       if (lowerLabel.includes("revenue") || lowerLabel.includes("income") || lowerLabel.includes("sales")) {
@@ -86,21 +138,27 @@ export function MetricsRow({
         icon = TrendingUp;
       }
 
+      const trendBadge = getTrendBadge(metric.trend);
+
       return {
         icon,
         label: metric.label,
         value: formatMetricValue(metric.value, metric.format),
-        badge: getTrendBadge(metric.trend),
+        badge: trendBadge?.text,
+        badgeColor: trendBadge?.color,
+        trend: metric.trend,
       };
     });
 
     // Add data quality as 4th metric if available
     if (dataQualityScore !== undefined) {
+      const qualityBadge = getDataQualityBadge(dataQualityScore);
       metricsToDisplay.push({
         icon: CheckCircle2,
         label: "Data Quality Score",
         value: `${dataQualityScore}`,
-        badge: getDataQualityBadge(dataQualityScore),
+        badge: qualityBadge.text,
+        badgeColor: qualityBadge.color,
       });
     }
   } else {
@@ -129,15 +187,18 @@ export function MetricsRow({
         label: "Null Values",
         value: nullValues.toLocaleString(),
         badge: nullValues === 0 ? "Clean" : "Review Needed",
+        badgeColor: nullValues === 0 ? "green" : "yellow",
       });
     }
 
     if (dataQualityScore !== undefined) {
+      const qualityBadge = getDataQualityBadge(dataQualityScore);
       metricsToDisplay.push({
         icon: CheckCircle2,
         label: "Data Quality Score",
         value: `${dataQualityScore}`,
-        badge: getDataQualityBadge(dataQualityScore),
+        badge: qualityBadge.text,
+        badgeColor: qualityBadge.color,
       });
     }
   }
@@ -149,15 +210,21 @@ export function MetricsRow({
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
       {displayMetrics.map((metric, index) => {
         const Icon = metric.icon;
+        const TrendIcon = getTrendIcon(metric.trend);
 
         return (
           <div
             key={index}
-            className="relative min-h-[120px] rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow-md"
+            className="relative min-h-[120px] rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+            style={{
+              animationDelay: `${index * 100}ms`,
+              animation: "fadeInUp 0.4s ease-out forwards",
+            }}
           >
             {/* Badge - TOP RIGHT INSIDE */}
             {metric.badge && (
-              <span className="absolute right-3 top-3 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+              <span className={`absolute right-3 top-3 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeClasses(metric.badgeColor || "green")}`}>
+                {TrendIcon && <TrendIcon className="h-3 w-3" />}
                 {metric.badge}
               </span>
             )}
@@ -177,6 +244,20 @@ export function MetricsRow({
           </div>
         );
       })}
+
+      {/* CSS animation keyframes */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
