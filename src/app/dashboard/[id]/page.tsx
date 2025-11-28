@@ -5,14 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { ToastContainer, toast } from "@/components/ui";
 import { ChatInterface } from "@/components/features";
 import {
-  MetricsRow,
   ChartsGrid,
-  SidebarPrompts,
   AskAIBar,
-  SummaryCard,
   CollapsibleSection,
-  ExportSection,
-  FileInfoPanel,
+  DatasetHeader,
+  InsightsZone,
+  AiSidebar,
+  ExportCard,
 } from "@/components/dashboard";
 import {
   Loader2,
@@ -20,7 +19,6 @@ import {
   ArrowLeft,
   FileSpreadsheet,
   Download,
-  Sparkles,
   X,
   MessageSquare,
   PieChartIcon,
@@ -66,112 +64,34 @@ function LoadingSkeleton() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-12 lg:col-span-8 space-y-10">
-            {/* Metrics Skeleton */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="h-24 animate-pulse rounded-xl bg-slate-200"
-                />
-              ))}
+      <main className="mx-auto max-w-7xl px-6 py-6">
+        <div className="space-y-6">
+          {/* Dataset Header Skeleton */}
+          <div className="h-32 animate-pulse rounded-xl bg-slate-200" />
+
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 lg:col-span-8 space-y-6">
+              {/* Insights Skeleton */}
+              <div className="h-64 animate-pulse rounded-xl bg-slate-200" />
+
+              {/* Charts Skeleton */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="h-96 animate-pulse rounded-xl bg-slate-200"
+                  />
+                ))}
+              </div>
             </div>
 
-            {/* Insights Skeleton */}
-            <div className="h-32 animate-pulse rounded-xl bg-slate-200" />
-
-            {/* Charts Skeleton */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="h-96 animate-pulse rounded-xl bg-slate-200"
-                />
-              ))}
+            {/* Sidebar Skeleton */}
+            <div className="hidden lg:col-span-4 lg:block">
+              <div className="h-96 animate-pulse rounded-xl bg-slate-200" />
             </div>
-          </div>
-
-          {/* Sidebar Skeleton */}
-          <div className="hidden lg:col-span-4 lg:block">
-            <div className="h-96 animate-pulse rounded-xl bg-slate-200" />
           </div>
         </div>
       </main>
-    </div>
-  );
-}
-
-
-
-
-function UnifiedSidebar({
-  prompts,
-  onPromptClick,
-  onQuickAction,
-  isLoading,
-  headers,
-  rows,
-  onNewChart,
-}: {
-  prompts: string[];
-  onPromptClick: (prompt: string) => void;
-  onQuickAction: (action: "generate-charts" | "detect-anomalies" | "analyze-trends") => void;
-  isLoading: boolean;
-  headers: string[];
-  rows: Record<string, unknown>[];
-  onNewChart: (chart: ChartConfig) => void;
-}) {
-  const [activeTab, setActiveTab] = useState<"prompts" | "chat">("prompts");
-
-  return (
-    <div className="sticky top-24 space-y-6">
-      {/* Tab Switcher */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="flex border-b border-slate-200">
-          <button
-            onClick={() => setActiveTab("prompts")}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-              activeTab === "prompts"
-                ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600"
-                : "text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            Quick Actions
-          </button>
-          <button
-            onClick={() => setActiveTab("chat")}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-              activeTab === "chat"
-                ? "bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600"
-                : "text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            AI Chat
-          </button>
-        </div>
-
-        <div className="p-6">
-          {activeTab === "prompts" ? (
-            <SidebarPrompts
-              prompts={prompts}
-              insights={undefined}
-              onPromptClick={onPromptClick}
-              onQuickAction={onQuickAction}
-              isLoading={isLoading}
-            />
-          ) : (
-            <div className="h-[600px] -m-6">
-              <ChatInterface
-                headers={headers}
-                rows={rows}
-                onNewChart={onNewChart}
-              />
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
@@ -285,7 +205,7 @@ export default function DatasetPage() {
           datasetName: analysisData.datasetName,
           healthScore: analysisData.healthScore,
           charts: charts.slice(0, 12),
-          insights: aiInsights?.keyInsights || [],
+          insights: analysisData.aiInsights?.keyInsights || [],
           datasetType: analysisData.datasetType || "general",
         }),
       });
@@ -305,10 +225,6 @@ export default function DatasetPage() {
     } finally {
       setIsDownloadingPDF(false);
     }
-  };
-
-  const handleDownloadCharts = async () => {
-    toast("Chart download feature coming soon!", "info");
   };
 
   const handlePromptClick = (prompt: string) => {
@@ -421,37 +337,19 @@ export default function DatasetPage() {
     rowCount,
     columnCount,
     aiInsights,
-    businessMetrics,
   } = analysisData;
 
   const score = healthScore?.score ?? 0;
 
-  // Calculate null values (fallback for technical metrics)
+  // Calculate null values
   const nullValues =
     analysisData.columnStats?.reduce(
       (sum, stat) => sum + (stat.nullCount || 0),
       0
     ) || 0;
 
-  // Limit charts to 12 max with prioritization
-  const prioritizedCharts = [...charts]
-    .sort((a, b) => {
-      // Prioritize business-relevant charts
-      if (businessMetrics) {
-        const aRelevant =
-          a.title.toLowerCase().includes("revenue") ||
-          a.title.toLowerCase().includes("profit") ||
-          a.title.toLowerCase().includes("growth");
-        const bRelevant =
-          b.title.toLowerCase().includes("revenue") ||
-          b.title.toLowerCase().includes("profit") ||
-          b.title.toLowerCase().includes("growth");
-        if (aRelevant && !bRelevant) return -1;
-        if (!aRelevant && bRelevant) return 1;
-      }
-      return 0;
-    })
-    .slice(0, 12);
+  // Limit charts to 12 max
+  const prioritizedCharts = charts.slice(0, 12);
 
   // Group charts by type
   const groupedCharts = {
@@ -495,7 +393,7 @@ export default function DatasetPage() {
           <div className="absolute inset-4 top-12 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 py-3 text-white">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5" />
+                <MessageSquare className="h-5 w-5" />
                 <span className="font-semibold">Ask AI About Your Data</span>
               </div>
               <button
@@ -532,18 +430,11 @@ export default function DatasetPage() {
                 <FileSpreadsheet className="h-5 w-5 text-indigo-600" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="max-w-[200px] truncate font-semibold text-slate-900 sm:max-w-none">
-                    {datasetName}
-                  </h1>
-                  {analysisData.datasetType && (
-                    <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium capitalize text-indigo-700">
-                      {analysisData.datasetType}
-                    </span>
-                  )}
-                </div>
+                <h1 className="max-w-[200px] truncate font-semibold text-slate-900 sm:max-w-none">
+                  {datasetName}
+                </h1>
                 <p className="text-xs text-slate-500">
-                  {rowCount.toLocaleString()} rows · {columnCount} columns
+                  Dataset Dashboard
                 </p>
               </div>
             </div>
@@ -574,40 +465,33 @@ export default function DatasetPage() {
         </div>
       </header>
 
-      {/* Main Content - 3-PANEL LAYOUT */}
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      {/* Main Content - 2-COLUMN LAYOUT */}
+      <main className="mx-auto max-w-7xl px-6 py-6">
         <div className="grid grid-cols-12 gap-6">
-          {/* LEFT PANEL - File Info (3 cols) */}
-          <aside className="col-span-12 lg:col-span-3">
-            <FileInfoPanel
-              datasetName={datasetName}
+          {/* LEFT COLUMN - Main Content */}
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            {/* 1. DATASET HEADER */}
+            <DatasetHeader
+              fileName={datasetName}
+              datasetType={analysisData.datasetType}
               rowCount={rowCount}
               columnCount={columnCount}
-              datasetType={analysisData.datasetType}
-              healthScore={healthScore}
-            />
-          </aside>
-
-          {/* CENTER PANEL - Charts & Summary (6 cols) */}
-          <div className="col-span-12 lg:col-span-6 space-y-6">
-            {/* 1. METRICS ROW */}
-            <MetricsRow
-              businessMetrics={businessMetrics}
-              totalRows={rowCount}
-              totalColumns={columnCount}
               nullValues={nullValues}
               dataQualityScore={score}
             />
 
-            {/* 2. SUMMARY SECTION */}
-            <SummaryCard insights={aiInsights} />
+            {/* 2. INSIGHTS ZONE */}
+            <InsightsZone
+              aiInsights={aiInsights}
+              healthScore={healthScore}
+            />
 
-            {/* 3. CHARTS GRID - Grouped by Category */}
+            {/* 3. VISUALIZATIONS SECTION */}
             <section className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-slate-900">Visualizations</h2>
                 <span className="text-sm text-slate-500">
-                  {prioritizedCharts.length} of {charts.length} charts
+                  {prioritizedCharts.length} charts
                 </span>
               </div>
 
@@ -664,8 +548,8 @@ export default function DatasetPage() {
               )}
             </section>
 
-            {/* 4. EXPORT SECTION */}
-            <ExportSection
+            {/* 4. EXPORT CARD */}
+            <ExportCard
               onExportPPTX={handleDownloadPPTX}
               onExportPDF={handleDownloadPDF}
               onCopyInsights={() => {
@@ -674,16 +558,14 @@ export default function DatasetPage() {
                   toast("Insights copied to clipboard!", "success");
                 }
               }}
-              onDownloadCharts={handleDownloadCharts}
               isDownloadingPPTX={isDownloadingPPTX}
               isDownloadingPDF={isDownloadingPDF}
-              insights={insightsText}
             />
           </div>
 
-          {/* RIGHT PANEL - AI Insights & Prompts (3 cols) */}
-          <aside className="col-span-12 lg:col-span-3">
-            <UnifiedSidebar
+          {/* RIGHT COLUMN - AI Rail */}
+          <aside className="col-span-12 lg:col-span-4">
+            <AiSidebar
               prompts={smartPrompts}
               onPromptClick={handlePromptClick}
               onQuickAction={handleQuickAction}

@@ -13,3 +13,9 @@ export { SummaryCard } from "./SummaryCard";
 export { CollapsibleSection } from "./CollapsibleSection";
 export { ExportSection } from "./ExportSection";
 export { FileInfoPanel } from "./FileInfoPanel";
+
+// New world-class components
+export { DatasetHeader } from "./DatasetHeader";
+export { InsightsZone } from "./InsightsZone";
+export { AiSidebar } from "./AiSidebar";
+export { ExportCard } from "./ExportCard";
